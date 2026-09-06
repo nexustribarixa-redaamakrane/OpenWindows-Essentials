@@ -1,7 +1,7 @@
 /*
  * cairo64.h - Genuine Cairo core renderer (.owd)
  *
- * Subsystem library delivering the genuine cairo-1.18.2 core as a
+ * Subsystem library delivering the genuine cairo-1.18.5 core as a
  * freestanding OpenWindows module: ARGB32/RGB24 image surfaces, recording
  * surfaces, the software compositor (fill/stroke/paint/mask), toy fonts and
  * user fonts. The public drawing API is the vendor-free ABI mirror in

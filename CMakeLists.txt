@@ -392,8 +392,8 @@ ow_freestanding(engines.owd)
 ow_owd_props(engines.owd "${CMAKE_BINARY_DIR}/DLL")
 
 # --- Genuine Cairo core (cairo64.owd) ---
-# Bundles the unmodified genuine cairo-1.18.2 core (libcairo64_vendor.a)
-# over pixman-0.44.2 (libpixman_vendor.a) on the owrt freestanding runtime
+# Bundles the unmodified genuine cairo-1.18.5 core (libcairo64_vendor.a)
+# over pixman-0.46.5 (libpixman_vendor.a) on the owrt freestanding runtime
 # shim (libowrt64.a). All three are produced by their build drivers, then
 # linked here into a single .owd substituting cairo_*. The k64 memory API
 # is imported from kernel64.owd at load time.

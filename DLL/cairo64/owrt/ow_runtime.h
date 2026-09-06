@@ -1,7 +1,7 @@
 /*
  * ow_runtime.h — OpenWindows freestanding C runtime interposition shim.
  *
- * The genuine cairo-1.18.2 and pixman-0.44.2 objects reference standard
+ * The genuine cairo-1.18.5 and pixman-0.46.5 objects reference standard
  * libc/math symbols (malloc, memcpy, pow, snprintf, ...). This project is
  * freestanding C99 with -nostdlib, so we provide those symbols ourselves,
  * backed by the kernel64.owd allocator (k64_request_memory_block).

@@ -1,7 +1,7 @@
 /*
  * cairo64.c - Genuine Cairo core renderer (.owd) module core
  *
- * The drawing surface of this module is the genuine cairo-1.18.2 core,
+ * The drawing surface of this module is the genuine cairo-1.18.5 core,
  * linked verbatim from vendor/cairo (libcairo64_vendor.a) over pixman
  * (libpixman_vendor.a) on top of the owrt freestanding runtime. Those
  * archives resolve libc/math against owrt and memory against k64.
@@ -57,7 +57,7 @@ uint16_t cairo64_abi_minor(void)
 
 const uint8_t *cairo64_ident(void)
 {
-    static const uint8_t id[] = "cairo64.owd 1.18.2";
+    static const uint8_t id[] = "cairo64.owd 1.18.5";
     return id;
 }
 

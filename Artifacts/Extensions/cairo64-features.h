@@ -1,6 +1,6 @@
 /*
  * cairo-features.h — OpenWindows freestanding build configuration
- * for the genuine cairo-1.18.2 core image renderer.
+ * for the genuine cairo-1.18.5 core image renderer.
  *
  * This file is generated (in spirit) by cairo's meson make-features step,
  * restricted to the feature set required by the OpenWindows platform:
@@ -13,7 +13,7 @@
 
 #define CAIRO_VERSION_MAJOR 1
 #define CAIRO_VERSION_MINOR 18
-#define CAIRO_VERSION_MICRO 2
+#define CAIRO_VERSION_MICRO 5
 
 #define CAIRO_HAS_DEFLATE_STREAM 0
 #define CAIRO_HAS_DWRITE_FONT 0
