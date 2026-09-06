@@ -1,0 +1,3 @@
+# SUTF32.txt - SUCS UTF-32 framing (starter)
+# Fixed 4-byte (LE) units, one per codepoint, 31 significant bits.
+# The only lossless framing for the full native space.

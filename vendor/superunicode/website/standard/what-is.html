@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>What is SuperUnicode?</title>
+<meta name='description' content='SuperUnicode is the native character encoding of the OpenWindows kernel.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>The Standard</a>
+ &raquo; What is SuperUnicode?</nav>
+<h1>What is <span class="grad">SuperUnicode</span>?</h1>
+<p class='subtitle'>The character system, the machine instructions and the storage framing of the OpenWindows kernel.</p>
+<p><strong>SuperUnicode</strong> is the native character encoding of the <strong>OpenWindows kernel</strong>. When OpenWindows reads a string, names a file or lays out a data file, it assumes SuperUnicode &mdash; no encoding negotiation, no code pages, no transcoding.</p>
+<h2>What it contains</h2>
+<ul>
+<li><strong>A character system.</strong> Codepoints in a 31-bit space, organized into a fixed hierarchy.</li>
+<li><strong>A Unicode bridge.</strong> The low range is permanently 1:1 with Unicode.</li>
+<li><strong>Machine instructions.</strong> Codepoints can be instructions that the kernel executes, not just glyphs.</li>
+<li><strong>A database.</strong> Every codepoint, block, property, name and mapping is machine-readable (SUCD).</li>
+<li><strong>Storage and transport.</strong> Framing (SUTF), serialization (SUST), storage (OWFS/USFS) and extended transport (vsutf/e-SUST).</li>
+</ul>
+<h2>Why &ldquo;native&rdquo;?</h2>
+<p>An encoding is <em>native</em> when the system&rsquo;s lowest layers assume it. In OpenWindows the kernel itself reads and emits SuperUnicode streams: the compiler, the filesystem, the diagnostics and the boot loader all speak the same encoding, so nothing is ever reinterpreted.</p>
+<div class='callout '><p>Related: <a href="hierarchy.html">the hierarchy</a>, <a href="spaces.html">the three spaces</a>, and <a href="instructions.html">machine instructions</a>.</p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

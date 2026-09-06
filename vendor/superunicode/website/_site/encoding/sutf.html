@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUTF framing</title>
+<meta name='description' content='SUCS UTF-8/16/32 framing.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Encoding</a>
+ &raquo; SUTF framing</nav>
+<h1>SUTF <span class="grad">framing</span></h1>
+<p class='subtitle'>SUCS UTF-8, UTF-16 and UTF-32.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Encoding</th>
+<th>Unit</th>
+<th>Covers</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">SUTF-8</span></td>
+<td>1&ndash;4 bytes</td>
+<td>Full 31-bit space</td>
+<td>Default stream encoding; standard UTF-8 leading-byte framing</td>
+</tr>
+<tr>
+<td><span class="mono">SUTF-16</span></td>
+<td>2 or 4 bytes</td>
+<td>Full 31-bit space</td>
+<td>Word framing with a marker bit (1 word to <span class="mono">0x7FFF</span>, 2 words above); no surrogates &mdash; <span class="mono">0xD800</span>&ndash;<span class="mono">0xDFFF</span> are valid PUA. Byte order explicit: BE canonical (<span class="mono">sust16</span>) or LE</td>
+</tr>
+<tr>
+<td><span class="mono">SUTF-32</span></td>
+<td>4 bytes (LE)</td>
+<td>Full 31-bit space</td>
+<td>Lossless fixed-width form for native allocations</td>
+</tr>
+</tbody></table></div>
+<p>Reference implementations live in <a href="../modules/sutf/index.html">modules/sutf</a> (framing) and <a href="../modules/sust/index.html">modules/sust</a> (byte serialization, BE canonical/LE); the framing tables are published at <span class="mono">Public/0.1.0/sutf/</span>. Extended codepoints use <a href="../extended/transport.html">vector, vsutf and e-SUST</a>.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

@@ -1,0 +1,12 @@
+{
+  "name": "SuperUnicode",
+  "short_name": "SuperUnicode",
+  "description": "The native character encoding of the OpenWindows kernel. 31-bit Base SUCS plus the unbounded plugin-extensible ExtSUCS.",
+  "start_url": "./main.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7C3AED",
+  "icons": [
+    { "src": "./assets/img/logo.png", "sizes": "256x256", "type": "image/png" }
+  ]
+}

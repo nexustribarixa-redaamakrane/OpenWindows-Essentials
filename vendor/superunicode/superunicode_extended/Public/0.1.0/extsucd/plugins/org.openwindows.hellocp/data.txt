@@ -1,0 +1,2 @@
+# org.openwindows.hellocp data.txt - packed payload
+HELLOCP:DATA:1.0.0

@@ -1,0 +1,11 @@
+# PropList.txt - property assignments (starter)
+# <hex>;<property>
+0000..0010FFFF;Unicode_Bridged
+00110000..0011FFFF;Control_Plane
+0011A000..0011A7FF;Diagnostic_BAN
+0011A800..0011ABFF;Diagnostic_WARN
+0011AC00..0011ADFF;Diagnostic_COM
+0011AE00..0011AEFF;Diagnostic_SOFT
+00120000..7FFFFFEF;Printable
+7FFFFFF0..7FFFFFFE;Trap_Instruction
+7FFFFFFF;Sentinel_Value

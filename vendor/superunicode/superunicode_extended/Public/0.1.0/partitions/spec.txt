@@ -1,0 +1,20 @@
+# partitions/spec.txt - Plugin Partition policy (Extended)
+# (Ref: OpenWindows-Storage; libowfs.a = OWFS, libusfs.a = USFS.)
+
+A SuperUnicode Plugin Partition is created on FIRST VALID BOOT of a
+staged plugin, after the boot checksum gate:
+
+  stage install  ->  reboot REQUIRED (SUCS_PLUGIN_REBOOT_REQUIRED)
+  boot commit    ->  CRC32c + Fletcher-64 verify
+                     -> mount as SuperUnicode Plugin Partition
+                     -> register codepoint ranges into ExtSUCS
+
+FORMATS
+  OWFS ONLY. USFS is NEVER accepted for a plugin partition.
+
+POLICY
+  Always read-only. Quarantined (gate-failed) plugins are never mounted
+  and never register ranges.
+
+  Base SUCS partitions (bugfix/rescue) MAY be OWFS or USFS and live in
+  the Base tree: superunicode/Public/<version>/partitions/spec.txt.

@@ -1,0 +1,103 @@
+# BidiProps.txt - BiDirectional properties for the Base SUCS space (starter)
+# Source: SUAS-001 Structural Directional Framing (SDF).
+# Format: <hex-range>;<BIDI_MASK[,BIDI_MASK...]>
+#   Codepoints not listed default to NEUTRAL + WHITESPACE (per SUCD default).
+#   Ranges are in the Unicode Bridge (0x00000000-0x0010FFFF).
+#
+# BIDI_MASK values:
+#   LTR        strong left-to-right
+#   RTL        strong right-to-left
+#   ARABIC_AL  arabic letter (resolves right-to-left)
+#   NEUTRAL    direction-neutral
+#   MIRRORED   paired-format glyph (auto-mirror)
+#   WHITESPACE separator/whitespace (neutral)
+#
+# NOTE: SUCS reserves 0x0000-0x001F and 0x007F as control; whitespace here
+#       covers the named whitespace code points, not all neutral controls.
+
+# Basic Latin controls / space
+0020;WHITESPACE
+# Punctuation with intrinsic LTR (ASCII printable block, minus mirrored pairs)
+0021-0027;LTR
+002A-002E;LTR
+002F;LTR
+003A-003F;LTR
+0040;LTR
+0041-005A;LTR
+005C-0060;LTR
+0061-007A;LTR
+# ASCII paired-format (mirrorable) glyphs
+0028;MIRRORED    # ( 
+0029;MIRRORED    # )
+005B;MIRRORED    # [
+005D;MIRRORED    # ]
+007B;MIRRORED    # {
+007D;MIRRORED    # }
+003C;MIRRORED    # <
+003E;MIRRORED    # >
+# Basic Latin line separator / control-zone whitespace
+0009-000D;WHITESPACE
+# General Punctuation paired-format glyphs
+2018;MIRRORED    # left single quotation mark
+2019;MIRRORED    # right single quotation mark
+201C;MIRRORED    # left double quotation mark
+201D;MIRRORED    # right double quotation mark
+2039;MIRRORED    # single left-pointing angle quotation mark
+203A;MIRRORED    # single right-pointing angle quotation mark
+# Mathematical brackets (mirrorable)
+27E6;MIRRORED    # mathematical left white square bracket
+27E7;MIRRORED    # mathematical right white square bracket
+27E8;MIRRORED    # mathematical left angle bracket
+27E9;MIRRORED    # mathematical right angle bracket
+27EA;MIRRORED    # mathematical left double angle bracket
+27EB;MIRRORED    # mathematical right double angle bracket
+# Heavy brackets (mirrorable)
+2772;MIRRORED    # light left tortoise shell bracket ornament
+2773;MIRRORED    # light right tortoise shell bracket ornament
+# White square brackets (mirrorable)
+301A;MIRRORED    # left white square bracket
+301B;MIRRORED    # right white square bracket
+# Fullwidth forms (mirrorable)
+FF08;MIRRORED    # fullwidth left parenthesis
+FF09;MIRRORED    # fullwidth right parenthesis
+FF3B;MIRRORED    # fullwidth left square bracket
+FF3D;MIRRORED    # fullwidth right square bracket
+FF5B;MIRRORED    # fullwidth left curly bracket
+FF5D;MIRRORED    # fullwidth right curly bracket
+
+# Latin script (strong LTR)
+0041-005A;LTR
+0061-007A;LTR
+00C0-024F;LTR
+# Greek
+0370-03FF;LTR
+# Cyrillic
+0400-04FF;LTR
+# Latin Extended Additional
+1E00-1EFF;LTR
+# General script ranges (LTR)
+2000-206F;NEUTRAL
+
+# Arabic script (right-to-left, letters carry ARABIC_AL)
+0600-06FF;ARABIC_AL
+0750-077F;ARABIC_AL
+08A0-08FF;ARABIC_AL
+FB50-FDFF;ARABIC_AL
+FE70-FEFF;ARABIC_AL
+
+# Hebrew script (strong right-to-left)
+0590-05FF;RTL
+FB1D-FB4F;RTL
+
+# Thaana (right-to-left)
+0780-07BF;RTL
+
+# N'Ko (right-to-left)
+07C0-07FF;RTL
+
+# Adlam (right-to-left)
+1E900-1E95F;RTL
+
+# Arabic-Indic / Extended Arabic-Indic digits (AN)
+0660-0669;NEUTRAL
+06F0-06F9;NEUTRAL

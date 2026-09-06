@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>The SuperUnicode Standard</title>
+<meta name='description' content='The SuperUnicode Standard: codepoints, blocks, ranges, planes, districts, zones and territories, and the three spaces of Base SUCS.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<h1>The <span class="grad">SuperUnicode</span> Standard</h1>
+<p class='subtitle'>Base SUCS &mdash; a 31-bit character system of codepoints, machine instructions and a permanent Unicode bridge.</p>
+<p>The Base SuperUnicode Character System (SUCS) occupies the codepoint space <span class="mono">0x00000000&ndash;0x7FFFFFFF</span> (31 significant bits, held in a <span class="mono">uint32_t SUCS_CP</span>). Everything the standard defines is documented here and in the machine-instruction database.</p>
+<h2>The Standard, section by section</h2>
+<div class="grid">
+<div class='card'><h3><a href='../standard/what-is.html'>What is SuperUnicode?</a></h3><p>The one-paragraph answer, the origin in OpenWindows, and what &ldquo;native&rdquo; means.</p></div>
+<div class='card'><h3><a href='../standard/hierarchy.html'>The hierarchy</a></h3><p>Codepoints, blocks, ranges, planes, districts, zones and territories, with the addressing math.</p></div>
+<div class='card'><h3><a href='../standard/spaces.html'>The three spaces</a></h3><p>Unicode Compatibility Space, System Control Plane, Native Space &mdash; and why they never overlap.</p></div>
+<div class='card'><h3><a href='../standard/control-plane.html'>The System Control Plane</a></h3><p>Machine instructions, the BANcode Registry and how diagnostics are dispatched.</p></div>
+<div class='card'><h3><a href='../standard/instructions.html'>Machine instructions</a></h3><p>Printable vs. control codepoints, cursor advance, traps and the Sentinel.</p></div>
+<div class='card'><h3><a href='../standard/versioning.html'>Versioning</a></h3><p>How the standard, the database and plugins are versioned and stabilized.</p></div>
+<div class='card'><h3><a href='../standard/where-is.html'>Where is my character?</a></h3><p>How to find a codepoint: from a name, a range, a property or the charts.</p></div>
+<div class='card'><h3><a href='../glossary.html'>Glossary</a></h3><p>Every term used by the standard, defined in one place.</p></div>
+</div>
+<h2>Core invariants</h2>
+<ul>
+<li><span class="mono">SUCS_CP</span> is 31-bit; <span class="mono">sucs_ex_char_t</span> is 64-bit.</li>
+<li><span class="mono">0x000000&ndash;0x10FFFF</span> is permanently 1:1 with Unicode.</li>
+<li><span class="mono">0x7FFFFFFF</span> is the Sentinel; no allocation exists at or below it.</li>
+<li>Plugin codepoints start strictly above <span class="mono">0x7FFFFFFF</span> and mount only after the boot checksum gate.</li>
+</ul>
+<div class='callout '><p>See also: <a href="../ucd/index.html">the machine-instruction database</a> (the data behind these rules) and <a href="../reports/SUTR-0.html">SUTR-0 &mdash; SUCS Core</a> (the normative report).</p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

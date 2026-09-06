@@ -1,0 +1,2 @@
+# mappings/OBSOLETE.txt (starter)
+# Reserved for superseded Base SUCS mappings. Empty in 0.1.0.

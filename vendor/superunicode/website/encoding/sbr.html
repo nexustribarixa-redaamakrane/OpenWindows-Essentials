@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SBR line breaking</title>
+<meta name='description' content='The System Boundary & Line Break Rules (SUAS-003).'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Encoding</a>
+ &raquo; SBR line breaking</nav>
+<h1>SBR <span class="grad">line breaking</span></h1>
+<p class='subtitle'>The single-pass deterministic line-break contract, break statuses and zone dispatch.</p>
+<p>SBR (SUAS-003) is a single-pass deterministic line-breaking engine over the full 64-bit SuperUnicode space (<span class="mono">sucs_ex_char_t</span>). Each adjacent pair resolves to a break status via a transition matrix &mdash; mandatory, allowed, prohibited, or the CJK/numeric alphanumeric break &mdash; in constant time, with zero allocation.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Status</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">MUST_BREAK</span></td>
+<td>Mandatory line boundary (e.g. after a control).</td>
+</tr>
+<tr>
+<td><span class="mono">CAN_BREAK</span></td>
+<td>Allowed / opportunistic boundary.</td>
+</tr>
+<tr>
+<td><span class="mono">NO_BREAK</span></td>
+<td>Prohibited boundary.</td>
+</tr>
+<tr>
+<td><span class="mono">ALPHANUM_BREAK</span></td>
+<td>Mandatory CJK/numeric alphabetic break.</td>
+</tr>
+</tbody></table></div>
+<ul>
+<li><strong>Zone dispatch</strong> &mdash; Unicode Bridge (curated UAX #14 break classes + transition matrix), SCP (Explicit Break Markers), Native SUCS (O(1) high-bit range bitmask word test), ExtSUCS (neutral gap).</li>
+<li><strong>Explicit SCP Break Markers</strong> &mdash; <span class="mono">0x00110020 MANDATORY</span>, <span class="mono">0x00110021 PROHIBITED</span>, <span class="mono">0x00110022 OPPORTUNISTIC</span> &mdash; absolute overrides.</li>
+<li><strong>Invisible formatting</strong> &mdash; <span class="mono">U+200B ZWSP</span> offers a break; <span class="mono">U+2060 WJ</span> prohibits on either side.</li>
+<li><strong>Zero heap allocation</strong> &mdash; O(1) transition-matrix lookup, suitable for freestanding C99.</li>
+</ul>
+<p class='note'>Formalized in <a href="../reports/SUAS-003.html">SUAS-003</a>. Source of truth: <span class="mono">docs/suas/SUAS-003-sbr.md</span>.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

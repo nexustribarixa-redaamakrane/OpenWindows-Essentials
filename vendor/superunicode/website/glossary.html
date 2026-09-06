@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Glossary</title>
+<meta name='description' content='The glossary of SuperUnicode terms.'>
+<link rel='icon' href='favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='assets/img/logo.png'>
+<link rel='manifest' href='manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='index.html'><img src='assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='index.html' class='active'>Home</a>
+<a href='standard/index.html'>The Standard</a>
+<a href='ucd/index.html'>Machine-Instruction Database</a>
+<a href='extended/index.html'>Extended</a>
+<a href='reports/index.html'>Technical Reports</a>
+<a href='versions/index.html'>Versions</a>
+<a href='charts/index.html'>Charts</a>
+<a href='faq/index.html'>FAQ</a>
+<a href='modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<h1>Glossary</h1>
+<p class='subtitle'>Every term, defined in one place.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Term</th>
+<th>Definition</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Codepoint</strong></td>
+<td>The atomic unit of SuperUnicode; a 31-bit <span class="mono">SUCS_CP</span> value in Base, or a 64-bit <span class="mono">sucs_ex_char_t</span> in Extended.</td>
+</tr>
+<tr>
+<td><strong>Block</strong></td>
+<td>A named run of codepoints, recorded in <span class="mono">Blocks.txt</span>.</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>A declared contiguous allocation, e.g. a plugin&rsquo;s codepoint range.</td>
+</tr>
+<tr>
+<td><strong>Plane</strong></td>
+<td>64,536 codepoints; plane = <span class="mono">CP &gt;&gt; 16</span>.</td>
+</tr>
+<tr>
+<td><strong>District</strong></td>
+<td>16 planes (1 MiB); district = <span class="mono">CP &gt;&gt; 20</span>.</td>
+</tr>
+<tr>
+<td><strong>Zone</strong></td>
+<td>16 districts (16 MiB); zone = <span class="mono">CP &gt;&gt; 24</span>.</td>
+</tr>
+<tr>
+<td><strong>Territory</strong></td>
+<td>16 zones (256 MiB); territory = <span class="mono">CP &gt;&gt; 28</span>.</td>
+</tr>
+<tr>
+<td><strong>Unicode Compatibility Space</strong></td>
+<td><span class="mono">0x000000&ndash;0x10FFFF</span>, permanently 1:1 with Unicode.</td>
+</tr>
+<tr>
+<td><strong>System Control Plane (SCP)</strong></td>
+<td><span class="mono">0x110000&ndash;0x11FFFF</span>; machine instructions, host of the BANcode Registry.</td>
+</tr>
+<tr>
+<td><strong>BANcode Registry</strong></td>
+<td>The BANcode, WARNcode, COMcode and SOFTcode diagnostic blocks.</td>
+</tr>
+<tr>
+<td><strong>Trap</strong></td>
+<td><span class="mono">0x7FFFFFF0&ndash;0x7FFFFFFE</span>; raises the stream into diagnostics.</td>
+</tr>
+<tr>
+<td><strong>Sentinel</strong></td>
+<td><span class="mono">0x7FFFFFFF</span>; end-of-stream marker, never an allocation.</td>
+</tr>
+<tr>
+<td><strong>SUCD</strong></td>
+<td>The SuperUnicode machine-instruction database, versioned under /Public.</td>
+</tr>
+<tr>
+<td><strong>SUTR</strong></td>
+<td>A SuperUnicode Technical Report (SUTR-0 through SUTR-6).</td>
+</tr>
+<tr>
+<td><strong>ExtSUCS</strong></td>
+<td>SuperUnicode Extended; the unbounded 64-bit space above the Base ceiling.</td>
+</tr>
+<tr>
+<td><strong>Base limit</strong></td>
+<td><span class="mono">0x7FFFFFFF</span>; the default runtime ceiling and the floor for plugin ranges.</td>
+</tr>
+<tr>
+<td><strong>Plugin</strong></td>
+<td>A package of codepoints above the base limit, mounted after the checksum gate.</td>
+</tr>
+<tr>
+<td><strong>Checksum gate</strong></td>
+<td>CRC32c + Fletcher-64 verification of a plugin blob at boot.</td>
+</tr>
+<tr>
+<td><strong>OWFS</strong></td>
+<td>The OpenWindows native drive filesystem (<span class="mono">libowfs.a</span>).</td>
+</tr>
+<tr>
+<td><strong>USFS</strong></td>
+<td>The portable external-media filesystem (<span class="mono">libusfs.a</span>).</td>
+</tr>
+<tr>
+<td><strong>SUTF</strong></td>
+<td>SUCS UTF-8/16/32 framing &mdash; the endian-neutral codepoint &harr; word-sequence transformations (see <a href="encoding/sutf.html">SUTF framing</a>).</td>
+</tr>
+<tr>
+<td><strong>SUST</strong></td>
+<td>SuperUnicode Serialization Transports &mdash; the byte-packing layer: SUST-16 (SUTF-16 words in explicit big-endian canonical or little-endian order, no surrogates), SUST-32/64/128/256/512/N fixed-width, and e-SUST page-mapped IPC (<a href="modules/sust/index.html">modules/sust</a>).</td>
+</tr>
+<tr>
+<td><strong>SUCA</strong></td>
+<td>The SuperUnicode Collation Algorithm.</td>
+</tr>
+<tr>
+<td><strong>SGW</strong></td>
+<td>The System Glyph Width &amp; Monospace Grid standard &mdash; East_Asian_Width-style width classification and the O(1) fixed-cell grid metric.</td>
+</tr>
+<tr>
+<td><strong>SBR</strong></td>
+<td>The System Boundary &amp; Line Break Rules standard &mdash; single-pass deterministic line breaking (a UAX #14 analog) over the full 64-bit SUCS space, with explicit SCP break markers.</td>
+</tr>
+<tr>
+<td><strong>SUCF</strong></td>
+<td>SuperUnicode Canonical Forms &mdash; the dual-target canonical (de)composition engine (a UAX #15 analog): SUCF-C composes for compact storage/equality, SUCF-D decomposes for analysis/sorting; zero allocation over the 64-bit space (see <a href="encoding/scf.html">SUCF canonical forms</a>).</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td>Position in the instruction stream; printable codepoints advance it, control codepoints do not.</td>
+</tr>
+</tbody></table></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='index.html'>Home</a> &middot; <a href='standard/index.html'>Standard</a> &middot; <a href='ucd/index.html'>SUCD</a> &middot; <a href='extended/index.html'>Extended</a> &middot; <a href='reports/index.html'>Reports</a> &middot; <a href='faq/index.html'>FAQ</a> &middot; <a href='sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

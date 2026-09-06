@@ -1,0 +1,2 @@
+# mappings/LEGACY.txt (starter)
+# Reserved for legacy-era (pre-Bridge) encoding mappings. Empty in 0.1.0.

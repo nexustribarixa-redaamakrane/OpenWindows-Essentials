@@ -1,0 +1,4 @@
+# vsutf.txt - Vector SUTF (starter)
+# Variable-length vector transport: each unit is a variable-length
+# integer (LEB128-style). Covers the FULL 64-bit ExtSUCS space, so any
+# plugin codepoint is representable. See vsutf.h for the reference.

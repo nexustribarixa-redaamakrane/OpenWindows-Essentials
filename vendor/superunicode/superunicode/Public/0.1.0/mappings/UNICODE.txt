@@ -1,0 +1,7 @@
+# mappings/UNICODE.txt - the 1:1 Unicode Bridge (starter)
+# Base SUCS codepoints 0x00000000-0x0010FFFF correspond 1:1 with Unicode
+# codepoints of the same numeric value. sucs_downcast() of a bridged
+# codepoint yields the identical Unicode value.
+DIRECTION  bi-directional, lossless
+RANGE      00000000-0010FFFF
+NOTE       Mappings for native allocations are per-plugin (Extended tree).

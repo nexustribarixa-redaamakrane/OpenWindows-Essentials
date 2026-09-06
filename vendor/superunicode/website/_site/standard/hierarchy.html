@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>The hierarchy — codepoints to territory</title>
+<meta name='description' content='Codepoints, blocks, ranges, planes, districts, zones and territories, with the addressing math.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>The Standard</a>
+ &raquo; The hierarchy</nav>
+<h1>The <span class="grad">hierarchy</span></h1>
+<p class='subtitle'>Seven levels, from the atomic codepoint to the territory, all derived by bit-shifting.</p>
+<div class="pyramid"><ol>
+<li class='t1'>Territory &mdash; 16 zones (256 MiB)</li>
+<li class='t2'>Zone &mdash; 16 districts (16 MiB)</li>
+<li class='t3'>District &mdash; 16 planes (1 MiB)</li>
+<li class='t4'>Plane &mdash; 65,536 codepoints</li>
+<li class='t5'>Range &mdash; a declared allocation</li>
+<li class='t6'>Block &mdash; a named run</li>
+<li class='t7'>Codepoint &mdash; the atomic unit</li>
+</ol></div>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Level</th>
+<th>Size</th>
+<th>Derived by</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>Codepoint</td>
+<td>1</td>
+<td>&mdash;</td>
+<td>The atomic unit; e.g. <span class="mono">0x0011A000</span></td>
+</tr>
+<tr>
+<td>Block</td>
+<td>variable</td>
+<td>named run</td>
+<td>Recorded in <span class="mono">Blocks.txt</span></td>
+</tr>
+<tr>
+<td>Range</td>
+<td>variable</td>
+<td>declared allocation</td>
+<td>Plugins declare ranges; collisions are rejected at boot</td>
+</tr>
+<tr>
+<td>Plane</td>
+<td>64 KiB</td>
+<td><span class="mono">CP &gt;&gt; 16</span></td>
+<td>8192 planes (0x00&ndash;0x7FF)</td>
+</tr>
+<tr>
+<td>District</td>
+<td>16 planes</td>
+<td><span class="mono">CP &gt;&gt; 20</span></td>
+<td>128 districts (0x00&ndash;0x7F)</td>
+</tr>
+<tr>
+<td>Zone</td>
+<td>16 districts</td>
+<td><span class="mono">CP &gt;&gt; 24</span></td>
+<td>8 zones (0x00&ndash;0x07)</td>
+</tr>
+<tr>
+<td>Territory</td>
+<td>16 zones</td>
+<td><span class="mono">CP &gt;&gt; 28</span></td>
+<td>8 territories (0x00&ndash;0x07)</td>
+</tr>
+</tbody></table></div>
+<h2>The math</h2>
+<p>Address arithmetic makes the hierarchy total and cheap. Take the start of the BANcode registry, <span class="mono">0x0011A000</span>:</p>
+<div class='spec'>SUCS_CP 0x0011A000<br>plane     0x0011  <span class="hl">//</span> System Control Plane<br>district  0x0011 &gt;&gt; 4 = 0x01<br>zone      0x0011 &gt;&gt; 8 = 0x00<br>territory 0x0011 &gt;&gt; 12 = 0x00</div>
+<div class='callout '><p>Next: the three spaces built on this hierarchy &mdash; <a href="spaces.html">Unicode Compatibility Space, System Control Plane, Native Space &raquo;</a></p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

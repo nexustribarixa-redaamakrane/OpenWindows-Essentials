@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SuperUnicode — Native Character Encoding of the OpenWindows Kernel</title>
+<meta name='description' content='SuperUnicode is the native character encoding of the OpenWindows kernel: Unicode-compatible, plugin-extensible, storage-native.'>
+<link rel='icon' href='favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='assets/img/logo.png'>
+<link rel='manifest' href='manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='index.html'><img src='assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='index.html' class='active'>Home</a>
+<a href='standard/index.html'>The Standard</a>
+<a href='ucd/index.html'>Machine-Instruction Database</a>
+<a href='extended/index.html'>Extended</a>
+<a href='reports/index.html'>Technical Reports</a>
+<a href='versions/index.html'>Versions</a>
+<a href='charts/index.html'>Charts</a>
+<a href='faq/index.html'>FAQ</a>
+<a href='modules/index.html'>Repositories</a>
+</nav></header>
+<section class="hero"><div class="hero-inner">
+<img class='hero-logo' src='assets/img/logo.png' alt='SuperUnicode logo'>
+<h1>One character system for the<br><span class="grad">OpenWindows kernel.</span></h1>
+<p class='lede'>SuperUnicode is the <strong>native character encoding</strong> of OpenWindows. It is 1:1 compatible with Unicode, carries its own machine-instruction control plane, and grows without limit through plugins.</p>
+<div class="hero-actions">
+<a class='btn btn-primary' href='standard/index.html'>Explore the standard</a>
+<a class='btn btn-ghost' href='ucd/index.html'>Get SUCD 0.1.0</a>
+</div>
+</div></section>
+<main class="page">
+<h2>What is SuperUnicode?</h2>
+<p>SuperUnicode is the character encoding built into the OpenWindows kernel. Strings, filenames and data files are SuperUnicode streams by default &mdash; rendered directly by the kernel with no transcoding. It is organized into three spaces:</p>
+<div class="spaces">
+<div class='space u'><h3>Unicode Compatibility Space</h3><span class='range mono'>0x000000 &ndash; 0x10FFFF</span><p>Identical to Unicode, codepoint-for-codepoint. If Unicode releases a new version or adds new codepoints, this space still matches &mdash; forever.</p></div>
+<div class='space s'><h3>System Control Plane</h3><span class='range mono'>0x110000 &ndash; 0x11FFFF</span><p>Where machine instructions live: the BANcode Registry for diagnostics, warnings, communication and soft-fault codes.</p></div>
+<div class='space g'><h3>Native SuperUnicode Space</h3><span class='range mono'>0x120000 &ndash; 0x7FFFFFFF</span><p>The open field of OpenWindows&rsquo; own codepoints. Beyond it, the Extended system extends the space without any ceiling.</p></div>
+</div>
+<h2>Why SuperUnicode?</h2>
+<div class="grid">
+<div class='card'><h3>Native</h3><p>The kernel speaks one character system end-to-end. No code pages, no transcoding layers, no ambiguity.</p></div>
+<div class='card'><h3>Unicode-compatible</h3><p>The low range is a permanent 1:1 bridge. Every Unicode codepoint exists in SuperUnicode with the same value.</p></div>
+<div class='card'><h3>Instruction-grade</h3><p>Codepoints can be machine instructions. The SCP gives the kernel diagnostics, traps and control, not just text.</p></div>
+<div class='card'><h3>Unbounded</h3><p>ExtSUCS has no ceiling. Plugins declare ranges above <span class="mono">0x7FFFFFFF</span> and mount them securely at boot.</p></div>
+</div>
+<div class='callout orange'><p><strong>SuperUnicode Extended</strong> extends the default runtime ceiling of <span class="mono">0x7FFFFFFF</span> with plugin-provided codepoints. Every plugin is verified by a checksum gate, mounted read-only as a SuperUnicode Plugin Partition (OWFS), and registered in the ExtSUCS registry. <a href="extended/index.html">Learn about Extended &raquo;</a></p></div>
+<h2>Explore</h2>
+<div class="grid">
+<div class='card'><h3><a href='standard/index.html'>The Standard</a></h3><p>Hierarchy, spaces, control plane, instructions.</p></div>
+<div class='card'><h3><a href='extended/index.html'>Extended</a></h3><p>Plugins, SDK, registry, partitions, transport.</p></div>
+<div class='card'><h3><a href='ucd/index.html'>Machine-Instruction Database</a></h3><p>SUCD, properties, blocks, /Public data files.</p></div>
+<div class='card'><h3><a href='reports/index.html'>Technical Reports</a></h3><p>The SUTR-0 through SUTR-6 specifications.</p></div>
+<div class='card'><h3><a href='versions/index.html'>Versions</a></h3><p>0.1.0 release notes and roadmap.</p></div>
+<div class='card'><h3><a href='charts/index.html'>Charts</a></h3><p>Block maps for Base and Extended spaces.</p></div>
+<div class='card'><h3><a href='faq/index.html'>FAQ</a></h3><p>Compatibility, plugins, storage, encoding.</p></div>
+<div class='card'><h3><a href='glossary.html'>Glossary</a></h3><p>Codepoint, plane, territory and every term between.</p></div>
+</div>
+<h2>News</h2>
+<ul>
+<li><strong>2026-08-14</strong> &mdash; The full multi-page website launches, mirroring the structure of unicode.org.</li>
+<li><strong>2026-08-14</strong> &mdash; SuperUnicode 0.1.0 released: Base and Extended /Public trees, plugin subsystem with boot-time checksum gate, OWFS-only plugin partitions, SDK with template and hellocp example.</li>
+<li><strong>Coming in 0.2.0</strong> &mdash; first native allocations, SCP registry assignments and additional SUTR reports.</li>
+</ul>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='index.html'>Home</a> &middot; <a href='standard/index.html'>Standard</a> &middot; <a href='ucd/index.html'>SUCD</a> &middot; <a href='extended/index.html'>Extended</a> &middot; <a href='reports/index.html'>Reports</a> &middot; <a href='faq/index.html'>FAQ</a> &middot; <a href='sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

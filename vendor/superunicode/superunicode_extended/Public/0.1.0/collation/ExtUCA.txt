@@ -1,0 +1,29 @@
+# ExtUCA.txt - Extended SuperUnicode Collation Algorithm (SUCET), ExtSUCS
+# ---------------------------------------------------------------------
+# Formalized by SUTS-001 (docs/suts/SUTS-001-suca.md). The 64-bit
+# SuperUnicode space (sucs_ex_char_t) is collated by the SAME algorithm and
+# weight scheme as Base (see SUCA.txt); this file describes the additional
+# extSUCS-only contract.
+#
+# 64-bit codepoint space (see extsucs_types.h):
+#   BASE 31-bit  0x00000000-0x7FFFFFFF  (Unicode Bridge, SCP, Native, sentinel)
+#   PLUGIN       0x80000000+            (SUCS Plugins above the Base space)
+#
+# Ordering across the full 64-bit space:
+#   * Base region (0..0x7FFFFFFF) collates before all plugin regions.
+#   * Within a plugin region, plugin codepoints collate by implicit primary
+#     derived from the codepoint (monotonic within the plugin).
+#   * SCP control codepoints (0x00110000-0x0011FFFF) are variable everywhere:
+#     collation-ignorable at L1-L3, resolving at L4/identical.
+#   * Sentinel 0x7FFFFFFF collates highest of the Base region at every level.
+#
+# Algorithmic implicit primary for unassigned/plugin codepoints cp:
+#   cp < 2^32     -> 0x1000000 + cp   (exact, monotonic)
+#   cp >= 2^32    -> 0x1000000 + 0xFFFFF  (documented clamp; weights are 32-bit
+#                  so unbounded plugin space is finite-container-limited)
+#
+# Identical level resolves ties by 64-bit native codepoint order, so the total
+# order across Base + Plugins is stable and deterministic.
+#
+# Per-plugin tailoring is available via suts_suca_apply_rules() and may
+# additionally be declared in each plugin's plugin_collation.c.

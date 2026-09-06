@@ -1,0 +1,5 @@
+# Sources.txt - Base SUCS provenance (starter)
+# <range_start>-<range_end>;<author>;<date>
+00000000-0010FFFF;unicode.org bridge;2026-08-14
+00110000-0011FFFF;superunicode project;2026-08-14
+00120000-7FFFFFFF;superunicode project;2026-08-14
