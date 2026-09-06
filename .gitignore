@@ -80,6 +80,7 @@ generate_filesystem_ecosystem.py
 *.user
 *.userosv
 *.sln.docstates
+.opencode/*
 
 # ── System & Scratch Files ────────────────────────────────────────────────────
 *.tmp
