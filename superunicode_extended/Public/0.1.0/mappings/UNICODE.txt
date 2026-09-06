@@ -1,0 +1,4 @@
+# mappings/UNICODE.txt - Extended bridge note
+# Base region: see superunicode/Public/<version>/mappings/UNICODE.txt.
+# Plugin regions: no implicit Unicode mapping; per-plugin mappings live
+# in extsucd/plugins/<id>/mappings/.

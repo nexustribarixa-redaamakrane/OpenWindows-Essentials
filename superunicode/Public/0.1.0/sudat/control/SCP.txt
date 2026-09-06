@@ -1,0 +1,9 @@
+# SCP.txt - SuperUnicode Control Plane layout (starter)
+# The control plane is the machine-instruction registry of Base SUCS.
+PLANE         00110000-0011FFFF   Control
+RESERVED      00110000-0011A000   Future registry blocks
+BANCODE       0011A000-0011A7FF   Unrecoverable critical panics, hardware faults, fatal exceptions
+WARNCODE      0011A800-0011ABFF   Non-fatal telemetry; threshold alerts, degraded performance, predictive maintenance
+COMCODE       0011AC00-0011ADFF   IPC events, bus orchestration, hardware handshakes, driver attachment, control plane signals
+SOFTCODE      0011AE00-0011AEFF   Soft recovery, fault containment, cache reconciliation, self-healing routines
+RESERVED      0011AF00-0011FFFF   Future control-plane blocks

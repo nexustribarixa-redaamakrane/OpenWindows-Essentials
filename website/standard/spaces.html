@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>The three spaces</title>
+<meta name='description' content='Unicode Compatibility Space (0x000000-0x10FFFF), System Control Plane (0x110000-0x11FFFF), Native Space (0x120000-0x7FFFFFFF).'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>The Standard</a>
+ &raquo; The three spaces</nav>
+<h1>The <span class="grad">three spaces</span></h1>
+<p class='subtitle'>Exactly one space owns every codepoint in Base SUCS. They never overlap.</p>
+<div class="spaces">
+<div class='space u'><h3>Unicode Compatibility Space</h3><span class='range mono'>0x000000 &ndash; 0x10FFFF</span><p>Planes 0 and 1. Every value is 1:1 with the same-numeric Unicode codepoint <strong>permanently</strong>. If Unicode publishes a new version or assigns new codepoints, this space still matches &mdash; compatibility is a frozen guarantee, not a snapshot.</p></div>
+<div class='space s'><h3>System Control Plane</h3><span class='range mono'>0x110000 &ndash; 0x11FFFF</span><p>Plane 0x11. Non-printable codepoints are <strong>machine instructions</strong> that do not advance the cursor. Hosts the BANcode Registry.</p></div>
+<div class='space g'><h3>Native SuperUnicode Space</h3><span class='range mono'>0x120000 &ndash; 0x7FFFFFFF</span><p>Planes 0x12&ndash;0x7FF. The open field for OpenWindows&rsquo; own codepoints, with Traps and the Sentinel reserved at the top.</p></div>
+</div>
+<h2>Why three?</h2>
+<ul>
+<li><strong>Compatibility space</strong> buys interop with the entire Unicode ecosystem at zero cost &mdash; a Unicode string is a SuperUnicode string.</li>
+<li><strong>The control plane</strong> keeps diagnostics out of the text. Instructions can never be mistaken for characters.</li>
+<li><strong>The native space</strong> leaves room for OpenWindows to allocate codepoints for centuries, addressable in a single 32-bit word.</li>
+</ul>
+<h2>Reserved region at the top</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Codepoint</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">0x7FFFFFF0&ndash;0x7FFFFFFE</span></td>
+<td>Traps &mdash; raise the instruction stream into diagnostics</td>
+</tr>
+<tr>
+<td><span class="mono">0x7FFFFFFF</span></td>
+<td>Sentinel &mdash; end-of-stream; not an allocation</td>
+</tr>
+</tbody></table></div>
+<div class='callout '><p>Plugins never land here: their codepoints begin strictly above <span class="mono">0x7FFFFFFF</span>. See <a href="../extended/index.html">SuperUnicode Extended &raquo;</a></p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

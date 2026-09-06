@@ -1,0 +1,4 @@
+# <PLUGIN-ID> Sources (template)
+# Provenance of every codepoint range in this plugin.
+# <range_start>-<range_end>;<author>;<date>
+0x80000000-0x80000FFF;<maintainer>;<YYYY-MM-DD>

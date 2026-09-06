@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUTR-2 — SUCA</title>
+<meta name='description' content='SUCA: the SuperUnicode Collation Algorithm (formalized by SUTS-001).'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html' class='active'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Technical Reports</a>
+ &raquo; SUTR-2 — SUCA</nav>
+<h1>SUTR-2 &mdash; <span class="grad">SUCA</span></h1>
+<p class='subtitle'>The SuperUnicode Collation Algorithm.</p>
+<p>Collation is the ordering contract for SuperUnicode strings. SUCA is now a full UCA(UTS #10)-equivalent multilevel algorithm, formally specified by <a href="SUTS-001.html">SUTS-001</a> and implemented by the freestanding <span class="mono">suts_suca</span> reference.</p>
+<ul>
+<li><strong>Multilevel</strong> &mdash; L1 (base), L2 (accent), L3 (case), L4 (variable), identical (NFD codepoint tie-break).</li>
+<li><strong>Canonical equivalence</strong> &mdash; input is NFD-normalized before mapping (e.g. <span class="mono">role &lt; r&ocirc;le &lt; roles</span>, and precomposed &asymp; decomposed).</li>
+<li><strong>Contractions &amp; expansions</strong> &mdash; e.g. <span class="mono">c h</span> as one letter; <span class="mono">&#339; &asymp; oe</span>.</li>
+<li><strong>Variable weighting</strong> &mdash; shifted (default), blanked, non-ignorable, shift-trimmed; SCP controls ignorable at L1&ndash;L3.</li>
+<li><strong>Backward secondary</strong> &mdash; French dictionary order.</li>
+<li><strong>Implicit weights</strong> &mdash; Unassigned/Han/Native/plugin codepoints get algorithmic primaries from the 64-bit codepoint (monotonic; plugin space above Base).</li>
+</ul>
+<div class='callout '><p>The complete normative algorithm, weight scheme, data files and conformance matrix are in <a href="SUTS-001.html">SUTS-001 — SuperUnicode Collation Algorithm</a>.</p></div>
+<p class='note'>Data: <span class="mono">Public/0.1.0/collation/SUCA.txt</span> (Base) and <span class="mono">collation/ExtUCA.txt</span> (Extended) &mdash; both extSUCS-compatible.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

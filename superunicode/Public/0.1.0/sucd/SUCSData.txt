@@ -1,0 +1,18 @@
+# SUCSData.txt - Base SUCS codepoint inventory (starter)
+# Columns: <codepoint>;<name>;<type>
+#   type 0 = printable native allocation (cursor advances)
+#   type 1 = control / machine instruction (cursor does NOT advance)
+# Ranges follow the architecture memory:
+#   Unicode Bridge  0x00000000-0x0010FFFF  (1:1 with Unicode, type 0)
+#   SCP             0x00110000-0x0011FFFF  (control plane, type 1)
+#   Native          0x00120000-0x7FFFFFFF  (native allocations)
+#   Traps           0x7FFFFFF0-0x7FFFFFFE  (type 1)
+#   Sentinel        0x7FFFFFFF             (SUCS_CP_SENTINEL, not an allocation)
+00000000-0010FFFF;UNICODE BRIDGE;0
+00110000-0011FFFF;SUPERUNICODE CONTROL PLANE;1
+0011A000-0011A7FF;BANCODE BLOCK (B+);1
+0011A800-0011ABFF;WARNCODE BLOCK (W+);1
+0011AC00-0011ADFF;COMCODE BLOCK (C+);1
+0011AE00-0011AEFF;SOFTCODE BLOCK (S+);1
+00120000-7FFFFFFF;NATIVE ALLOCATION SPACE;0
+7FFFFFF0-7FFFFFFE;TRAP MACHINE INSTRUCTIONS;1

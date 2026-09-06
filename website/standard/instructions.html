@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Machine instructions</title>
+<meta name='description' content='Printable vs. control codepoints, cursor advance, traps and the Sentinel.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>The Standard</a>
+ &raquo; Machine instructions</nav>
+<h1>Machine <span class="grad">instructions</span></h1>
+<p class='subtitle'>A codepoint can print a character, or it can run the kernel.</p>
+<p>Every codepoint in SUCSData carries a <em>type</em>. The type decides what the rendering engine does when the codepoint is consumed:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Type</th>
+<th>Behavior</th>
+<th>Examples</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">0</span> &mdash; printable native allocation</td>
+<td>Advances the cursor; produces a glyph</td>
+<td>Unicode Bridge, Native Space codepoints</td>
+</tr>
+<tr>
+<td><span class="mono">1</span> &mdash; control / machine instruction</td>
+<td>Does not advance the cursor; invokes kernel machinery</td>
+<td>SCP registry, Traps</td>
+</tr>
+</tbody></table></div>
+<h2>Cursor advance</h2>
+<p>The <em>cursor</em> is the position in the instruction stream. Printable codepoints consume one cell and advance. Control codepoints act on the machine &mdash; they may set mode, emit diagnostics, or change how the rest of the stream is interpreted &mdash; but they leave the cursor where it is, so a control code can prefix a printable codepoint without consuming a cell.</p>
+<h2>Traps and the Sentinel</h2>
+<ul>
+<li><strong>Traps</strong> (<span class="mono">0x7FFFFFF0&ndash;0x7FFFFFFE</span>) raise the current instruction stream into the diagnostic subsystem. A trap is the hardware-style &ldquo;interrupt&rdquo; of the SuperUnicode machine.</li>
+<li><strong>The Sentinel</strong> (<span class="mono">0x7FFFFFFF</span>) marks end-of-stream. It stops cursor advance and terminates the stream. It is not an allocation and no plugin may claim it.</li>
+</ul>
+<div class='callout '><p>Diagnostics in depth: <a href="../diagnostics/index.html">the diagnostics section &raquo;</a></p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Transport — SuperUnicode Extended</title>
+<meta name='description' content='Vector, vsutf and e-SUST framing over 64-bit codepoints.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html' class='active'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Extended</a>
+ &raquo; Transport</nav>
+<h1>Transport</h1>
+<p class='subtitle'>Framing for codepoints that exceed 31 bits.</p>
+<p>Because plugin codepoints exceed 31 bits, Extended defines its own transport families over <span class="mono">sucs_ex_char_t</span> (64-bit). Base SUTF8/16/32 cap at <span class="mono">0x7FFFFFFF</span>; these do not.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Transport</th>
+<th>Description</th>
+<th>Reference</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">Vector</span></td>
+<td>Length-prefixed sequences of 64-bit codepoints; one codepoint per unit, little-endian.</td>
+<td>vsutf.h / vector layout</td>
+</tr>
+<tr>
+<td><span class="mono">vsutf</span></td>
+<td>Variable-length integer framing (LEB128-style) covering the full 64-bit space.</td>
+<td><span class="mono">vsutf.h</span></td>
+</tr>
+<tr>
+<td><span class="mono">e-SUST</span></td>
+<td>The fixed-base Extended family complementing Base SUTF8/16/32, plus page-mapped IPC framing.</td>
+<td><span class="mono">esust.h</span> (SUST module)</td>
+</tr>
+</tbody></table></div>
+<h2>Why separate framing?</h2>
+<ul>
+<li>Base SUTF is optimized for 31-bit codepoints and the Unicode Compatibility Space.</li>
+<li>Plugin codepoints can be any value up to <span class="mono">2^64-1</span>; variable-length framing keeps common values small.</li>
+<li>The vector layout gives zero-cost random access at the cost of 8 bytes per unit &mdash; the right trade for in-memory streams.</li>
+</ul>
+<p class='note'>Specified in <a href="../reports/SUTR-4.html">SUTR-4 &mdash; ExtSUCS Transport</a>; data files under <span class="mono">Public/0.1.0/transport/</span>.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

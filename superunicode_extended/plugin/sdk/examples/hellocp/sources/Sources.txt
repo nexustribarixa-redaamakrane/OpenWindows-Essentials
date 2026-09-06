@@ -1,0 +1,2 @@
+# hellocp Sources
+0x80000000-0x80000FFF;openwindows-dev@example.com;2026-08-14

@@ -1,0 +1,4 @@
+# <PLUGIN-ID> NamesList (template)
+# One codepoint + name per line: <hex>;<name>
+0x80000000;YOURPLUGIN.CODEPOINT_ONE
+0x80000001;YOURPLUGIN.CODEPOINT_TWO

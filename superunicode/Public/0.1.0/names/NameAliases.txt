@@ -1,0 +1,2 @@
+# NameAliases.txt (starter)
+# No formal aliases in 0.1.0.

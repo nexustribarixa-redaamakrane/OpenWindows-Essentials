@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SGW width/grid</title>
+<meta name='description' content='The System Glyph Width & Monospace Grid (SUAS-002).'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Encoding</a>
+ &raquo; SGW width/grid</nav>
+<h1>SGW <span class="grad">width/grid</span></h1>
+<p class='subtitle'>The monospace grid contract, width classes and zone dispatch for terminal emulators.</p>
+<p>SGW (SUAS-002) is an East_Asian_Width-style (UAX #11) width classification over the full 64-bit SuperUnicode space (<span class="mono">sucs_ex_char_t</span>), folded into an O(1) monospace grid contract (0/1/2 cells + column cursor) for terminal emulators and CJK/ideographic framebuffer consoles.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Width class</th>
+<th>Grid cells</th>
+<th>Examples</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">F</span> (Fullwidth)</td>
+<td>2</td>
+<td>CJK ideographs, fullwidth forms</td>
+</tr>
+<tr>
+<td><span class="mono">H</span> (Halfwidth)</td>
+<td>1</td>
+<td><span class="mono">U+20A9 &#8361;</span></td>
+</tr>
+<tr>
+<td><span class="mono">W</span> (Wide)</td>
+<td>2</td>
+<td>Han ranges (incl. unassigned), Emoji_Presentation</td>
+</tr>
+<tr>
+<td><span class="mono">Na</span> (Narrow)</td>
+<td>1</td>
+<td><span class="mono">U+00A5 &yen;</span></td>
+</tr>
+<tr>
+<td><span class="mono">A</span> (Ambiguous)</td>
+<td>1 or 2 (context-dependent)</td>
+<td><span class="mono">U+212B &#8491;</span>, <span class="mono">U+01D4</span></td>
+</tr>
+<tr>
+<td><span class="mono">N</span> (Neutral)</td>
+<td>1</td>
+<td><span class="mono">U+00C5 &Aring;</span>, <span class="mono">U+01D3</span></td>
+</tr>
+</tbody></table></div>
+<ul>
+<li><strong>Zone dispatch</strong> &mdash; Unicode Bridge (curated EAW table), SCP (non-advancing, grid 0), Native SUCS (single cell), ExtSUCS (single cell), Trap/Sentinel (grid 0).</li>
+<li><strong>Emoji_Presentation</strong> &mdash; mapped to Wide except Regional_Indicator (<span class="mono">U+1F1E6..1F1FF</span>).</li>
+<li><strong>Tailoring</strong> &mdash; override hook for per-locale or per-terminal ambiguous resolution.</li>
+<li><strong>Zero heap allocation</strong> &mdash; O(1) lookup, suitable for freestanding C99.</li>
+</ul>
+<p class='note'>Formalized in <a href="../reports/SUAS-002.html">SUAS-002</a>. Source of truth: <span class="mono">docs/suas/SUAS-002-sgw.md</span>.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

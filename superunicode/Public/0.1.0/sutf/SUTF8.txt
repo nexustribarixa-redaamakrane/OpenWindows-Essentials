@@ -1,0 +1,9 @@
+# SUTF8.txt - SUCS UTF-8 framing (starter)
+# SUCS_CP is uint32_t, 31 bits significant (0..0x7FFFFFFF).
+# Framing follows the standard UTF-8 leading-byte design:
+#   1 byte : 0xxxxxxx            -> 7 bits
+#   2 bytes: 110xxxxx 10xxxxxx   -> 11 bits
+#   3 bytes: 1110xxxx 10xxxxxx.. -> 16 bits
+#   4 bytes: 11110xxx 10xxxxxx.. -> 21 bits
+# Base SUCS never emits a 4-byte sequence above 0x7FFFFFFF (high bit
+# cleared in the last byte). See sutf/sutf.h for the reference tables.

@@ -1,0 +1,3 @@
+# hellocp PropList
+0x80000000;Printable
+0x80000001;Printable
