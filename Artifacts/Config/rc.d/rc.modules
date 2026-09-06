@@ -1,0 +1,51 @@
+# OpenWindows Dynamic Driver & Module Loader
+# Probes PCI bus and hardware configuration space to load .owc/.owd
+
+echo ":: Probing PCI bus for OpenWindows peripheral devices..."
+load_dll owpci64
+owlspci --auto-load
+
+# Storage controllers
+load_driver ahci
+load_driver nvmedrv
+load_driver atapio
+load_driver partmgr
+
+# Input devices
+load_driver i8042
+load_driver ps2hid
+load_driver mousedrv
+
+# Network adapters
+load_driver e1000
+load_driver rtl8139
+
+# Audio controllers
+load_driver ac97
+load_driver hdaudio
+
+# Virtualization drivers
+load_driver virtio_blk
+load_driver virtio_net
+load_driver virtio_gpu
+
+# Universal Filesystem Drivers
+load_dll owfs64
+load_driver ntfsdrv
+load_driver fatdrv
+load_driver exfatdrv
+load_driver ext4drv
+load_driver btrfsdrv
+load_driver xfsdrv
+load_driver zfsdrv
+load_driver apfsdrv
+load_driver hfsdrv
+load_driver cdfsdrv
+load_driver ufsdrv
+load_driver refsdrv
+load_driver f2fsdrv
+load_driver udfdrv
+load_driver squashfsdrv
+load_driver jfsdrv
+
+echo ":: Hardware peripheral modules loaded."

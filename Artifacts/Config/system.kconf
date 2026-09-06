@@ -1,0 +1,37 @@
+# ==============================================================================
+# OpenWindows Master Configuration Tree (.kconf)
+# Linux-like hierarchical system configuration (OpenWindows Registry Counterpart)
+# ==============================================================================
+
+# Kernel Core & Memory Limits
+kernel.version = "1.0.0-ow"
+kernel.architecture = "x86_64"
+kernel.memory.pool_size = 67108864
+kernel.memory.dma_pool_size = 16777216
+kernel.panic.action = "banhammer"
+kernel.panic.sarcasm = true
+kernel.sentinel.enabled = true
+kernel.sentinel.max_retries = 3
+
+# Drivers & Hardware Bus
+drivers.sio.port = 0x3F8
+drivers.sio.baud_rate = 115200
+drivers.ps2hid.mouse_enabled = true
+drivers.ps2hid.scancode_set = 2
+drivers.vgapci.linear_fb = true
+drivers.vgapci.default_mode = "1024x768x32"
+drivers.pitapic.quantum_hz = 1000
+
+# Storage & Volume Indexing
+storage.vip.root_partition = "VIP0"
+storage.vip.cache_sectors = 1024
+storage.owfs.crc_verification = true
+storage.owfs.journal_enabled = true
+
+# User Interface & Window Manager
+ui.wm.enabled = true
+ui.wm.theme = "classic_azure"
+ui.wm.compositor = "cairo64"
+ui.wm.max_windows = 32
+ui.font.default = "NaXSans"
+ui.font.encoding = "superunicode"

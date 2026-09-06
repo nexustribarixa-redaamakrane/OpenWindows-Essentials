@@ -1,0 +1,19 @@
+# OpenWindows Boot Initialization Script
+# Executed by owinit during early boot
+
+load_driver sio
+load_driver ps2hid
+load_driver vgapci
+load_driver pitapic
+load_driver rtc
+load_driver ramdisk
+load_driver pcibridge
+load_driver ioapic
+load_driver lapic
+mount ramdisk0 "C:\OpenWindows\Temp"
+init_console tty0
+set_keymap us
+start_service banhammer
+start_service sentinel
+log "Boot init complete"
+

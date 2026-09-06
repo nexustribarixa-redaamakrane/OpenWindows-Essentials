@@ -1,0 +1,13 @@
+# OpenWindows GUI Startup
+
+load_dll owwm64
+load_dll owtheme64
+load_dll owicon64
+load_dll owmenu64
+load_dll owdlg64
+start owwm
+start owtaskbar
+start owstartmenu
+start owclock
+log "GUI environment started"
+

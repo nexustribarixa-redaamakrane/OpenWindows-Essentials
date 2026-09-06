@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Freestanding GCC",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "__freestanding__",
+                "__OW_ESSENTIALS__"
+            ],
+            "compilerPath": "gcc",
+            "cStandard": "c99",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ],
+    "version": 4
+}

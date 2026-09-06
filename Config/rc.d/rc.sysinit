@@ -1,0 +1,50 @@
+# OpenWindows Early System Initialization Script
+# Executed by PID 1 (owinit.owx) during kernel handoff and early boot
+
+echo ":: Initializing OpenWindows NT-like Kernel Architecture..."
+
+# 1. Initialize NT Object Manager namespaces and device trees
+echo ":: Creating Object Manager device namespace (\Device, \GLOBAL??)..."
+load_driver devnull
+load_driver nullzero
+
+# 2. Setup volatile RAMDisk for C:\OpenWindows\Temp
+echo ":: Mounting volatile RAMDisk to C:\OpenWindows\Temp..."
+load_driver ramdisk
+mount ramdisk0 "C:\OpenWindows\Temp"
+
+# 3. Load core platform bus bridges, timers, and interrupt controllers
+echo ":: Initializing platform hardware drivers..."
+load_driver pcibridge
+load_driver ioapic
+load_driver lapic
+load_driver hpet
+load_driver rtc
+load_driver pitapic
+load_driver cmos
+
+# 4. Configure SuperUnicode display subsystem and console fonts
+echo ":: Loading SuperUnicode typography and character engine..."
+load_dll unitrans64
+load_dll suct
+load_dll sufrender
+set_keymap us_qwerty
+load_font "C:\OpenWindows\Fonts\default.suf"
+
+# 5. Load Linux-like hierarchical configuration tree (Registry counterpart)
+echo ":: Loading master configuration tree..."
+load_dll kconf64
+kconf_load "C:\OpenWindows\Config\system.kconf"
+
+# 6. Verify and mount UniVIP storage volumes
+echo ":: Verifying Volume Indexing Protocol (VIP) volume integrity..."
+load_driver classpnp
+load_driver fltrmgr
+load_driver vipm
+load_driver owfsdrv
+owfsck --verify "VIP0:"
+
+# 7. Execute hardware driver probing
+call "C:\OpenWindows\Config\rc.d\rc.modules"
+
+echo ":: OpenWindows System Initialization Complete."

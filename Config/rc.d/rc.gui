@@ -1,0 +1,39 @@
+# OpenWindows Graphical Desktop Environment (Runlevel 5)
+
+case "$1" in
+    start)
+        echo ":: Starting OpenWindows Graphical Desktop Environment..."
+        load_driver vbedrv
+        load_driver fbdev
+        load_dll cairo64
+        load_dll cairoplus64
+        load_dll userinterface64
+        load_dll owwm64
+        load_dll owtheme64
+        load_dll owicon64
+        
+        # Start Window Manager & Desktop shell via startwm launcher
+        "C:\OpenWindows\Software\startwm.owx" &
+        echo ":: Desktop session active."
+        ;;
+    stop)
+        echo ":: Stopping Graphical Desktop..."
+        owkill --name startwm
+        owkill --name owwm
+        owkill --name owtaskbar
+        owkill --name owclock
+        echo ":: Desktop stopped."
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    status)
+        owps | grep owwm
+        ;;
+    *)
+        echo "Usage: rc.gui {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

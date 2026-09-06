@@ -1,0 +1,38 @@
+# OpenWindows Network Protocol Stack & Adapter Service
+
+case "$1" in
+    start)
+        echo ":: Initializing OpenWindows Network Stack..."
+        load_dll ownet64
+        load_dll owsock64
+        load_driver ipstack
+        load_driver tcpcore
+        load_driver udpcore
+        
+        # Loopback adapter
+        owifconfig "\Device\Network\Loopback" 127.0.0.1 netmask 255.0.0.0 up
+        
+        # Primary Ethernet adapter via DHCP
+        owifconfig "\Device\Network\eth0" up
+        "C:\OpenWindows\Software\dhcpcli.owx" --adapter "\Device\Network\eth0" &
+        echo ":: Network adapters online."
+        ;;
+    stop)
+        echo ":: Disconnecting Network adapters..."
+        owkill --name dhcpcli
+        owifconfig "\Device\Network\eth0" down
+        echo ":: Network stopped."
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    status)
+        ownetstat -a
+        ;;
+    *)
+        echo "Usage: rc.network {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

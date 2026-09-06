@@ -1,0 +1,96 @@
+# ==============================================================================
+# OpenWindows-Essentials .gitignore
+# Clean-slate Non-POSIX NT-like Operating System Workspace
+# ==============================================================================
+
+# ── Build Output Directories ──────────────────────────────────────────────────
+build/
+build-*/
+build-gcc/
+build-vendor/
+bin/
+out/
+dist/
+
+# ── CMake Artifacts & Build System ────────────────────────────────────────────
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CMakeScripts/
+CTestTestfile.cmake
+Makefile
+*.ninja
+.ninja_*
+compile_commands.json
+
+# ── Intermediate Objects, Host Binaries & Libraries ───────────────────────────
+# (Note: Native OpenWindows .owd, .owc, .owx in Artifacts/ and source trees are kept)
+*.o
+*.obj
+*.d
+*.i
+*.s.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.a
+*.exe
+*.dll
+*.so
+*.dylib
+
+# ── Local Test Executables & Intermediate Build Folders ───────────────────────
+**/ctest/*.exe
+**/ctest/*.o
+**/ctest/*.obj
+**/ctest/*.a
+DLL/cairo64/owrt/build/
+
+# ── Vendor & Submodule In-Tree Builds ─────────────────────────────────────────
+vendor/cairo/ow-build/build/
+vendor/pixman/ow-build/build/
+vendor/**/build/
+vendor/**/_build/
+vendor/**/.mesonpy/
+vendor/**/subprojects/
+subprojects/
+
+# ── Python & Caches ───────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.cache/
+.opencode/
+.pytest_cache/
+
+# ── Local Generator / Scratch Scripts ─────────────────────────────────────────
+convert_to_openwindows_paths.py
+create_rc_subsystem.py
+generate_filesystem_ecosystem.py
+
+# ── IDE & Editor Configuration ────────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.vs/
+.idea/
+*.suo
+*.user
+*.userosv
+*.sln.docstates
+
+# ── System & Scratch Files ────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.swp
+*~
+Thumbs.db
+desktop.ini
+
+# ── Hash things ────────────────────────────────────────────────────
+0
+51
+102
+153

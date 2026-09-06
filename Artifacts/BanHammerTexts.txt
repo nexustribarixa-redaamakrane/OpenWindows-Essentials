@@ -1,0 +1,56 @@
+# BANHammer Crash Texts
+# One per line - chosen randomly when the kernel crashes
+# Format: CATEGORY|TEXT
+
+SARCASTIC|Well, that was unexpected. Just kidding, I totally saw that coming.
+SARCASTIC|Congratulations! You found a bug. Here's your prize: a crash screen.
+SARCASTIC|The kernel decided to take an unscheduled vacation. Sorry for the inconvenience.
+SARCASTIC|On a scale of 1 to catastrophic, this is a solid "yes."
+SARCASTIC|If you're reading this, the good news is your monitor works.
+SARCASTIC|The system encountered a fatal error. The system also doesn't care about your feelings.
+SARCASTIC|This crash was brought to you by: questionable life choices in the driver code.
+SARCASTIC|Don't worry, your data is probably fine. Probably.
+SARCASTIC|Have you tried turning it off and on again? Because that's literally your only option.
+SARCASTIC|The kernel has left the building. Elvis style.
+SARCASTIC|Error: Success. Just kidding. Error: Error.
+SARCASTIC|Look on the bright side: at least it crashed gracefully. Well, semi-gracefully.
+SARCASTIC|The kernel panicked. To be fair, so would you.
+SARCASTIC|Task failed successfully... wait, no. Just failed.
+SARCASTIC|Your system just blue-screened. Except it's not blue. It's worse.
+INFORMATIONAL|A critical system error has occurred. Error code: {BAN_CODE}
+INFORMATIONAL|The system has been halted to prevent data corruption. Error: {BAN_CODE}
+INFORMATIONAL|An unrecoverable exception occurred at address {FAULT_ADDR}. Code: {BAN_CODE}
+INFORMATIONAL|Kernel panic - not syncing: {BAN_REASON}
+INFORMATIONAL|System halted. Please report error code {BAN_CODE} to your administrator.
+INFORMATIONAL|A driver caused an unhandled exception. Driver: {DRIVER_NAME}. Code: {BAN_CODE}
+INFORMATIONAL|Memory corruption detected at {FAULT_ADDR}. The system has been stopped.
+INFORMATIONAL|Stack overflow in kernel mode. The system cannot continue.
+INFORMATIONAL|Critical process {PROCESS_NAME} terminated unexpectedly. System halted.
+INFORMATIONAL|Filesystem integrity check failed. Mount aborted. Code: {BAN_CODE}
+TECHNICAL|STOP: {BAN_CODE} ({PARAM1}, {PARAM2}, {PARAM3}, {PARAM4})
+TECHNICAL|IRQL_NOT_LESS_OR_EQUAL - A driver accessed pageable memory at DISPATCH_LEVEL
+TECHNICAL|PAGE_FAULT_IN_NONPAGED_AREA - Invalid memory reference at {FAULT_ADDR}
+TECHNICAL|KERNEL_DATA_INPAGE_ERROR - I/O error reading kernel data. Status: {IO_STATUS}
+TECHNICAL|UNEXPECTED_KERNEL_MODE_TRAP - Trap {TRAP_NUMBER} at {FAULT_ADDR}
+TECHNICAL|KMODE_EXCEPTION_NOT_HANDLED - Exception {EXCEPTION_CODE} in {MODULE_NAME}
+TECHNICAL|SYSTEM_THREAD_EXCEPTION_NOT_HANDLED in {MODULE_NAME}+{OFFSET}
+TECHNICAL|CRITICAL_OBJECT_TERMINATION - Process {PROCESS_NAME} (PID {PID}) terminated
+TECHNICAL|DRIVER_IRQL_NOT_LESS_OR_EQUAL - {DRIVER_NAME} at {FAULT_ADDR}
+REASSURING|Don't worry - your files are safe. The system stopped to protect your data.
+REASSURING|This is a known issue and will be fixed in the next update. Please restart.
+REASSURING|The system stopped to prevent damage. Your data should be intact.
+REASSURING|A temporary hardware glitch may have caused this. Try restarting.
+REASSURING|This crash has been logged. The Sentinel recovery system will attempt auto-repair.
+REASSURING|Recovery mode is available. Press F8 during boot to access it.
+REASSURING|The BANHammer caught this error before it could cause permanent damage.
+REASSURING|Automatic recovery will attempt to fix this on the next boot.
+HUMOROUS|The kernel has decided to pursue other career opportunities.
+HUMOROUS|Fatal error: ran out of coffee. Please refill and try again.
+HUMOROUS|Segmentation fault (core dumped). The core sends its regards.
+HUMOROUS|The bits are revolting! They demand better working conditions!
+HUMOROUS|ERROR: Cannot divide by zero. Mathematics has not changed since last time.
+HUMOROUS|The hamster powering your CPU has stopped running. Please feed it.
+HUMOROUS|Achievement Unlocked: Kernel Crash (Difficulty: Easy, apparently)
+HUMOROUS|To err is human. To crash spectacularly is OpenWindows.
+HUMOROUS|The kernel made a boo-boo. A very serious, system-halting boo-boo.
+HUMOROUS|Roses are red, violets are blue, the kernel has panicked, and so should you.

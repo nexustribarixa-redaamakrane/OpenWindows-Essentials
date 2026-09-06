@@ -1,0 +1,10 @@
+# OpenWindows Local System Startup Hook
+# User-defined site startup directives
+
+echo ":: Executing OpenWindows rc.local hooks..."
+
+# Custom user startup commands:
+# Example: mount "VIP1:" "D:\Data"
+# Example: "C:\OpenWindows\Software\myservice.owx" &
+
+echo ":: rc.local completed."

@@ -1,0 +1,12 @@
+# OpenWindows Default Services
+# Format: service_name priority auto_start
+
+banhammer 0 yes
+sentinel 1 yes
+owwm 5 yes
+owtaskbar 6 yes
+owcron 10 yes
+dhcpcli 15 yes
+dnscli 16 yes
+owprint64 20 no
+

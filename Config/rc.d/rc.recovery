@@ -1,0 +1,23 @@
+# OpenWindows Sentinel Emergency Recovery Runlevel (Runlevel 1)
+# Triggered on kernel BANcode panic or safe-mode boot
+
+echo "=================================================================="
+echo "    OpenWindows Sentinel Damage Control - Emergency Recovery      "
+echo "=================================================================="
+
+# 1. Minimal console hardware
+load_driver sio
+load_driver vgapci
+load_driver ps2hid
+
+# 2. Mount system volume read-only
+mount --readonly "VIP0:" "C:"
+
+# 3. Check for BANcode crash dumps
+echo ":: Inspecting pending .bdmp crash dumps..."
+load_dll sentinel64
+bancat --last-crash
+
+# 4. Launch recovery administrative shell
+echo ":: Spawning OpenWindows Emergency Recovery Shell..."
+"C:\OpenWindows\Software\owsh.owx" --recovery --single-user

@@ -1,0 +1,9 @@
+[submodule "vendor/superunicode"]
+	path = vendor/superunicode
+	url = https://github.com/nexustribarixa-redaamakrane/superunicode.git
+[submodule "vendor/cairo"]
+	path = vendor/cairo
+	url = https://gitlab.freedesktop.org/cairo/cairo.git
+[submodule "vendor/pixman"]
+	path = vendor/pixman
+	url = https://gitlab.freedesktop.org/pixman/pixman.git

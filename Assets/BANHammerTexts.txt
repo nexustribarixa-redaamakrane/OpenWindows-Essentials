@@ -1,0 +1,41 @@
+# ==============================================================================
+# OpenWindows BANhammer Kernel Panic Quotes & Message Catalog
+# Category: [SARCASTIC], [INFORMATIONAL], [SENTINEL_RECOVERY]
+# ==============================================================================
+
+[SARCASTIC]
+Well, that was graceful.
+Congratulations, you hit the B+ trap jackpot!
+Have you tried turning the kernel off and never turning it on again?
+Kernel went out for milk. It is not coming back.
+A wild BANcode appeared! It was super effective.
+Oops, all traps.
+The kernel has encountered a fatal moment of philosophical self-doubt.
+System crashed successfully. No humans were harmed in this disaster.
+Divide by cucumber error. Please reinstall universe and reboot.
+You have unlocked the secret BANhammer emergency halt achievement.
+Freestanding C99 does not stand anymore. It fell over.
+We apologize for the fault in the kernel. Those responsible have been sacked.
+Look on the bright side: at least it was deterministic.
+404 Kernel Not Found.
+Everything is fine. Just breathe and check the UART console.
+
+[INFORMATIONAL]
+Hardware Translation Layer reported unrecoverable bus stall.
+Sentinel recovery was invoked, but damage exceeded threshold.
+Page fault in ring-0 without matching PML4 descriptor.
+Kernel integrity trap triggered by invalid state vector.
+Zero-allocation static buffer bounds overrun intercepted by guard page.
+Volume Indexing Protocol (VIP) root partition checksum mismatch.
+Modular Bootloader handoff descriptor corrupted in early stage.
+Non-maskable interrupt fired during critical spinlock acquisition.
+SuperUnicode Control Point (SCP) trap range violation in userland stream.
+PnP bus negotiation timed out during critical device enumeration.
+
+[SENTINEL_RECOVERY]
+Damage Control sentinel initialized post-panic recovery pass.
+Attempting shadow file table rollback on root VIP partition.
+Isolating faulted peripheral bus and clearing interrupt mask.
+Rebuilding FVIP fast indexing sector table.
+Saving kernel telemetry frame to diagnostic dump sector LBA 0x00000040.
+Sentinel recovery complete. Requesting system reset.

@@ -1,0 +1,12 @@
+OpenWindows Built-in Commands:
+  owhelp    - Show this help
+  owls      - List directory contents
+  owcat     - Display file contents
+  owps      - List running processes
+  owsh      - Launch shell
+  owreboot  - Reboot system
+  owhalt    - Halt system
+  owdmesg   - Show kernel messages
+  owlsmod   - List loaded modules
+  owlspci   - List PCI devices
+

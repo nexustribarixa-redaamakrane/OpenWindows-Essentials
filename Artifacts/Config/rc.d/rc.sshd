@@ -1,0 +1,27 @@
+# OpenWindows Secure Remote Terminal Service
+
+case "$1" in
+    start)
+        echo ":: Starting Secure Terminal Service..."
+        load_dll owcrypt
+        load_dll owtls64
+        "C:\OpenWindows\Software\owsshd.owx" --port 22 &
+        echo ":: Terminal Service listening on port 22."
+        ;;
+    stop)
+        echo ":: Stopping Terminal Service..."
+        owkill --name owsshd
+        echo ":: Terminal Service stopped."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        owps | grep owsshd
+        ;;
+    *)
+        echo "Usage: rc.sshd {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

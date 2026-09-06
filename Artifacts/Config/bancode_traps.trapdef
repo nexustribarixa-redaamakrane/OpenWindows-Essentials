@@ -1,0 +1,21 @@
+# ==============================================================================
+# OpenWindows BANcode Trap Routing Definition (.trapdef)
+# Format: <TRAP_SLOT> <BANCODE_HEX> <SEVERITY> <HANDLER_MODULE>
+# Severity: B_FATAL, W_WARNING, S_RECOVERABLE
+# ==============================================================================
+
+0x7FFFFFF0  0x0011A000  B_FATAL         banhammer.owc
+0x7FFFFFF1  0x0011A001  B_FATAL         damage_control
+0x7FFFFFF2  0x0011A002  B_FATAL         banhammer.owc
+0x7FFFFFF3  0x0011A003  B_FATAL         banhammer.owc
+0x7FFFFFF4  0x0011A004  S_RECOVERABLE   damage_control
+0x7FFFFFF5  0x0011A005  S_RECOVERABLE   damage_control
+0x7FFFFFF6  0x0011A006  W_WARNING       kernel64.owd
+0x7FFFFFF7  0x0011A007  W_WARNING       kernel64.owd
+0x7FFFFFF8  0x0011A008  S_RECOVERABLE   damage_control
+0x7FFFFFF9  0x0011A009  B_FATAL         banhammer.owc
+0x7FFFFFFA  0x0011A00A  S_RECOVERABLE   damage_control
+0x7FFFFFFB  0x0011A00B  W_WARNING       sio.owc
+0x7FFFFFFC  0x0011A00C  S_RECOVERABLE   vipm.owc
+0x7FFFFFFD  0x0011A00D  S_RECOVERABLE   owfsdrv.owc
+0x7FFFFFFE  0x0011A00E  B_FATAL         banhammer.owc

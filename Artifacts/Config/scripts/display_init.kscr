@@ -1,0 +1,9 @@
+# OpenWindows Display Initialization
+
+load_driver vbedrv
+load_driver fbdev
+set_mode 1920x1080x32
+load_dll owgfx64
+load_dll owfont64
+log "Display initialized"
+

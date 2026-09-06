@@ -1,0 +1,10 @@
+# OpenWindows Shutdown Sequence
+
+flush_caches
+sync_filesystems
+stop_services
+unmount_all
+save_registry
+log "Shutdown complete"
+poweroff
+

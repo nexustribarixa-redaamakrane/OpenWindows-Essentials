@@ -1,0 +1,33 @@
+# ==============================================================================
+# OpenWindows Early Boot Orchestration Script (.kscript)
+# Directives: load_driver, load_dll, mount_vip, set_env, exec_service
+# ==============================================================================
+
+# Phase 0: Hardware Translation & Serial Diagnostics
+load_driver sio.owc 0x3F8 115200
+load_dll htl.owd
+load_driver banhammer.owc
+
+# Phase 1: Core Timers & Interrupts
+load_driver pitapic.owc 1000
+load_driver ps2hid.owc
+
+# Phase 2: Graphics & Framebuffer
+load_driver vgapci.owc 1024 768 32
+load_dll bootvid.owd
+
+# Phase 3: Storage Stack & Root Volume Mount
+load_driver vipm.owc
+load_driver owfsdrv.owc
+mount_vip 0 "rootfs"
+
+# Phase 4: Core Subsystems
+load_dll kernel64.owd
+load_dll sched64.owd
+load_dll vmm64.owd
+load_dll unitrans64.owd
+load_dll kconf64.owd
+load_dll suct.owd
+
+# Phase 5: Launch User Session Orchestrator
+exec_service owinit.owx --mode=interactive
