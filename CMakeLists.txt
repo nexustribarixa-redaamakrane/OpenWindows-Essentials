@@ -120,7 +120,18 @@ function(ow_owc_props target outdir)
     endif()
 endfunction()
 
+# ow_owx_props(target outdir [entry_symbol])
+#
+# entry_symbol defaults to owx_entry_stub, which is what every .owx has always
+# used: a stub that returns immediately, so the kernel can prove the CPL3 launch
+# path works before any real program logic is trusted at ring 3.  It is a
+# parameter rather than a hardcoded -e because owinit.owx now enters at
+# owinit_main, and the other twelve targets must keep the stub.
 function(ow_owx_props target outdir)
+    set(_entry "owx_entry_stub")
+    if(ARGC GREATER 2)
+        set(_entry "${ARGV2}")
+    endif()
     string(REGEX REPLACE "\\.owx$" "" _base "${target}")
     target_sources(${target} PRIVATE ${OWX_ENTRY_C})
     set_target_properties(${target} PROPERTIES
@@ -131,7 +142,7 @@ function(ow_owx_props target outdir)
     )
     target_compile_options(${target} PRIVATE -Wno-error=unused-function)
     target_link_options(${target} PRIVATE
-        -nostdlib "-Wl,-e,owx_entry_stub")
+        -nostdlib "-Wl,-e,${_entry}")
     if(OW_LIBGCC)
         target_link_libraries(${target} PRIVATE "${OW_LIBGCC}")
     endif()
@@ -584,9 +595,39 @@ set_target_properties(damage_control PROPERTIES
 #  Software/ - Native Executables (.owx)
 # ====================================================================
 
-add_executable(owinit.owx ${CMAKE_SOURCE_DIR}/Software/owinit/owinit.c)
-target_link_libraries(owinit.owx PRIVATE kconf64.owd)
-ow_owx_props(owinit.owx "${CMAKE_BINARY_DIR}/Software")
+# owinit is the kernel's first CPL3 process, so its import profile is a hard
+# constraint, not a preference: the kernel's OWX1 loader has no import table
+# and no relocation pass, and tools/owx_pack.py refuses to emit an image that
+# imports anything. Linking kconf64.owd (a SHARED library) therefore produced an
+# image with two unbound IAT slots -- kconf64_init and kconf64_get_string --
+# whose contents are RVAs into the image's own hint/name table. The entry stub
+# never called them, so the breakage stayed invisible until the entry was
+# repointed at owinit_main, at which point the first call jumped to garbage.
+#
+# kconf64 is pure in-memory configuration (a static registry plus header-only
+# kconf.h inlines; no I/O, no owrp, no syscalls), so binding it statically costs
+# nothing and needs no kernel service. That makes the image genuinely
+# import-free, which is the only state the loader can honour today.
+add_executable(owinit.owx
+    ${CMAKE_SOURCE_DIR}/Software/owinit/owinit.c
+    ${KCONF64_SOURCES})
+target_include_directories(owinit.owx PRIVATE
+    ${CMAKE_SOURCE_DIR}/DLL/kconf64
+    ${CMAKE_SOURCE_DIR}/Extensions)
+
+# Enter at the real owinit_main rather than owx_entry_stub.
+#
+# The stub exists so the kernel's CPL3 launch path could be proven on its own
+# before any program logic was trusted at ring 3.  That is done, and the import
+# prerequisite it was hiding is now genuinely met (kconf64 is statically linked,
+# so the image has no unbound IAT slot to jump through).  owinit_main is a valid
+# entry target for this ABI: it is a non-static global at the head of .text, it
+# ignores argc/argv, it makes no syscall and touches no kernel gate, it needs no
+# constructor (kconf64_init is called explicitly and the registry it fills lives
+# in BSS, which the loader maps zeroed), and it returns through the C-ABI slot
+# the kernel seeds under the initial RSP.  All twelve other .owx targets keep
+# the stub.
+ow_owx_props(owinit.owx "${CMAKE_BINARY_DIR}/Software" owinit_main)
 
 add_executable(owsh.owx ${CMAKE_SOURCE_DIR}/Software/owsh/owsh.c)
 ow_owx_props(owsh.owx "${CMAKE_BINARY_DIR}/Software")
