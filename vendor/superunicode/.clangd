@@ -1,12 +1,12 @@
 CompileFlags:
   CompilationDatabase: build
   Add:
-    - "-IC:/Users/KARIMABENDA/Documents/superunicode/superunicode/include"
-    - "-IC:/Users/KARIMABENDA/Documents/superunicode/sutf/include"
-    - "-IC:/Users/KARIMABENDA/Documents/superunicode/superunicode_extended/include"
-    - "-IC:/Users/KARIMABENDA/Documents/superunicode/superunicode_extended/plugin/include"
-    - "-IC:/Users/KARIMABENDA/Documents/superunicode/suf/include"
-    - "-IC:/Users/KARIMABENDA/Documents/superunicode/include"
+    - "-I${CONFIG}/superunicode/include"
+    - "-I${CONFIG}/sutf/include"
+    - "-I${CONFIG}/superunicode_extended/include"
+    - "-I${CONFIG}/superunicode_extended/plugin/include"
+    - "-I${CONFIG}/suf/include"
+    - "-I${CONFIG}/include"
 
 Diagnostics:
   UnusedIncludes: None

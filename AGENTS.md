@@ -18,7 +18,10 @@
 
 ## Ecosystem Repositories (`Documents/`)
 
-The OpenWindows ecosystem consists of interconnected repositories located in `C:\Users\KARIMABENDA\Documents\`:
+The OpenWindows ecosystem consists of interconnected Git repositories. Their
+checkout locations are machine-specific; derive paths from each repository's
+Git root or configure external repository locations rather than assuming a
+particular user profile or parent directory:
 
 | Repository | Purpose & Key Concepts |
 |---|---|

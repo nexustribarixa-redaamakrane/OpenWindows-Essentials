@@ -8,7 +8,7 @@
 #
 # Usage: pwsh -File userinterface64_ct.ps1
 
-$gcc = "C:\w64devkit\bin\gcc.exe"
+$gcc = (Get-Command gcc -ErrorAction Stop).Source
 $root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 $src   = Join-Path $root "vendor\cairo"
 $pix   = Join-Path $root "vendor\pixman"

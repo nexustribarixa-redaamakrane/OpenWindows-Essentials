@@ -2,7 +2,9 @@
 # batch_create_ow_files.ps1 - Generates a large batch of OpenWindows components
 # Run from OpenWindows-Essentials root
 
-$Root = "c:\Users\KARIMABENDA\Documents\OpenWindows-Essentials"
+$Root = (& git -C $PSScriptRoot rev-parse --show-toplevel)
+if ($LASTEXITCODE -ne 0) { throw "Could not find the OpenWindows-Essentials Git root." }
+$Root = $Root.Trim()
 
 # ─── Helper: write C file ──────────────────────────────────────
 function Write-CFile($Path, $Content) {

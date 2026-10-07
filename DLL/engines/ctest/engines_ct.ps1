@@ -6,7 +6,7 @@
 #
 # Usage: pwsh -File engines_ct.ps1
 
-$gcc  = "C:\w64devkit\bin\gcc.exe"
+$gcc  = (Get-Command gcc -ErrorAction Stop).Source
 $root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 $ext  = Join-Path $root "Extensions"
 $tdir = Join-Path $root "DLL\engines\ctest"

@@ -13,7 +13,7 @@ param(
     [string]$DriversDir = (Join-Path $PSScriptRoot "Artifacts\Drivers")
 )
 
-$objdump = "C:\w64devkit\bin\objdump.exe"
+$objdump = (Get-Command objdump -ErrorAction Stop).Source
 $failures = 0
 # Freestanding-only dependency set (extend as modules come up)).
 $allowedImports = @("kernel64.owd", "owrp.owd", "htl.owd",

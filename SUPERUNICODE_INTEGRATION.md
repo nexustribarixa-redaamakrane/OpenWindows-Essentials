@@ -6,7 +6,8 @@ OpenWindows-Essentials integrates the canonical **SuperUnicode** workspace
 layers:
 
 1. **`vendor/superunicode/`** — a pinned mirror of the canonical workspace
-   (`C:\Users\KARIMABENDA\Documents\superunicode`). Self-contained CMake
+   (a separate Git checkout whose location is supplied when synchronizing).
+   Self-contained CMake
    project, built and tested in isolation.
 2. **`Extensions/`** — a freestanding C99 *compat layer* of self-contained
    static-inline headers that mirror the canonical constants, transports,
@@ -44,8 +45,12 @@ output only, never on any module include path.
 ### Regenerating a fresh vendor copy
 
 ```powershell
-robocopy C:\Users\KARIMABENDA\Documents\superunicode `
-    C:\Users\KARIMABENDA\Documents\OpenWindows-Essentials\vendor\superunicode `
+$EssentialsRoot = git rev-parse --show-toplevel
+if ($LASTEXITCODE -ne 0) { throw "Run this from the OpenWindows-Essentials Git checkout." }
+$SuperUnicodeSource = Read-Host "Path to the canonical SuperUnicode Git checkout"
+$SuperUnicodeRoot = git -C $SuperUnicodeSource rev-parse --show-toplevel
+if ($LASTEXITCODE -ne 0) { throw "SuperUnicodeSource must name a Git checkout." }
+robocopy $SuperUnicodeRoot (Join-Path $EssentialsRoot "vendor\superunicode") `
     /E /XD build website .vscode /XF *.exe *.o *.a *.obj *.lib *.pdb *.ilk *.map
 ```
 
@@ -184,7 +189,8 @@ Recompile the compat layer (bare include + exercised TU) and every module under
 the strict freestanding profile:
 
 ```powershell
-$base="C:\Users\KARIMABENDA\Documents\OpenWindows-Essentials"
+$base = git rev-parse --show-toplevel
+if ($LASTEXITCODE -ne 0) { throw "Run this from the OpenWindows-Essentials Git checkout." }
 $inc = @(
   "$base\Extensions", "$base\Extensions\damage_control",
   "$base\DLL\owrp", "$base\DLL\kernel64", "$base\DLL\htl",

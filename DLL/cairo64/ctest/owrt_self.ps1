@@ -8,7 +8,7 @@
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))   # repo root
-$gcc  = 'C:\w64devkit\bin\gcc.exe'
+$gcc  = (Get-Command gcc -ErrorAction Stop).Source
 $ct   = $PSScriptRoot
 $obj  = Join-Path (Join-Path $root 'DLL\cairo64\owrt') 'build\obj'
 $tmp  = Join-Path $env:TEMP 'opencode'

@@ -10,9 +10,11 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$gcc = "C:\w64devkit\bin\gcc.exe"
-$ar  = "C:\w64devkit\bin\ar.exe"
-$root = "C:\Users\KARIMABENDA\Documents\OpenWindows-Essentials"
+$gcc = (Get-Command gcc -ErrorAction Stop).Source
+$ar  = (Get-Command ar -ErrorAction Stop).Source
+$root = (& git -C $PSScriptRoot rev-parse --show-toplevel)
+if ($LASTEXITCODE -ne 0) { throw "Could not find the OpenWindows-Essentials Git root." }
+$root = $root.Trim()
 $pixman = Join-Path $root "vendor\pixman"
 $src = Join-Path $pixman "pixman"
 $owb = Join-Path $pixman "ow-build"

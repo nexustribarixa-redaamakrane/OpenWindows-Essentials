@@ -6,9 +6,11 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$gcc = "C:\w64devkit\bin\gcc.exe"
-$ar  = "C:\w64devkit\bin\ar.exe"
-$root = "C:\Users\KARIMABENDA\Documents\OpenWindows-Essentials"
+$gcc = (Get-Command gcc -ErrorAction Stop).Source
+$ar  = (Get-Command ar -ErrorAction Stop).Source
+$root = (& git -C $PSScriptRoot rev-parse --show-toplevel)
+if ($LASTEXITCODE -ne 0) { throw "Could not find the OpenWindows-Essentials Git root." }
+$root = $root.Trim()
 
 New-Item -ItemType Directory -Force -Path $Build | Out-Null
 $obj = Join-Path $Build "obj"
@@ -45,11 +47,15 @@ if ($LASTEXITCODE -ne 0) { $fails += "ow_jmp.s" }
 
 # Big-frame stack probe (___chkstk_ms) and software popcount come straight
 # from GCC's libgcc rather than the CRT — proven objects, no OS import.
-$libgcc = Get-ChildItem "C:\w64devkit\lib\gcc\x86_64-w64-mingw32" -Recurse -Filter libgcc.a |
-    Select-Object -First 1
-if ($libgcc) {
-    Push-Location $obj
-    & $ar x $libgcc.FullName _chkstk_ms.o _popcount_tab.o _popcountdi2.o _popcountsi2.o 2>&1 | Out-Null
+$libgcc = (& $gcc -print-libgcc-file-name).Trim()
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $libgcc -PathType Leaf)) {
+    throw "Could not locate libgcc.a using $gcc."
+}
+Push-Location $obj
+try {
+    & $ar x $libgcc _chkstk_ms.o _popcount_tab.o _popcountdi2.o _popcountsi2.o
+    if ($LASTEXITCODE -ne 0) { throw "Could not extract required objects from $libgcc." }
+} finally {
     Pop-Location
 }
 Write-Host "owrt compile failures: $($fails.Count) / $($sources.Count)"
