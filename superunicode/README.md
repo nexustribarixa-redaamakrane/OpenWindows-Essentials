@@ -15,6 +15,28 @@
 - `0x00110000`–`0x0011FFFF`: **System Control Plane (SCP)** (Inline renderer instructions, style shifts, and layout markers).
 - `0x00120000`–`0x7FFFFFFF`: **Native Extended SUCS Allocations** (Custom conlangs, RNUR multi-sets, neographies, technical symbols).
 
+### 2b. UCS/UCB — Unicode Compatibility Space / Bridge
+
+The bridge range `0x00000000`–`0x0010FFFF` is 1:1 with Unicode **by position**; the *data* published about that range tracks a concrete Unicode release. That release is queryable at compile time:
+
+| Macro | Value | Meaning |
+| :--- | :--- | :--- |
+| `SUCS_UNICODE_VERSION_MAJOR` / `_MINOR` | `18` / `0` | Unicode release the UCS/UCB data is synchronized with |
+| `SUCS_UCD_UNICODE_VERSION` | `1800` | Same, packed as `major * 100 + minor` |
+| `SUCS_UCD_BLOCK_COUNT` | `353` | Unicode blocks in `sucs_compat.h` |
+| `SUCS_UCD_NAME_COUNT` | `41232` | Named codepoints in `sucs_ucd_names.h` |
+
+- `sucs_compat.h` — per-block `SUCS_UCD_BLOCK_*_MIN/_MAX` defines plus a sorted `sucs_ucd_blocks[]` table with `sucs_ucd_block_lookup()` (binary search; the table must stay strictly ascending and non-overlapping).
+- `sucs_ucd_names.h/.c` — generated character-name database (`sucs_ucd_get_name()`, `sucs_ucd_name_length()`, `sucs_ucd_get_name_copy()`). The name pool is packed **without** NUL terminators, so `sucs_ucd_get_name()` returns a length-bounded slice; use `sucs_ucd_get_name_copy()` for a NUL-terminated string.
+
+**Bumping to a new Unicode release** — run the name generator and hand-insert the new blocks in sorted order, then update the three expectations in `tests/test_sucs_ucd.c`:
+
+```powershell
+python tools/gen_ucd_names.py path\to\UnicodeData.txt 19.0
+```
+
+The generator derives the version banner from the path (or the second argument) and defaults to `SUCD_UNICODE_VERSION` in the script. Keep `SUCD_UNICODE_VERSION`, `SUCS_UNICODE_VERSION_*`, and the `test_sucs_ucd.c` expectations in sync — the test fails loudly when they drift.
+
 ### 3. BANcode Registry & Kernel Trap Damage Control Dispatch
 
 The **BANcode Registry Plugin Range** (`0x0011A000`–`0x0011AEFF`) lives inside the System Control Plane (SCP). It is a Kernel Damage Control registry used when the OpenWindows kernel crashes or needs to report state:
@@ -61,19 +83,28 @@ superunicode/
 │       ├── sucs_plane.h
 │       ├── sucs_compat.h
 │       ├── sucs_trap.h
+│       ├── sucs_ucd_names.h
 │       ├── sutf.h
 │       └── superunicode.h
 ├── src/
 │   ├── sutf_encode.c
 │   ├── sutf_decode.c
 │   ├── sucs_string.c
-│   └── sucs_trap.c
+│   ├── sucs_trap.c
+│   ├── sucs_conv.c
+│   └── sucs_ucd_names.c
 ├── tests/
 │   ├── CMakeLists.txt
 │   ├── test_sutf.c
-│   └── test_sucs_planes.c
-└── tools/
-    └── sucs_inspector.c
+│   ├── test_sucs_planes.c
+│   ├── test_sucs_ucd.c
+│   └── test_conv.c
+├── tools/
+│   ├── CMakeLists.txt
+│   ├── gen_ucd_names.py
+│   └── sucs_inspector.c
+└── Public/
+    └── 0.1.0/            # SUCD 0.1.0 data release
 ```
 
 ---

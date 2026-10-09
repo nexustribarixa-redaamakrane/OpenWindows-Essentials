@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
 <title>Technical Reports — SUTR</title>
-<meta name='description' content='The SUTR-0 through SUTR-6 specifications of SuperUnicode.'>
+<meta name='description' content='The SUTR-0 through SUTR-7 specifications of SuperUnicode.'>
 <link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
 <link rel='icon' href='../favicon.svg' type='image/svg+xml'>
 <link rel='apple-touch-icon' href='../assets/img/logo.png'>
@@ -68,7 +68,7 @@
 <tr>
 <td><span class="mono">SUTR-1</span></td>
 <td>0.1.0</td>
-<td><a href="SUTR-1.html">SUTF</a> &mdash; SUCS UTF-8/16/32 framing</td>
+<td><a href="SUTR-1.html">SUTF</a> &mdash; the Character Encoding Forms: SUTF-8/16/4/2 and vSUTF</td>
 </tr>
 <tr>
 <td><span class="mono">SUTR-2</span></td>
@@ -95,12 +95,17 @@
 <td>0.1.0</td>
 <td><a href="SUTR-6.html">Unicode Compatibility Bridge</a> &mdash; the permanent 1:1 guarantee</td>
 </tr>
+<tr>
+<td><span class="mono">SUTR-7</span></td>
+<td>0.1.0</td>
+<td><a href="SUTR-7.html">SUCEM</a> &mdash; the SuperUnicode Character Encoding Model: ACR &rarr; SUCS &rarr; SUTF &rarr; SUST</td>
+</tr>
 </tbody></table></div>
 <h2>Core invariants every report honors</h2>
 <ul>
 <li><span class="mono">SUCS_CP</span> is 31-bit; <span class="mono">sucs_ex_char_t</span> is 64-bit.</li>
 <li><span class="mono">0x000000&ndash;0x10FFFF</span> is permanently 1:1 with Unicode.</li>
-<li><span class="mono">0x7FFFFFFF</span> is the Sentinel; no allocation exists at or below it.</li>
+<li>The 16 terminal values <span class="mono">0x7FFFFFF0&ndash;0x7FFFFFFF</span> are unallocatable: 15 trap slots, then the Sentinel at <span class="mono">0x7FFFFFFF</span>. The last allocatable codepoint is <span class="mono">0x7FFFFFEF</span>.</li>
 <li>Plugin codepoints start strictly above <span class="mono">0x7FFFFFFF</span> and mount only after the checksum gate.</li>
 </ul>
 </main>

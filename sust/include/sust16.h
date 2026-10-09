@@ -18,11 +18,17 @@ extern "C" {
  *
  * Byte serialization:
  * Every 16-bit framing word is written in an EXPLICITLY SELECTED byte order.
- * Two orderings are provided — BIG-ENDIAN (canonical, network order) and
+ * Two orderings are provided -- BIG-ENDIAN (canonical, network order) and
  * LITTLE-ENDIAN:
  *   sust16_encode_bytes()/sust16_decode_bytes()   -> BIG-ENDIAN  (canonical)
  *   sust16_encode_bytes_be()/sust16_decode_bytes_be() -> BIG-ENDIAN (explicit)
  *   sust16_encode_bytes_le()/sust16_decode_bytes_le() -> LITTLE-ENDIAN
+ *
+ * So SUST-16 is not exclusively big-endian: big-endian is the canonical
+ * default that a spec names when it must name one, and little-endian is a
+ * supported variant selected by entry point. Either way the order is a
+ * CES-level (transport) attribute, never a property of the SUTF-16 form, so
+ * there is no "SUTF-16-LE".
  *
  * There is deliberately NO byte order mark: every word >= 0x8000 is a
  * framing marker, so no signature word can exist. The byte order is a

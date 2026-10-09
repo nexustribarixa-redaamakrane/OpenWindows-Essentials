@@ -101,14 +101,16 @@ $Pages['encoding/sutf'] = @{
     crumbName = 'SUTF framing'
     crumbs  = @( @{ label = 'Encoding'; href = 'index.html' } )
     h1      = 'SUTF <span class="grad">framing</span>'
-    subtitle= 'SUCS UTF-8, UTF-16 and UTF-32.'
+    subtitle= 'The SuperUnicode Character Encoding Forms: SUTF-8, SUTF-16, SUTF-4, SUTF-2 and vSUTF.'
     body    = @(
-        @{ t = 'table'; head = @('Encoding', 'Unit', 'Covers', 'Notes'); rows = @(
-            @('<span class="mono">SUTF-8</span>', '1&ndash;4 bytes', 'Full 31-bit space', 'Default stream encoding; standard UTF-8 leading-byte framing')
-            @('<span class="mono">SUTF-16</span>', '2 or 4 bytes', 'Full 31-bit space', 'Word framing with a marker bit (1 word to <span class="mono">0x7FFF</span>, 2 words above); no surrogates &mdash; <span class="mono">0xD800</span>&ndash;<span class="mono">0xDFFF</span> are valid PUA. Byte order explicit: BE canonical (<span class="mono">sust16</span>) or LE')
-            @('<span class="mono">SUTF-32</span>', '4 bytes (LE)', 'Full 31-bit space', 'Lossless fixed-width form for native allocations')
+        @{ t = 'table'; head = @('Form', 'Code unit', 'Covers', 'Shape'); rows = @(
+            @('<span class="mono">SUTF-8</span>', 'byte', 'Full 31-bit space', 'Default stream encoding; variable, <strong>1&ndash;6 bytes</strong>. UTF-8 parity to <span class="mono">0x10FFFF</span>, extending to 6 bytes for the native extended planes.')
+            @('<span class="mono">SUTF-16</span>', '16-bit word', 'Full 31-bit space', '1&ndash;2 words: one to <span class="mono">0x7FFF</span>, two above. No surrogates &mdash; <span class="mono">0xD800</span>&ndash;<span class="mono">0xDFFF</span> are valid PUA. Endian-neutral; byte order is decided by the SUST transport.')
+            @('<span class="mono">SUTF-4</span>', '4-bit nibble', 'Full 31-bit space', 'Fixed <strong>8 nibbles (4 bytes)</strong> per codepoint; console dumps, terminal logging and bus debugging.')
+            @('<span class="mono">SUTF-2</span>', '2-bit frame', 'Full 31-bit space', 'Fixed <strong>16 frames (4 bytes)</strong> per codepoint; compressed framing for narrow inter-thread IPC.')
+            @('<span class="mono">vSUTF</span>', 'byte', 'Full 64-bit ExtSUCS space', 'Variable streaming form with a Base-SUCS fast path.')
         ) }
-        @{ t = 'p'; html = 'Reference implementations live in <a href="../modules/sutf/index.html">modules/sutf</a> (framing) and <a href="../modules/sust/index.html">modules/sust</a> (byte serialization, BE canonical/LE); the framing tables are published at <span class="mono">Public/0.1.0/sutf/</span>. Extended codepoints use <a href="../extended/transport.html">vector, vsutf and e-SUST</a>.' }
+        @{ t = 'p'; html = 'Reference implementations live in <a href="../modules/sutf/index.html">modules/sutf</a> (Level 3 forms) and <a href="../modules/sust/index.html">modules/sust</a> (Level 4 serialization, <span class="mono">SUST-16</span> big-endian canonical plus the fixed <span class="mono">SUST-32/64/128/256/512/N</span> widths); the framing tables are published at <span class="mono">Public/0.1.0/sutf/</span>. Extended codepoints use <a href="../extended/transport.html">vector, vsutf and e-SUST</a>. For why forms and transports are separate levels, see <a href="../reports/SUTR-7.html">SUTR-7</a>.' }
     )
 }
 
@@ -353,13 +355,12 @@ $Pages['glossary'] = @{
     subtitle= 'Every term, defined in one place.'
     body    = @(
         @{ t = 'table'; head = @('Term', 'Definition'); rows = @(
-            @('<strong>Codepoint</strong>', 'The atomic unit of SuperUnicode; a 31-bit <span class="mono">SUCS_CP</span> value in Base, or a 64-bit <span class="mono">sucs_ex_char_t</span> in Extended.')
-            @('<strong>Block</strong>', 'A named run of codepoints, recorded in <span class="mono">Blocks.txt</span>.')
-            @('<strong>Range</strong>', 'A declared contiguous allocation, e.g. a plugin&rsquo;s codepoint range.')
-            @('<strong>Plane</strong>', '64,536 codepoints; plane = <span class="mono">CP &gt;&gt; 16</span>.')
-            @('<strong>District</strong>', '16 planes (1 MiB); district = <span class="mono">CP &gt;&gt; 20</span>.')
-            @('<strong>Zone</strong>', '16 districts (16 MiB); zone = <span class="mono">CP &gt;&gt; 24</span>.')
-            @('<strong>Territory</strong>', '16 zones (256 MiB); territory = <span class="mono">CP &gt;&gt; 28</span>.')
+             @('<strong>Codepoint</strong>', 'The atomic unit of SuperUnicode; a 31-bit <span class="mono">SUCS_CP</span> value in Base, or a 64-bit <span class="mono">sucs_ex_char_t</span> in Extended.')
+             @('<strong>Block</strong>', 'A named run of codepoints, recorded in <span class="mono">Blocks.txt</span>. Variable-length; a semantic grouping, not an address field.')
+             @('<strong>Range</strong>', 'A declared contiguous allocation, e.g. a plugin&rsquo;s codepoint range. Variable-length; a semantic grouping, not an address field.')
+             @('<strong>Plane</strong>', '256 offsets = 65,536 codepoints; plane = <span class="mono">CP &gt;&gt; 8 &amp; 0xFF</span>.')
+             @('<strong>District</strong>', '256 planes = 16,777,216 codepoints; district = <span class="mono">CP &gt;&gt; 16 &amp; 0xFF</span>.')
+             @('<strong>Zone</strong>', '256 districts; zone = <span class="mono">CP &gt;&gt; 24 &amp; 0x7F</span>. The top bit field, 128 zones total.')
             @('<strong>Unicode Compatibility Space</strong>', '<span class="mono">0x000000&ndash;0x10FFFF</span>, permanently 1:1 with Unicode.')
             @('<strong>System Control Plane (SCP)</strong>', '<span class="mono">0x110000&ndash;0x11FFFF</span>; machine instructions, host of the BANcode Registry.')
             @('<strong>BANcode Registry</strong>', 'The BANcode, WARNcode, COMcode and SOFTcode diagnostic blocks.')

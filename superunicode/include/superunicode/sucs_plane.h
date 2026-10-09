@@ -11,6 +11,16 @@
  * - District: Bits 16..23 (8 bits) -> 256 districts per zone
  * - Plane   : Bits  8..15 (8 bits) -> 256 planes per district
  * - Offset  : Bits  0.. 7 (8 bits) -> 256 block offsets per plane
+ *
+ * These four fields are the COMPLETE bit-addressed hierarchy. The chain is
+ * codepoint < plane < district < zone.
+ *
+ * Do NOT extend the chain with "block", "range" or "territory". Block and
+ * Range are variable-length SEMANTIC groupings (a named run in Blocks.txt; a
+ * declared allocation such as a plugin's range table) and are deliberately
+ * not bit fields: the four fields above must tile 2^31 exactly, and a
+ * variable-length grouping cannot. There is no Territory level -- a 31-bit
+ * space has no field above Zone.
  */
 #define SUCS_GET_ZONE(cp)     (((cp) >> 24) & 0x7FUL)
 #define SUCS_GET_DISTRICT(cp) (((cp) >> 16) & 0xFFUL)
@@ -95,6 +105,17 @@ static inline bool sucs_is_kernel_trap(sucs_char_t cp) {
  * a B+ BANcode for damage control dispatch upon kernel crash. Returns
  * SUCS_INVALID_CODEPOINT if the input is not a B+ BANcode or falls beyond the
  * 15 assigned trap slots (0x0011A780-0x0011A7FF is unmapped).
+ *
+ * B+ ONLY. W+, C+ and S+ codepoints have no trap: they are classified by
+ * sucs_classify_bancode() / sucs_is_warncode() etc., but are never dispatch
+ * targets. A trap-bearing event is a fatal B+ event by construction.
+ *
+ * PARTIAL COVERAGE. 15 slots * 128 = 1,920 governed codepoints, while B+
+ * spans 2,048, so the top 128 B+ codepoints (0x0011A780..0x0011A7FF) return
+ * SUCS_INVALID_CODEPOINT rather than a trap. Do not assume every B+ codepoint
+ * has a handler.
+ *
+ * O(1): one subtract, one divide by a compile-time constant, one add.
  */
 static inline sucs_char_t sucs_bancode_to_trap(sucs_char_t bancode_cp) {
     if (!sucs_is_bancode(bancode_cp)) {
@@ -111,6 +132,12 @@ static inline sucs_char_t sucs_bancode_to_trap(sucs_char_t bancode_cp) {
  * Returns the B+ BANcode range (inclusive min/max) managed by a specific
  * Kernel Security Trap handler. Returns false for non-trap codepoints or null
  * output pointers.
+ *
+ * Total over the 15 traps: each maps to exactly one 128-codepoint B+ range.
+ * Returns false for the Sentinel, for any value outside the trap range, and
+ * for NULL output pointers. Note the inverse of sucs_bancode_to_trap() is
+ * total, but sucs_bancode_to_trap() is not surjective -- 128 B+ codepoints
+ * have no trap to invert to.
  */
 static inline bool sucs_trap_to_bancode_range(sucs_char_t trap_cp, sucs_char_t* out_min, sucs_char_t* out_max) {
     if (!sucs_is_kernel_trap(trap_cp) || out_min == NULL || out_max == NULL) {

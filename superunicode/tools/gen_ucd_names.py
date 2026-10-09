@@ -2,21 +2,34 @@
 """
 Generate sucs_ucd_names.h and sucs_ucd_names.c from UnicodeData.txt.
 
-Usage: python gen_ucd_names.py [path_to_UnicodeData.txt]
-       If omitted, downloads from unicode.org.
+Usage: python gen_ucd_names.py [path_to_UnicodeData.txt] [unicode_version]
+       If the path is omitted, downloads from unicode.org.
+       unicode_version defaults to SUCD_UNICODE_VERSION ("MAJOR.MINOR") and
+       is written into the generated banners; it must be kept in sync with
+       SUCS_UNICODE_VERSION_MAJOR/MINOR in sucs_compat.h.
 """
 
-import sys, os, urllib.request, struct
+import sys, os, re, urllib.request, struct
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 INCLUDE_DIR = os.path.join(PROJECT_ROOT, "include", "superunicode")
 SRC_DIR = os.path.join(PROJECT_ROOT, "src")
 
-def fetch_udata(path=None):
+# Unicode release the UCS/UCB name database is generated from.
+SUCD_UNICODE_VERSION = "18.0"
+
+def detect_version(path, fallback):
+    """Recover the Unicode version from a versioned UCD path (…/18.0.0/…)."""
+    m = re.search(r"(\d+)\.(\d+)\.(\d+)", str(path).replace("\\", "/"))
+    if m:
+        return f"{m.group(1)}.{m.group(2)}"
+    return fallback
+
+def fetch_udata(path=None, version=SUCD_UNICODE_VERSION):
     if path and os.path.isfile(path):
         return path
-    url = "https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt"
+    url = f"https://www.unicode.org/Public/{version}/ucd/UnicodeData.txt"
     dest = os.path.join(os.environ.get("TEMP", "."), "UnicodeData.txt")
     print(f"Downloading {url} ...")
     urllib.request.urlretrieve(url, dest)
@@ -52,7 +65,7 @@ def build_pool_and_index(entries):
         index.append((cp, offset, len(name_bytes)))
     return bytes(pool), index
 
-def write_header(count, out_path):
+def write_header(count, out_path, version):
     with open(out_path, "w", encoding="utf-8") as f:
         f.write("#ifndef SUPERUNICODE_SUCS_UCD_NAMES_H\n")
         f.write("#define SUPERUNICODE_SUCS_UCD_NAMES_H\n\n")
@@ -62,7 +75,7 @@ def write_header(count, out_path):
         f.write('extern "C" {\n')
         f.write("#endif\n\n")
         f.write("/* ========================================================================\n")
-        f.write(" * Unicode Character Database Name Lookup (Unicode 17.0)\n")
+        f.write(f" * Unicode Character Database Name Lookup (Unicode {version})\n")
         f.write(" *\n")
         f.write(" * Provides codepoint -> character name resolution for all named\n")
         f.write(" * codepoints in the Unicode Compatibility Range (0x000000 - 0x10FFFF).\n")
@@ -105,14 +118,14 @@ def write_header(count, out_path):
         f.write("#endif\n\n")
         f.write("#endif /* SUPERUNICODE_SUCS_UCD_NAMES_H */\n")
 
-def write_source(pool, index, out_path):
+def write_source(pool, index, out_path, version):
     with open(out_path, "w", encoding="utf-8") as f:
         f.write('#include "superunicode/sucs_ucd_names.h"\n')
         f.write("#include <stdint.h>\n")
         f.write("#include <stdbool.h>\n\n")
         f.write("/* ========================================================================\n")
-        f.write(" * Auto-generated Unicode 17.0 Character Name Database\n")
-        f.write(" * Source: https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt\n")
+        f.write(f" * Auto-generated Unicode {version} Character Name Database\n")
+        f.write(f" * Source: https://www.unicode.org/Public/{version}.0/ucd/UnicodeData.txt\n")
         f.write(f" * Entries: {len(index)} named codepoints\n")
         f.write(f" * Pool size: {len(pool)} bytes\n")
         f.write(" * ======================================================================== */\n\n")
@@ -176,8 +189,9 @@ def write_source(pool, index, out_path):
 
 def main():
     udata_path = sys.argv[1] if len(sys.argv) > 1 else None
-    path = fetch_udata(udata_path)
-    print(f"Parsing {path} ...")
+    version = sys.argv[2] if len(sys.argv) > 2 else detect_version(udata_path, SUCD_UNICODE_VERSION)
+    path = fetch_udata(udata_path, version)
+    print(f"Parsing {path} (Unicode {version}) ...")
     entries = parse_udata(path)
     print(f"Found {len(entries)} named codepoints")
     pool, index = build_pool_and_index(entries)
@@ -187,9 +201,9 @@ def main():
     source_path = os.path.join(SRC_DIR, "sucs_ucd_names.c")
 
     print(f"Writing {header_path} ...")
-    write_header(len(index), header_path)
+    write_header(len(index), header_path, version)
     print(f"Writing {source_path} ...")
-    write_source(pool, index, source_path)
+    write_source(pool, index, source_path, version)
     print("Done.")
 
 if __name__ == "__main__":

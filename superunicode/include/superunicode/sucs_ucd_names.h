@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 /* ========================================================================
- * Unicode Character Database Name Lookup (Unicode 17.0)
+ * Unicode Character Database Name Lookup (Unicode 18.0)
  *
  * Provides codepoint -> character name resolution for all named
  * codepoints in the Unicode Compatibility Range (0x000000 - 0x10FFFF).
@@ -18,7 +18,7 @@ extern "C" {
  * ======================================================================== */
 
 /* Total named codepoints in database */
-#define SUCS_UCD_NAME_COUNT 40470
+#define SUCS_UCD_NAME_COUNT 41232
 
 /* Index entry: codepoint -> name pool offset */
 typedef struct {

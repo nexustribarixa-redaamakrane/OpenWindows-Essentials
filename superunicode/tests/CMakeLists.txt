@@ -10,3 +10,7 @@ add_executable(test_conv test_conv.c)
 target_link_libraries(test_conv PRIVATE superunicode_static)
 add_test(NAME test_conv COMMAND test_conv)
 
+add_executable(test_sucs_ucd test_sucs_ucd.c)
+target_link_libraries(test_sucs_ucd PRIVATE superunicode_static)
+add_test(NAME test_sucs_ucd COMMAND test_sucs_ucd)
+

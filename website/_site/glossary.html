@@ -39,27 +39,23 @@
 </tr>
 <tr>
 <td><strong>Block</strong></td>
-<td>A named run of codepoints, recorded in <span class="mono">Blocks.txt</span>.</td>
+<td>A named run of codepoints, recorded in <span class="mono">Blocks.txt</span>. Variable-length; a semantic grouping, not an address field.</td>
 </tr>
 <tr>
 <td><strong>Range</strong></td>
-<td>A declared contiguous allocation, e.g. a plugin&rsquo;s codepoint range.</td>
+<td>A declared contiguous allocation, e.g. a plugin&rsquo;s codepoint range. Variable-length; a semantic grouping, not an address field.</td>
 </tr>
 <tr>
 <td><strong>Plane</strong></td>
-<td>64,536 codepoints; plane = <span class="mono">CP &gt;&gt; 16</span>.</td>
+<td>256 offsets = 65,536 codepoints; plane = <span class="mono">CP &gt;&gt; 8 &amp; 0xFF</span>.</td>
 </tr>
 <tr>
 <td><strong>District</strong></td>
-<td>16 planes (1 MiB); district = <span class="mono">CP &gt;&gt; 20</span>.</td>
+<td>256 planes = 16,777,216 codepoints; district = <span class="mono">CP &gt;&gt; 16 &amp; 0xFF</span>.</td>
 </tr>
 <tr>
 <td><strong>Zone</strong></td>
-<td>16 districts (16 MiB); zone = <span class="mono">CP &gt;&gt; 24</span>.</td>
-</tr>
-<tr>
-<td><strong>Territory</strong></td>
-<td>16 zones (256 MiB); territory = <span class="mono">CP &gt;&gt; 28</span>.</td>
+<td>256 districts; zone = <span class="mono">CP &gt;&gt; 24 &amp; 0x7F</span>. The top bit field, 128 zones total.</td>
 </tr>
 <tr>
 <td><strong>Unicode Compatibility Space</strong></td>

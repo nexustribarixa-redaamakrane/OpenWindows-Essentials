@@ -144,7 +144,7 @@ $Pages['extended/transport'] = @{
         @{ t = 'p'; html = 'Because plugin codepoints exceed 31 bits, Extended defines its own transport families over <span class="mono">sucs_ex_char_t</span> (64-bit). Base SUTF8/16/32 cap at <span class="mono">0x7FFFFFFF</span>; these do not.' }
         @{ t = 'table'; head = @('Transport', 'Description', 'Reference'); rows = @(
             @('<span class="mono">Vector</span>', 'Length-prefixed sequences of 64-bit codepoints; one codepoint per unit, little-endian.', 'vsutf.h / vector layout')
-            @('<span class="mono">vsutf</span>', 'Variable-length integer framing (LEB128-style) covering the full 64-bit space.', '<span class="mono">vsutf.h</span>')
+            @('<span class="mono">vSUTF</span>', 'SUTF-8 for the Base range; <span class="mono">0xFE</span> + 8 big-endian bytes (9 total) above <span class="mono">0x7FFFFFFF</span>. <span class="mono">0xFE</span>/<span class="mono">0xFF</span> are unused as SUTF-8 lead bytes, making them safe extension markers.', '<span class="mono">vsutf.h</span>')
             @('<span class="mono">e-SUST</span>', 'The fixed-base Extended family complementing Base SUTF8/16/32, plus page-mapped IPC framing.', '<span class="mono">esust.h</span> (SUST module)')
         ) }
         @{ t = 'h2'; html = 'Why separate framing?' }

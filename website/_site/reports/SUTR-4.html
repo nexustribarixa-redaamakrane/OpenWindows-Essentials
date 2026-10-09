@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
-<title>SUTR-4 — ExtSUCS Transport</title>
-<meta name='description' content='ExtSUCS Transport: vector, vsutf and e-SUST framing.'>
+<title>SUTR-4 &mdash; ExtSUCS Transport</title>
+<meta name='description' content='Level 4 (Character Encoding Scheme / Transport) &mdash; serialization of codepoints to bytes'>
 <link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
 <link rel='icon' href='../favicon.svg' type='image/svg+xml'>
 <link rel='apple-touch-icon' href='../assets/img/logo.png'>
@@ -29,33 +29,300 @@
 <main class='page'>
 <nav class='breadcrumbs'><a href='../index.html'>Home</a>
  &raquo; <a href='../index.html'>Technical Reports</a>
- &raquo; SUTR-4 — ExtSUCS Transport</nav>
-<h1>SUTR-4 &mdash; ExtSUCS <span class="grad">Transport</span></h1>
-<p class='subtitle'>Framing for 64-bit codepoints.</p>
+ &raquo; SUTR-4 &mdash; ExtSUCS Transport</nav>
+<h1><span class='mono'>SUTR-4</span> &mdash; <span class='grad'>ExtSUCS Transport</span></h1>
+<p class='subtitle'>Level 4 (Character Encoding Scheme / Transport) &mdash; serialization of codepoints to bytes</p>
+<p class='note'><strong>Standard ID:</strong> <span class='mono'>SUTR-4</span><br><strong>Status:</strong> 0.1.0 &mdash; Published<br><strong>Scope:</strong> Level 4 (Character Encoding Scheme / Transport) &mdash; serialization of codepoints to bytes<br><strong>Applies to:</strong> vector storage, IPC, plugin space, page-mapped virtualization<br><strong>Last updated:</strong> <span class='mono'>2026-09-30</span><br><strong>Source:</strong> <span class='mono'>docs/sutr/SUTR-4-extsucs-transport.md</span> &mdash; this page is generated from it, and the repository copy governs where they differ.</p>
+<h2>1. Overview</h2>
+<p>SUTR-4 defines the <strong>SUST</strong> family: the SuperUnicode Serialization Transports. These are the <strong>Level 4 (CES)</strong> implementations of SUCEM &mdash; they take sequences of code units and produce serialized bytes, and they are the only layer in SuperUnicode that has an opinion about byte order, alignment, and framing.</p>
+<p>This report covers two things:</p>
+<ol>
+<li>The <strong>Base SUCS transports</strong> &mdash; <span class='mono'>SUST-16</span> and the fixed-width family</li>
+</ol>
+<p><span class='mono'>SUST-32/64/128/256/512/N</span> &mdash; which serialize 31-bit codepoints.</p>
+<ol>
+<li>The <strong>ExtSUCS transports</strong> &mdash; <strong>vector</strong>, <strong>vSUTF</strong>, and <strong>e-SUST</strong> &mdash; which</li>
+</ol>
+<p>carry the unbounded 64-bit domain.</p>
+<p>The Level 3 / Level 4 boundary itself is specified in SUTR-1 §5; this report does not restate it, only applies it.</p>
+<h3>1.1 What a transport is not</h3>
+<p>A transport is not a <em>form</em>. <span class='mono'>SUTF-8</span> (SUTR-1) maps a codepoint to bytes; it is byte-oriented and endian-neutral. <span class='mono'>SUTF-16</span> maps a codepoint to words; it is endian-neutral, and becomes bytes only under <span class='mono'>SUST-16</span>. Fixed-width framings are transports, not forms. An implementation that chooses a transport is making a <strong>portability</strong> decision; an implementation that chooses a form is not.</p>
+<h2>2. Base SUCS Transports</h2>
+<h3>2.1 SUST-16</h3>
+<p><span class='mono'>SUST-16</span> is the <strong>canonical serialization</strong> of the SUTF-16 word stream: it defines how 16-bit framing words are packed onto a byte medium &mdash; files, sockets, buses, console dumps. <span class='mono'>SUTF-16</span> defines the codepoint ↔ word mapping and stops there; <span class='mono'>SUST-16</span> is the layer that makes the bytes.</p>
+<p><span class='mono'>SUST-16</span> provides <strong>two byte orders</strong>, and the distinction is normative:</p>
 <div class="table-wrap"><table class="plain"><thead><tr>
-<th>Transport</th>
-<th>Description</th>
+<th>Order</th>
+<th>Entry points</th>
+<th>Status</th>
 </tr></thead><tbody>
 <tr>
-<td><span class="mono">Vector</span></td>
-<td>Length-prefixed sequences of 64-bit <span class="mono">sucs_ex_char_t</span>; one codepoint per little-endian unit.</td>
+<td>Big-endian</td>
+<td><span class='mono'>sust16_encode_bytes()</span> / <span class='mono'>_be()</span></td>
+<td><strong>Canonical.</strong> The default; network order.</td>
 </tr>
 <tr>
-<td><span class="mono">vsutf</span></td>
-<td>Variable-length integer framing (LEB128-style) covering the full 64-bit space.</td>
-</tr>
-<tr>
-<td><span class="mono">e-SUST</span></td>
-<td>The fixed-base Extended family, complementing Base SUTF8/16/32, with page-mapped IPC framing (<span class="mono">esust.h</span>).</td>
+<td>Little-endian</td>
+<td><span class='mono'>sust16_encode_bytes_le()</span></td>
+<td>Available, must be explicitly selected.</td>
 </tr>
 </tbody></table></div>
-<h2>Requirements</h2>
+<p>So big-endian is what a spec names when it must name a default, and little- endian is a <em>supported variant of the same transport</em> &mdash; selected by entry point, not by a different format name. There is still no <span class='mono'>SUTF-16-LE</span>: little-endian is a CES-level choice, never a CEF-level one.</p>
+<p><strong>There is deliberately no byte-order mark.</strong> Every SUTF-16 framing word <span class='mono'>≥ &times;</span> is a marker, so no signature word can exist to carry one. The consequence is stated plainly in <span class='mono'>sust16.h</span>: the byte order is a transport attribute <strong>fixed per stream by the sender</strong>, not self-describing, and a stream decoded under the wrong order either fails loudly (the marker bit flips) or silently decodes to a different valid codepoint. An <span class='mono'>encode_*</span> MUST be paired with its matching <span class='mono'>decode_*</span>; hand-rolled packing is the one way to corrupt a SUTF-16 stream without an error.</p>
+<h3>2.2 The Fixed-Width Family</h3>
+<p>Fixed-width transports serialize a codepoint into a fixed number of bytes, zero-padded and big-endian, sized to a natural machine or vector width:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Transport</th>
+<th>Bytes</th>
+<th>Alignment</th>
+<th>Role</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>SUST-32</span></td>
+<td>4</td>
+<td>32-bit</td>
+<td>Base SUCS fast-path container</td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-64</span></td>
+<td>8</td>
+<td>64-bit</td>
+<td>SIMD / AI tensor slot; full 64-bit ExtSUCS range</td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-128</span></td>
+<td>16</td>
+<td>128-bit</td>
+<td>SSE / NEON vector register slot</td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-256</span></td>
+<td>32</td>
+<td>256-bit</td>
+<td>AVX-256 vector register slot</td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-512</span></td>
+<td>64</td>
+<td>512-bit</td>
+<td>AVX-512 vector register slot</td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-N</span></td>
+<td>N&times;word</td>
+<td>arbitrary</td>
+<td>General multi-word block container</td>
+</tr>
+</tbody></table></div>
+<p><span class='mono'>SUST-N</span> is the general rule; the named widths are conveniences. Because a fixed-width form is a <strong>transport</strong>, there is no <span class='mono'>SUTF-32</span> and no <span class='mono'>SUTF-64</span> &mdash; those names do not exist in this standard, and code that references them is referencing a form that was never specified.</p>
+<p>Fixed-width transports are <strong>simple</strong> CESs: each code unit maps to a unique byte sequence, in order, with no shift mechanism and no escaping. There is no byte-order mark anywhere in the SUST family, because SuperUnicode fixes the order per transport rather than marking it in the data &mdash; the transport <em>is</em> the declaration of order.</p>
+<h2>3. ExtSUCS Transports</h2>
+<p>The 64-bit ExtSUCS domain is unbounded, so it cannot be covered by a fixed-width form. The Extended transports therefore fall into two shapes: a fixed-width <strong>vector</strong> (length-prefixed, so a stream can end without a terminator) and a variable-length <strong>streaming</strong> form.</p>
+<h3>3.1 Vector</h3>
+<p>A vector is an in-memory sequence of <span class='mono'>sucs_ex_char_t</span> (64-bit, little-endian), one codepoint per unit:</p>
+<div class='spec'>UNIT  uint64, little-endian, one codepoint per unit</div>
+<p><strong>Length is carried by the stream framing, not by the data.</strong> A Base SUCS stream terminates on the Sentinel <span class='mono'>0x7FFFFFFF</span>; a vector is <em>length-prefixed</em> instead, because a 64-bit space has no reserved terminal value &mdash; the plugin space above the Sentinel is addressable, so the Sentinel cannot double as a terminator without ambiguity. This is the one place where the Extended domain forces a different framing convention from the Base.</p>
+<h3>3.2 vSUTF</h3>
+<p><span class='mono'>vSUTF</span> is the Extended-domain <strong>transformation format</strong>, and it is a Level 3 artifact in nature: it maps a codepoint to a byte sequence and fixes no memory layout, alignment, or stream framing. It is specified here because it sits in the Extended module, but its level classification follows the byte-order test of SUTR-7 §7 &mdash; and vSUTF passes that test as <em>endian-neutral</em>, because it emits bytes directly and never exposes a host word.</p>
+<p>Its structure is <strong>not</strong> LEB128, and this is worth stating precisely because <span class='mono'>vsutf.txt</span> describes it that way while deferring to <span class='mono'>vsutf.h</span> as the reference. <span class='mono'>vsutf.h</span> is normative. vSUTF has two regimes:</p>
+<div class='spec'>0x00000000 &ndash; 0x7FFFFFFF   standard SUTF-8 framing, 1&ndash;6 bytes  (SUTR-1)<br>0x80000000 &ndash; 0xFFFF...FF  0xFE prefix + 8 bytes big-endian    = 9 bytes<br>0xFF                    reserved, for a future &gt;64-bit domain</div>
+<p>So the Extended tail uses a <strong>fixed 9-byte escape</strong>, not a variable-length integer. The design reason is stated in the header: <span class='mono'>0xFE</span> and <span class='mono'>0xFF</span> are unused as SUTF-8 lead bytes, which are <span class='mono'>0xC0</span>&ndash;<span class='mono'>0xFD</span>, so they are free extension markers. A LEB128 variable-length scheme could not coexist with SUTF-8 lead bytes, because <span class='mono'>0xFE</span>/<span class='mono'>0xFF</span> would be ambiguous.</p>
+<p><span class='mono'>vsutf_codepoint_length()</span> reproduces the SUTF-8 length table exactly for the Base range &mdash; 1, 2, 3, 4, 5, 6 bytes at the SUTR-1 boundaries &mdash; and returns 9 above <span class='mono'>0x7FFFFFFF</span>. <span class='mono'>VSUTF_MAX_BYTES</span> is 9. A codepoint in the inherited trap range returns 0, so vSUTF cannot carry a trap address.</p>
+<p>One consequence is worth noting: because the Base regime is byte-for-byte SUTF-8, a Base SUCS stream is <strong>already</strong> a valid vSUTF stream. vSUTF is a strict superset of SUTF-8, and a decoder that understands <span class='mono'>0xFE</span> needs no special case for Base text.</p>
+<h3>3.3 e-SUST</h3>
+<p><span class='mono'>e-SUST</span> is the <strong>page-mapped</strong> Extended transport, built for hypervisor IPC. Guest systems reference codepoints by coordinate rather than by value, because a guest and host may not share an address space:</p>
+<div class='spec'>frame = 4 bytes page_index (uint32_t, big-endian)<br>      + 2 bytes offset     (uint16_t, big-endian)<br>      = 6 bytes</div>
+<p>with <span class='mono'>ESUST_PAGE_SIZE = 4096</span> codepoints per page and <span class='mono'>ESUST_PAGE_SHIFT = 12</span>. A host maps a guest <span class='mono'>page_index</span> to a page-aligned host base address in the ExtSUCS encoding; the guest's 12-bit <span class='mono'>offset</span> (<span class='mono'>ESUST_OFFSET_MASK = 0x0FFF</span>) selects within the page. An <span class='mono'>esust_mapping_t</span> holds either a synthetic identity mapping or a caller-populated table of real ones.</p>
+<p>e-SUST is a <strong>TES</strong> in SUCEM terms &mdash; a framing over already-encoded data whose purpose is transport across an isolation boundary, not the representation of characters. It carries no meaning of its own about what the codepoints mean.</p>
+<h2>4. Requirements</h2>
+<ol>
+<li><strong>Full 64-bit representability.</strong> Every Extended transport MUST represent</li>
+</ol>
+<p>any value from <span class='mono'>0</span> to <span class='mono'>0xFFFFFFFFFFFFFFFF</span>.</p>
+<ol>
+<li><strong>Base round-trip.</strong> Base SUTF codepoints MUST round-trip unchanged through</li>
+</ol>
+<p>the Extended transports, at the same numeric value.</p>
+<ol>
+<li><strong>No reserved terminal value.</strong> The Extended transports MUST NOT treat</li>
+</ol>
+<p><span class='mono'>0x7FFFFFFF</span> as a terminator; the plugin space above it is addressable. Streams are length-prefixed instead.</p>
+<ol>
+<li><strong>Order is the transport's, not the form's.</strong> A transport MUST fix a byte</li>
+</ol>
+<p>order; the SUTF forms it carries MUST remain endian-neutral.</p>
+<ol>
+<li><strong>Simple CES.</strong> Transports MUST be simple (no shift/escape state), so that</li>
+</ol>
+<p>a transport is a fixed, table-free function of the code-unit sequence.</p>
+<h2>5. Data</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Path</th>
+<th>Contents</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>Public/0.1.0/transport/</span></td>
+<td>Transport contract (Base tree)</td>
+</tr>
+<tr>
+<td><span class='mono'>superunicode_extended/Public/0.1.0/transport/vector/VectorLayout.txt</span></td>
+<td>Vector unit layout</td>
+</tr>
+<tr>
+<td><span class='mono'>superunicode_extended/Public/0.1.0/transport/vsutf.txt</span></td>
+<td>vSUTF variable-length contract</td>
+</tr>
+<tr>
+<td><span class='mono'>sust/include/sust.h</span></td>
+<td>SUST master header; SUST-16</td>
+</tr>
+<tr>
+<td><span class='mono'>sust/include/sustfixed.h</span></td>
+<td>Fixed-width family; SUST-N</td>
+</tr>
+<tr>
+<td><span class='mono'>sust/include/esust.h</span></td>
+<td>e-SUST page/IPC framing</td>
+</tr>
+</tbody></table></div>
+<p>Reference implementation: <span class='mono'>modules/sust</span>, exercised by <span class='mono'>test_sust_all</span>.</p>
+<h2>6. Compliance Matrix</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Requirement</th>
+<th>Mandatory</th>
+<th>Verification</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>SUST-16</span> is canonical big-endian, with LE available</td>
+<td>Yes</td>
+<td><span class='mono'>sust16.h</span>; <span class='mono'>_be</span> / <span class='mono'>_le</span> entry points</td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-16</span> has no byte-order mark</td>
+<td>Yes</td>
+<td>Every word <span class='mono'>≥ &times;</span> is a marker</td>
+</tr>
+<tr>
+<td><span class='mono'>encode_*</span> MUST pair with matching <span class='mono'>decode_*</span></td>
+<td>Yes</td>
+<td><span class='mono'>sust16.h</span> contract</td>
+</tr>
+<tr>
+<td>Fixed-width transports are big-endian, zero-padded</td>
+<td>Yes</td>
+<td><span class='mono'>sustfixed.h</span>; <span class='mono'>SUST-256</span> is 32 bytes</td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-32</span> is 4 bytes, <span class='mono'>SUST-64</span> is 8, <span class='mono'>SUST-512</span> is 64</td>
+<td>Yes</td>
+<td><span class='mono'>SUST32_BYTES</span> / <span class='mono'>SUST64_BYTES</span> / <span class='mono'>SUST512_BYTES</span></td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-32</span> covers only 32-bit values; <span class='mono'>SUST-64</span> the full 64 bits</td>
+<td>Yes</td>
+<td><span class='mono'>sustfixed.h</span> per-transport range notes</td>
+</tr>
+<tr>
+<td><span class='mono'>SUST-N</span> minimum <span class='mono'>slot_bytes</span> is 8</td>
+<td>Yes</td>
+<td><span class='mono'>sustn_encode()</span> contract</td>
+</tr>
+<tr>
+<td>Full 64-bit representability in Extended transports</td>
+<td>Yes</td>
+<td>Round-trip <span class='mono'>0xFFFFFFFFFFFFFFFF</span></td>
+</tr>
+<tr>
+<td>Base codepoints round-trip unchanged</td>
+<td>Yes</td>
+<td>Cross-form test</td>
+</tr>
+<tr>
+<td>Extended transports do not terminate on the Sentinel</td>
+<td>Yes</td>
+<td>Length-prefixed framing; no <span class='mono'>0x7FFFFFFF</span> check</td>
+</tr>
+<tr>
+<td>vSUTF Base regime is byte-identical to SUTF-8</td>
+<td>Yes</td>
+<td><span class='mono'>vsutf_codepoint_length()</span> matches SUTR-1</td>
+</tr>
+<tr>
+<td>vSUTF Extended regime is <span class='mono'>0xFE</span> + 8 bytes big-endian</td>
+<td>Yes</td>
+<td><span class='mono'>VSUTF_EXT64_TOTAL</span> = 9</td>
+</tr>
+<tr>
+<td><span class='mono'>0xFE</span>/<span class='mono'>0xFF</span> are safe SUTF-8 extension markers</td>
+<td>Yes</td>
+<td>SUTF-8 leads are <span class='mono'>0xC0</span>&ndash;<span class='mono'>0xFD</span></td>
+</tr>
+<tr>
+<td><span class='mono'>VSUTF_MAX_BYTES</span> is 9</td>
+<td>Yes</td>
+<td><span class='mono'>vsutf.h</span></td>
+</tr>
+<tr>
+<td>e-SUST frame is 6 bytes (4 page + 2 offset)</td>
+<td>Yes</td>
+<td><span class='mono'>ESUST_IPC_FRAME_BYTES</span></td>
+</tr>
+<tr>
+<td>e-SUST page size is 4096, shift 12</td>
+<td>Yes</td>
+<td><span class='mono'>ESUST_PAGE_SIZE</span>, <span class='mono'>ESUST_PAGE_SHIFT</span></td>
+</tr>
+<tr>
+<td>e-SUST fields are big-endian</td>
+<td>Yes</td>
+<td><span class='mono'>esust.h</span> layout comment</td>
+</tr>
+<tr>
+<td>Transports are simple CESs (no escaping)</td>
+<td>Yes</td>
+<td>Encoder/decoder inspection</td>
+</tr>
+<tr>
+<td>No byte-order mark in any transport</td>
+<td>Yes</td>
+<td>Format inspection</td>
+</tr>
+<tr>
+<td><span class='mono'>SUTF-32</span> / <span class='mono'>SUTF-64</span> do not exist as forms</td>
+<td>Yes</td>
+<td>Naming; forms are SUTR-1</td>
+</tr>
+</tbody></table></div>
+<h2>7. Terms &amp; Conventions</h2>
 <ul>
-<li>Every transport must represent any value from <span class="mono">0</span> to <span class="mono">0xFFFFFFFFFFFFFFFF</span>.</li>
-<li>Base SUTF8/16/32 values must round-trip unchanged into the Extended transports.</li>
-<li>Sentinel semantics carry over: plugin streams terminate with the inherited Sentinel value.</li>
+<li><strong>SUST</strong> &mdash; SuperUnicode Serialization Transport; the Level 4 CES family.</li>
+<li><strong>CES</strong> &mdash; Character Encoding Scheme; byte order and framing.</li>
+<li><strong>Transport</strong> &mdash; a SUST: a simple, reversible code-units-to-bytes transform.</li>
+<li><strong><span class='mono'>SUST-16</span></strong> &mdash; canonical big-endian SUTF-16 serialization; the reference</li>
 </ul>
-<p class='note'>Reference: <a href="../modules/sust/index.html">modules/sust</a>. Data: <span class="mono">Public/0.1.0/transport/</span>.</p>
+<p>transport.</p>
+<ul>
+<li><strong><span class='mono'>SUST-N</span></strong> &mdash; the general fixed-width transport; the named widths</li>
+</ul>
+<p>(32/64/128/256/512) are conveniences.</p>
+<ul>
+<li><strong>Vector</strong> &mdash; length-prefixed sequence of 64-bit <span class='mono'>sucs_ex_char_t</span>.</li>
+<li><strong>vSUTF</strong> &mdash; Extended transformation format; SUTF-8 for the Base range,</li>
+</ul>
+<p><span class='mono'>0xFE</span> + 8 big-endian bytes above it, 9 bytes max. <span class='mono'>vsutf.h</span> is normative.</p>
+<ul>
+<li><strong>e-SUST</strong> &mdash; page-mapped Extended transport: 4096-codepoint pages, 6-byte</li>
+</ul>
+<p><span class='mono'>(page_index, offset)</span> IPC frames.</p>
+<ul>
+<li><strong>Simple CES</strong> &mdash; a CES with no shift mechanism and no escaping.</li>
+<li><strong>BANcode</strong> &mdash; an SCP trap directive codepoint; transported like any other</li>
+</ul>
+<p>codepoint (SUTR-0 §5).</p>
+<ul>
+<li><strong>ExtSUCS</strong> &mdash; the unbounded 64-bit space; the plugin space sits above the</li>
+</ul>
+<p>Sentinel, which is why Extended framing cannot reuse it as a terminator.</p>
 </main>
 <footer class='site-footer'><div class='footer-inner'>
 <span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>

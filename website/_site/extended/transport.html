@@ -44,8 +44,8 @@
 <td>vsutf.h / vector layout</td>
 </tr>
 <tr>
-<td><span class="mono">vsutf</span></td>
-<td>Variable-length integer framing (LEB128-style) covering the full 64-bit space.</td>
+<td><span class="mono">vSUTF</span></td>
+<td>SUTF-8 for the Base range; <span class="mono">0xFE</span> + 8 big-endian bytes (9 total) above <span class="mono">0x7FFFFFFF</span>. <span class="mono">0xFE</span>/<span class="mono">0xFF</span> are unused as SUTF-8 lead bytes, making them safe extension markers.</td>
 <td><span class="mono">vsutf.h</span></td>
 </tr>
 <tr>

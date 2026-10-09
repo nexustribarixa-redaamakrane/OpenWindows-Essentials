@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
-<title>SUTR-2 — SUCA</title>
-<meta name='description' content='SUCA: the SuperUnicode Collation Algorithm (formalized by SUTS-001).'>
+<title>SUTR-2 &mdash; SuperUnicode Collation Algorithm (SUCA)</title>
+<meta name='description' content='Ordering of SuperUnicode strings'>
 <link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
 <link rel='icon' href='../favicon.svg' type='image/svg+xml'>
 <link rel='apple-touch-icon' href='../assets/img/logo.png'>
@@ -29,20 +29,240 @@
 <main class='page'>
 <nav class='breadcrumbs'><a href='../index.html'>Home</a>
  &raquo; <a href='../index.html'>Technical Reports</a>
- &raquo; SUTR-2 — SUCA</nav>
-<h1>SUTR-2 &mdash; <span class="grad">SUCA</span></h1>
-<p class='subtitle'>The SuperUnicode Collation Algorithm.</p>
-<p>Collation is the ordering contract for SuperUnicode strings. SUCA is now a full UCA(UTS #10)-equivalent multilevel algorithm, formally specified by <a href="SUTS-001.html">SUTS-001</a> and implemented by the freestanding <span class="mono">suts_suca</span> reference.</p>
+ &raquo; SUTR-2 &mdash; SuperUnicode Collation Algorithm (SUCA)</nav>
+<h1><span class='mono'>SUTR-2</span> &mdash; <span class='grad'>SuperUnicode Collation Algorithm (SUCA)</span></h1>
+<p class='subtitle'>Ordering of SuperUnicode strings</p>
+<p class='note'><strong>Standard ID:</strong> <span class='mono'>SUTR-2</span><br><strong>Status:</strong> 0.1.0 &mdash; Published<br><strong>Scope:</strong> Ordering of SuperUnicode strings<br><strong>Applies to:</strong> user interfaces, databases, search engines, sort comparators<br><strong>Last updated:</strong> <span class='mono'>2026-09-30</span><br><strong>Source:</strong> <span class='mono'>docs/sutr/SUTR-2-suca.md</span> &mdash; this page is generated from it, and the repository copy governs where they differ.</p>
+<h2>1. Overview</h2>
+<p>Collation is the ordering contract for SuperUnicode strings. SUTR-2 records the original report that introduced <strong>SUCA</strong>, the SuperUnicode Collation Algorithm, and its design rationale.</p>
+<div class='callout '><p><strong>Normative status.</strong> This report is <strong>superseded for normative purposes by <a href='SUTS-001.html'>SUTS-001</a></strong>, which specifies the complete algorithm, weight scheme, data files, and conformance matrix. Where this report and SUTS-001 differ in detail, <strong>SUTS-001 is authoritative</strong>. SUTR-2 is retained as the architectural record of <em>why</em> the algorithm was shaped the way it was.</p></div>
+<h3>1.1 The problem</h3>
+<p>Collation is not code-point order, and it is not a property of a string. It is a property of the combination of the string, a <strong>Collation Element Table</strong>, and a set of parametric settings. Collation varies by language &mdash; Germans, French and Swedes sort the same characters differently &mdash; and by application even within one language, since dictionaries, phonebooks and book indices disagree.</p>
+<h3>1.2 SuperUnicode scope</h3>
+<p>SUCA orders the <strong>full 64-bit</strong> ExtSUCS domain, not just the 31-bit Base:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Space</th>
+<th>Range</th>
+<th>Collation treatment</th>
+</tr></thead><tbody>
+<tr>
+<td>Unicode Bridge</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x0010FFFF</span></td>
+<td>Via its bridged Unicode repertoire; canonical-equivalence aware</td>
+</tr>
+<tr>
+<td>SCP</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x0011FFFF</span></td>
+<td>Variable: ignorable at L1&ndash;L3, resolving at L4 and the identical level</td>
+</tr>
+<tr>
+<td>Native SUCS</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFE</span></td>
+<td>Algorithmic implicit weights from the codepoint</td>
+</tr>
+<tr>
+<td>ExtSUCS plugins</td>
+<td>above <span class='mono'>0x7FFFFFFF</span></td>
+<td>Inherits Base ordering; extends above it</td>
+</tr>
+</tbody></table></div>
+<p>Every SUTS and SUAS document in the family is ExtSUCS-compatible, and SUCA carries the full 64-bit domain rather than truncating to 31 bits.</p>
+<h2>2. Multilevel Comparison</h2>
+<p>SUCA employs a <strong>multilevel comparison algorithm</strong>, as UTS #10 does. Accent differences are normally ignored when base letters differ; case differences are normally ignored when base letters or accents differ.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Level</th>
+<th>Description</th>
+<th>Example ordering</th>
+</tr></thead><tbody>
+<tr>
+<td>L1</td>
+<td>Base characters</td>
+<td><span class='mono'>role</span> &lt; <span class='mono'>roles</span> &lt; <span class='mono'>rule</span></td>
+</tr>
+<tr>
+<td>L2</td>
+<td>Accents</td>
+<td><span class='mono'>role</span> &lt; <span class='mono'>rôle</span> &lt; <span class='mono'>roles</span></td>
+</tr>
+<tr>
+<td>L3</td>
+<td>Case / variants</td>
+<td><span class='mono'>role</span> &lt; <span class='mono'>Role</span> &lt; <span class='mono'>rôle</span></td>
+</tr>
+<tr>
+<td>L4</td>
+<td>Variable (punctuation)</td>
+<td><span class='mono'>role</span> &lt; <span class='mono'>"role"</span> &lt; <span class='mono'>Role</span></td>
+</tr>
+<tr>
+<td>Identical</td>
+<td>NFD codepoint tie-break</td>
+<td><span class='mono'>role</span> &lt; <span class='mono'>role</span> + combining &lt; <span class='mono'>"role"</span></td>
+</tr>
+</tbody></table></div>
+<h3>2.1 Canonical equivalence</h3>
+<p>Two sequences are <strong>canonically equivalent</strong> when they represent the same text with different actual sequences. Canonically equivalent sequences MUST collate equally. SUCA satisfies this by normalizing each input to <strong>Normalization Form D</strong> before mapping &mdash; a precomposed character collates identically to its decomposed form, and characters sort correctly across the whole bridge.</p>
+<h3>2.2 Contextual sensitivity</h3>
 <ul>
-<li><strong>Multilevel</strong> &mdash; L1 (base), L2 (accent), L3 (case), L4 (variable), identical (NFD codepoint tie-break).</li>
-<li><strong>Canonical equivalence</strong> &mdash; input is NFD-normalized before mapping (e.g. <span class="mono">role &lt; r&ocirc;le &lt; roles</span>, and precomposed &asymp; decomposed).</li>
-<li><strong>Contractions &amp; expansions</strong> &mdash; e.g. <span class="mono">c h</span> as one letter; <span class="mono">&#339; &asymp; oe</span>.</li>
-<li><strong>Variable weighting</strong> &mdash; shifted (default), blanked, non-ignorable, shift-trimmed; SCP controls ignorable at L1&ndash;L3.</li>
-<li><strong>Backward secondary</strong> &mdash; French dictionary order.</li>
-<li><strong>Implicit weights</strong> &mdash; Unassigned/Han/Native/plugin codepoints get algorithmic primaries from the 64-bit codepoint (monotonic; plugin space above Base).</li>
+<li><strong>Contraction</strong> &mdash; two or more characters collate as one base letter, e.g.</li>
 </ul>
-<div class='callout '><p>The complete normative algorithm, weight scheme, data files and conformance matrix are in <a href="SUTS-001.html">SUTS-001 — SuperUnicode Collation Algorithm</a>.</p></div>
-<p class='note'>Data: <span class="mono">Public/0.1.0/collation/SUCA.txt</span> (Base) and <span class="mono">collation/ExtUCA.txt</span> (Extended) &mdash; both extSUCS-compatible.</p>
+<p>Slovak <span class='mono'>ch</span> after <span class='mono'>h</span>.</p>
+<ul>
+<li><strong>Expansion</strong> &mdash; one character collates as a sequence, e.g. <span class='mono'>Œ</span> as <span class='mono'>O</span>+<span class='mono'>E</span>.</li>
+<li><strong>Backward accents</strong> &mdash; in some French dictionary traditions the <em>last</em></li>
+</ul>
+<p>accent difference decides, which UTS #10 models as a backward level.</p>
+<h3>2.3 Implicit weights</h3>
+<p>Codepoints with no explicit table entry receive algorithmic primary weights derived from the codepoint itself, monotonic within their range. This is what lets SUCA produce a determinant result for <strong>every</strong> codepoint in the 64-bit domain &mdash; assigned, unassigned, reserved, SCP, and plugin alike &mdash; without a table entry for each. Han ideographs in the bridge receive Siniform implicit weights keyed off their bridge codepoint.</p>
+<h2>3. Design Decisions</h2>
+<p>The choices below are the substance of this report. Each is a decision that could reasonably have gone the other way.</p>
+<h3>3.1 SCP controls are variable, not primary</h3>
+<p>The historical <span class='mono'>SUCA.txt</span> contract was <em>binary order, control plane sorts after printables</em>. SUCA reconciles that with multilevel collation by defining SCP codepoints as <strong>variable</strong> collation elements: ignorable at L1&ndash;L3, resolving only at L4 and the identical level. The identical level then restores binary order for tie-breaking, so the old contract survives without a special case. Native allocations, by contrast, get implicit <strong>primary</strong> weights and are <em>not</em> variable &mdash; a native codepoint is content, not control.</p>
+<h3>3.2 The identical level restores binary order</h3>
+<p>A deliberate consequence: the identical level (SUTS-001 §7.4, S3.10) MUST order by <strong>SuperUnicode native codepoint order</strong>, with the Sentinel treated as highest. Binary tie-break therefore equals <span class='mono'>SUCA.txt</span> binary ordering, and existing binary-order assumptions in downstream code keep working.</p>
+<h3>3.3 The domain is 64-bit</h3>
+<p>SUCA was specified over <span class='mono'>sucs_ex_char_t</span> from the outset rather than deferred to a later extended version. Plugin ranges above <span class='mono'>0x7FFFFFFF</span> sort after Base, so the algorithm stays monotonic across the whole space and no re-specification is needed when plugins mount.</p>
+<h3>3.4 No compression, no rendering</h3>
+<p>SUCA defines ordering only. It does not define search index structure, glyph selection, or display; those belong to the storage and layout layers (SUTR-3, SUAS-001, SUAS-002).</p>
+<h2>4. Variable Weighting</h2>
+<p>Variable collation elements &mdash; typically punctuation &mdash; follow the four UTS #10 options:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Option</th>
+<th>Behavior</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Non-ignorable</strong></td>
+<td>Variable CEs are not reset; all mappings unchanged</td>
+</tr>
+<tr>
+<td><strong>Blanked</strong></td>
+<td>Variable CEs and subsequent ignorables reset to zero at all non-identical levels; no L4</td>
+</tr>
+<tr>
+<td><strong>Shifted</strong> (default)</td>
+<td>Variable CEs reset to zero at L1&ndash;L3 and gain an L4 weight; subsequent ignorables reset at L1&ndash;L4</td>
+</tr>
+<tr>
+<td><strong>Shift-trimmed</strong></td>
+<td>As <em>shifted</em>, then trailing <span class='mono'>FFFF</span>s are trimmed</td>
+</tr>
+</tbody></table></div>
+<p>A single maximum variable primary <span class='mono'>SUCA_VAR_MAX</span> separates variable from ordinary primaries; all CEs with L1 ≤ <span class='mono'>SUCA_VAR_MAX</span> are variable.</p>
+<h2>5. Data Files</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>File</th>
+<th>Domain</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>Public/0.1.0/collation/SUCA.txt</span></td>
+<td>Base SUCS contract; starts as the binary-order baseline, with a curated SUCET excerpt</td>
+</tr>
+<tr>
+<td><span class='mono'>Public/0.1.0/collation/ExtUCA.txt</span></td>
+<td>ExtSUCS contract (64-bit); confirms Base sorts before plugin ranges and per-plugin tailoring is allowed</td>
+</tr>
+</tbody></table></div>
+<p>The reference implementation (<span class='mono'>suts_suca</span>, freestanding C99, no heap) embeds a compiled subset of the SUCET, following the same pattern as the SUCD BiDi subset in <span class='mono'>suas_sucd</span>. The default table is <strong>not</strong> intended to give linguistically correct sorting for every language without tailoring; per-language tailoring is expected.</p>
+<h2>6. Compliance Matrix</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Requirement</th>
+<th>Mandatory</th>
+<th>Verification</th>
+</tr></thead><tbody>
+<tr>
+<td>At least three collation levels</td>
+<td>Yes</td>
+<td><span class='mono'>suts_suca_*</span> provides L1&ndash;L4 plus identical</td>
+</tr>
+<tr>
+<td>Canonical-equivalence equality</td>
+<td>Yes</td>
+<td>NFD normalization (SUTS-001 S1.1)</td>
+</tr>
+<tr>
+<td>Contractions and expansions</td>
+<td>Yes</td>
+<td>CE-array construction (S2)</td>
+</tr>
+<tr>
+<td>Sort key generation and binary compare</td>
+<td>Yes</td>
+<td>S3 / S4</td>
+</tr>
+<tr>
+<td>Variable weighting, four options</td>
+<td>Yes</td>
+<td>SUTS-001 §4</td>
+</tr>
+<tr>
+<td>Backward secondary (French)</td>
+<td>Yes</td>
+<td>S3.6&ndash;S3.8</td>
+</tr>
+<tr>
+<td>Implicit weights over 64-bit ExtSUCS</td>
+<td>Yes</td>
+<td>SUTS-001 §9.1</td>
+</tr>
+<tr>
+<td>Semi-stable / identical level</td>
+<td>Yes</td>
+<td>S3.10</td>
+</tr>
+<tr>
+<td>SCP controls variable, not primary</td>
+<td>Yes</td>
+<td>SUTS-001 §3, §4</td>
+</tr>
+<tr>
+<td>Identical level = native codepoint order</td>
+<td>Yes</td>
+<td>SUTS-001 §2.2, §7.4</td>
+</tr>
+<tr>
+<td>Determinant result for every 64-bit codepoint</td>
+<td>Yes</td>
+<td>Implicit weight derivation</td>
+</tr>
+<tr>
+<td>ExtSUCS 64-bit codepoint API</td>
+<td>Yes</td>
+<td><span class='mono'>sucs_ex_char_t</span> inputs</td>
+</tr>
+<tr>
+<td>Freestanding C99, zero heap</td>
+<td>Yes</td>
+<td><span class='mono'>-std=c99 -ffreestanding</span></td>
+</tr>
+</tbody></table></div>
+<h2>7. Terms &amp; Conventions</h2>
+<ul>
+<li><strong>SUCA</strong> &mdash; SuperUnicode Collation Algorithm.</li>
+<li><strong>Collation</strong> &mdash; determining the sort order of strings of characters.</li>
+<li><strong>Collation Element (CE)</strong> &mdash; an ordered list of collation weights.</li>
+<li><strong>Collation Element Table</strong> &mdash; the set of CEs; the SUCET is the SuperUnicode</li>
+</ul>
+<p>default.</p>
+<ul>
+<li><strong>Collation Weight</strong> &mdash; a non-negative integer establishing relative order.</li>
+<li><strong>Primary / Secondary / Tertiary / Quaternary</strong> &mdash; weights 1&ndash;4.</li>
+<li><strong>Variable CE</strong> &mdash; a primary CE with a low reserved primary weight, subject to</li>
+</ul>
+<p>variable weighting.</p>
+<ul>
+<li><strong>Sort key</strong> &mdash; a binary-comparable array of weights.</li>
+<li><strong>Level separator</strong> &mdash; a low integer separating weights of different levels.</li>
+<li><strong>Identical level</strong> &mdash; the final tie-break, by native codepoint order.</li>
+<li><strong>Implicit weight</strong> &mdash; an algorithmically derived weight for a codepoint with</li>
+</ul>
+<p>no table entry.</p>
+<ul>
+<li><strong>SUCS / ExtSUCS</strong> &mdash; the 31-bit Base space and the unbounded 64-bit space.</li>
+<li><strong>SCP</strong> &mdash; System Control Plane.</li>
+<li><strong>NFD</strong> &mdash; Normalization Form D.</li>
+<li><strong>UTS #10</strong> &mdash; Unicode Collation Algorithm; SUCA's multilevel model is</li>
+</ul>
+<p>modeled on it.</p>
 </main>
 <footer class='site-footer'><div class='footer-inner'>
 <span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>

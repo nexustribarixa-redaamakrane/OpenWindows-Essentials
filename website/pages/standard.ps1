@@ -60,34 +60,32 @@ $Pages['standard/what-is'] = @{
 $Pages['standard/hierarchy'] = @{
     path    = 'standard/hierarchy.html'
     sec     = 'standard'
-    title   = 'The hierarchy — codepoints to territory'
+    title   = 'The hierarchy — codepoints to zones'
     desc    = 'Codepoints, blocks, ranges, planes, districts, zones and territories, with the addressing math.'
     crumbName = 'The hierarchy'
     crumbs  = @( @{ label = 'The Standard'; href = 'index.html' } )
     h1      = 'The <span class="grad">hierarchy</span>'
-    subtitle= 'Seven levels, from the atomic codepoint to the territory, all derived by bit-shifting.'
+    subtitle= 'Four bit-addressed levels, from the atomic codepoint to the zone, all derived by bit-shifting.'
     body    = @(
         @{ t = 'pyramid'; items = @(
-            @{ label = 'Territory &mdash; 16 zones (256 MiB)';  cls = 't1' }
-            @{ label = 'Zone &mdash; 16 districts (16 MiB)';    cls = 't2' }
-            @{ label = 'District &mdash; 16 planes (1 MiB)';   cls = 't3' }
-            @{ label = 'Plane &mdash; 65,536 codepoints';      cls = 't4' }
-            @{ label = 'Range &mdash; a declared allocation';  cls = 't5' }
-            @{ label = 'Block &mdash; a named run';            cls = 't6' }
-            @{ label = 'Codepoint &mdash; the atomic unit';    cls = 't7' }
+            @{ label = 'Zone &mdash; 128 zones (bits 24&ndash;30)';      cls = 't1' }
+            @{ label = 'District &mdash; 256 per zone (bits 16&ndash;23)'; cls = 't2' }
+            @{ label = 'Plane &mdash; 256 per district (bits 8&ndash;15)'; cls = 't3' }
+            @{ label = 'Offset &mdash; 256 codepoints (bits 0&ndash;7)';   cls = 't4' }
         ) }
-        @{ t = 'table'; head = @('Level', 'Size', 'Derived by', 'Notes'); rows = @(
+        @{ t = 'table'; head = @('Level', 'Span', 'Derived by', 'Notes'); rows = @(
             @('Codepoint', '1', '&mdash;', 'The atomic unit; e.g. <span class="mono">0x0011A000</span>')
-            @('Block', 'variable', 'named run', 'Recorded in <span class="mono">Blocks.txt</span>')
-            @('Range', 'variable', 'declared allocation', 'Plugins declare ranges; collisions are rejected at boot')
-            @('Plane', '64 KiB', '<span class="mono">CP &gt;&gt; 16</span>', '8192 planes (0x00&ndash;0x7FF)')
-            @('District', '16 planes', '<span class="mono">CP &gt;&gt; 20</span>', '128 districts (0x00&ndash;0x7F)')
-            @('Zone', '16 districts', '<span class="mono">CP &gt;&gt; 24</span>', '8 zones (0x00&ndash;0x07)')
-            @('Territory', '16 zones', '<span class="mono">CP &gt;&gt; 28</span>', '8 territories (0x00&ndash;0x07)')
+            @('Offset', '256 codepoints', '<span class="mono">CP &amp; 0xFF</span>', 'One plane')
+            @('Plane', '256 offsets', '<span class="mono">CP &gt;&gt; 8 &amp; 0xFF</span>', '65,536 codepoints')
+            @('District', '256 planes', '<span class="mono">CP &gt;&gt; 16 &amp; 0xFF</span>', '16,777,216 codepoints')
+            @('Zone', '256 districts', '<span class="mono">CP &gt;&gt; 24 &amp; 0x7F</span>', '4,294,967,296 codepoints &mdash; the top field')
+            @('<em>Block</em>', 'variable', 'named run', '<em>Not an address field.</em> Recorded in <span class="mono">Blocks.txt</span>')
+            @('<em>Range</em>', 'variable', 'declared allocation', '<em>Not an address field.</em> Plugins declare ranges; collisions are rejected at boot')
         ) }
         @{ t = 'h2'; html = 'The math' }
-        @{ t = 'p'; html = 'Address arithmetic makes the hierarchy total and cheap. Take the start of the BANcode registry, <span class="mono">0x0011A000</span>:' }
-        @{ t = 'spec'; html = 'SUCS_CP 0x0011A000<br>plane     0x0011  <span class="hl">//</span> System Control Plane<br>district  0x0011 &gt;&gt; 4 = 0x01<br>zone      0x0011 &gt;&gt; 8 = 0x00<br>territory 0x0011 &gt;&gt; 12 = 0x00' }
+        @{ t = 'p'; html = 'Address arithmetic makes the hierarchy total and cheap. <strong>128 zones &times; 256 districts &times; 256 planes &times; 256 offsets = 2<sup>31</sup></strong> exactly, so the four fields tile the codespace with no gaps. Take the start of the BANcode registry, <span class="mono">0x0011A000</span>:' }
+        @{ t = 'spec'; html = 'SUCS_CP 0x0011A000<br>plane     0x0011 &gt;&gt;  8 &amp; 0xFF = 0xA0<br>district  0x0011 &gt;&gt; 16 &amp; 0xFF = 0x11  <span class="hl">//</span> District 17<br>zone      0x0011 &gt;&gt; 24 &amp; 0x7F = 0x00' }
+        @{ t = 'p'; html = 'Note that <strong>Block</strong> and <strong>Range</strong> are semantic groupings, not address levels. They are variable-length by design, and nothing in the bit arithmetic depends on them &mdash; which is exactly why they cannot be bit fields. See <a href="../reports/SUTR-0.html">SUTR-0 &sect;1.2</a> (source: <span class="mono">docs/sutr/SUTR-0-sucs-core.md</span>).' }
         @{ t = 'callout'; html = 'Next: the three spaces built on this hierarchy &mdash; <a href="spaces.html">Unicode Compatibility Space, System Control Plane, Native Space &raquo;</a>' }
     )
 }

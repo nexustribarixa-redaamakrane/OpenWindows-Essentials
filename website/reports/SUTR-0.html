@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
-<title>SUTR-0 — SUCS Core</title>
-<meta name='description' content='SUCS Core: hierarchy, three-space layout, SCP, Traps, Sentinel.'>
+<title>SUTR-0 &mdash; SUCS Core</title>
+<meta name='description' content='Level 2 (Coded Character Set) &mdash; the foundational layout of Base SuperUnicode'>
 <link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
 <link rel='icon' href='../favicon.svg' type='image/svg+xml'>
 <link rel='apple-touch-icon' href='../assets/img/logo.png'>
@@ -29,39 +29,389 @@
 <main class='page'>
 <nav class='breadcrumbs'><a href='../index.html'>Home</a>
  &raquo; <a href='../index.html'>Technical Reports</a>
- &raquo; SUTR-0 — SUCS Core</nav>
-<h1>SUTR-0 &mdash; SUCS <span class="grad">Core</span></h1>
-<p class='subtitle'>The foundational layout of the Base SuperUnicode Character System.</p>
-<p>This report defines the Base SUCS codepoint space, its hierarchy, its three spaces, and the reserved terminal region.</p>
-<h2>Space</h2>
-<div class='spec'>SUCS_CP        uint32_t, 31 significant bits<br>range          0x00000000 &ndash; 0x7FFFFFFF<br>hierarchy      codepoint &lt; block &lt; range &lt; plane &lt; district &lt; zone &lt; territory</div>
-<h2>Spaces</h2>
+ &raquo; SUTR-0 &mdash; SUCS Core</nav>
+<h1><span class='mono'>SUTR-0</span> &mdash; <span class='grad'>SUCS Core</span></h1>
+<p class='subtitle'>Level 2 (Coded Character Set) &mdash; the foundational layout of Base SuperUnicode</p>
+<p class='note'><strong>Standard ID:</strong> <span class='mono'>SUTR-0</span><br><strong>Status:</strong> 0.1.0 &mdash; Published<br><strong>Scope:</strong> Level 2 (Coded Character Set) &mdash; the foundational layout of Base SuperUnicode<br><strong>Applies to:</strong> every SuperUnicode consumer; all SUTF forms, SUST transports, SUAS and SUTS documents<br><strong>Last updated:</strong> <span class='mono'>2026-09-30</span><br><strong>Source:</strong> <span class='mono'>docs/sutr/SUTR-0-sucs-core.md</span> &mdash; this page is generated from it, and the repository copy governs where they differ.</p>
+<h2>1. Overview</h2>
+<p>SUTR-0 defines the <strong>Base SUCS codepoint space</strong>: its representation, its hierarchy, its three constituent spaces, and the reserved region at its top. It is the document every other SUTR report assumes.</p>
+<p>SuperUnicode uses codepoints not only as character identities but also as <strong>machine instructions</strong> &mdash; a kernel damage-control directive is a codepoint, and its numeric value selects the handler. The Base space is therefore larger than any character repertoire could need, and deliberately partitioned.</p>
+<div class='spec'>SUCS_CP        uint32_t, 31 significant bits<br>range          0x00000000 &ndash; 0x7FFFFFFF<br>hierarchy      codepoint &lt; plane &lt; district &lt; zone</div>
+<h3>1.1 The address hierarchy</h3>
+<p>The 31 bits partition into <strong>four fixed-width fields</strong>, each a contiguous span of the one above. This is the bit-addressed hierarchy, and it is the only part of the hierarchy the implementation defines (<span class='mono'>sucs_plane.h</span>):</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Field</th>
+<th>Bits</th>
+<th>Extraction macro</th>
+<th>Values</th>
+<th>Span of one unit</th>
+</tr></thead><tbody>
+<tr>
+<td>Zone</td>
+<td>24&ndash;30 (7)</td>
+<td><span class='mono'>SUCS_GET_ZONE</span></td>
+<td>128</td>
+<td>256 districts = 2^24 codepoints</td>
+</tr>
+<tr>
+<td>District</td>
+<td>16&ndash;23 (8)</td>
+<td><span class='mono'>SUCS_GET_DISTRICT</span></td>
+<td>256 per zone</td>
+<td>256 planes = 2^16 codepoints</td>
+</tr>
+<tr>
+<td>Plane</td>
+<td>8&ndash;15 (8)</td>
+<td><span class='mono'>SUCS_GET_PLANE</span></td>
+<td>256 per district</td>
+<td>256 codepoints</td>
+</tr>
+<tr>
+<td>Offset</td>
+<td>0&ndash;7 (8)</td>
+<td><span class='mono'>SUCS_GET_OFFSET</span></td>
+<td>256 per plane</td>
+<td>1 codepoint</td>
+</tr>
+</tbody></table></div>
+<p>Expressed as a product: <strong>128 zones &times; 256 districts &times; 256 planes &times; 256 offsets = 2^31</strong>. The hierarchy is uniform and total; what makes the space <em>usable</em> is that it is not uniformly owned (§4).</p>
+<h3>1.2 Semantic groupings are not address fields</h3>
+<p>Two further groupings appear throughout the series but are <strong>not</strong> bit partitions of the codespace, and conflating them with the table above is an error:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Grouping</th>
+<th>Nature</th>
+<th>Declared by</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Block</strong></td>
+<td>A <em>named</em> run of codepoints, of variable length</td>
+<td><span class='mono'>Blocks.txt</span> &mdash; a registry entry, not a size</td>
+</tr>
+<tr>
+<td><strong>Range</strong></td>
+<td>A <em>declared</em> allocation, of variable length</td>
+<td>A plugin's range table (SUTR-5); collisions are rejected at gate time</td>
+</tr>
+</tbody></table></div>
+<p>A Block and a Range are <strong>open-ended by design</strong>: they are meaningful at any size, and nothing in the address math depends on them. That is precisely why they cannot be address fields &mdash; the four bit-fields above must tile the space exactly, and a variable-length grouping cannot. The SCP is located by coordinate (<span class='mono'>District &times;</span>, <span class='mono'>Plane &times;</span> for <span class='mono'>&times;</span>), and the BANcode registry is located by <strong>value</strong> against a range macro, not by walking the hierarchy.</p>
+<p>So the correct chain is <span class='mono'>codepoint &lt; plane &lt; district &lt; zone</span>, with Block and Range as orthogonal semantic overlays. A document that writes <span class='mono'>codepoint &lt; block &lt; range &lt; plane &lt; district &lt; zone &lt; territory</span> has invented two address levels that do not exist.</p>
+<h2>2. Scope</h2>
+<p>SUTR-0 defines the coded character set itself &mdash; the mapping from abstract characters to integers, and the structure of that integer space. It does not define how codepoints are framed (SUTR-1, SUTF), serialized (SUTR-4, SUST), stored (SUTR-3), or extended beyond 31 bits (SUTR-5, plugin space). It does not define the abstract characters themselves (SUTR-7, Level 1 / ACR).</p>
+<p>The one guarantee SUTR-0 makes about Unicode &mdash; that <span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span> is 1:1 with Unicode, permanently &mdash; is specified in full by SUTR-6 and summarized here only as the ownership boundary of §3.</p>
+<h2>3. Definitions</h2>
+<ul>
+<li><strong>ED1 &mdash; <span class='mono'>SUCS_CP</span>.</strong> The Base SUCS codepoint type: a <span class='mono'>uint32_t</span> carrying 31</li>
+</ul>
+<p>significant bits.</p>
+<ul>
+<li><strong>ED2 &mdash; Sentinel.</strong> <span class='mono'>0x7FFFFFFF</span>. The single in-band invalid value. It is</li>
+</ul>
+<p>never allocated, and it terminates a Base stream.</p>
+<ul>
+<li><strong>ED3 &mdash; Kernel Security Trap.</strong> One of 15 reserved slots in</li>
+</ul>
+<p><span class='mono'>0x7FFFFFF0</span>&ndash;<span class='mono'>0x7FFFFFFE</span>, each governing 128 consecutive <strong>B+</strong> BANcodes.</p>
+<ul>
+<li><strong>ED4 &mdash; BANcode.</strong> A System Control Plane directive codepoint, or (context</li>
+</ul>
+<p>permitting) the trap slot its resolution targets.</p>
+<ul>
+<li><strong>ED5 &mdash; Zone.</strong> The outermost bit-addressed unit; 128 in Base SUCS, from</li>
+</ul>
+<p>bits 24&ndash;30.</p>
+<ul>
+<li><strong>ED6 &mdash; Open repertoire.</strong> An abstract character repertoire that grows</li>
+</ul>
+<p>without renumbering. Base SUCS is open; the Unicode Bridge inside it is open, and the Native space is open.</p>
+<ul>
+<li><strong>ED7 &mdash; Validity.</strong> <span class='mono'>sucs_is_valid(cp)</span> is true for</li>
+</ul>
+<p><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFEF</span> and false for the 16 values <span class='mono'>0x7FFFFFF0</span>&ndash;<span class='mono'>0x7FFFFFFF</span>.</p>
+<h2>4. The Three Spaces</h2>
+<p>The 31-bit space is partitioned into three spaces with different owners and different rules. This is the only place where SuperUnicode departs from a flat, uniform codespace.</p>
 <div class="table-wrap"><table class="plain"><thead><tr>
 <th>Space</th>
 <th>Range</th>
-<th>Owner</th>
+<th>Owner and rule</th>
 </tr></thead><tbody>
 <tr>
-<td>Unicode Compatibility Space</td>
-<td><span class="mono">0x000000&ndash;0x10FFFF</span></td>
-<td>1:1 with Unicode, permanent</td>
+<td><strong>Unicode Compatibility Space</strong></td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span></td>
+<td>1:1 with Unicode, permanently. New Unicode codepoints appear at the same numeric values. Never remapped. (SUTR-6)</td>
 </tr>
 <tr>
-<td>System Control Plane</td>
-<td><span class="mono">0x110000&ndash;0x11FFFF</span></td>
-<td>BANcode Registry (B+, W+, C+, S+)</td>
+<td><strong>System Control Plane (SCP)</strong></td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x11FFFF</span></td>
+<td>Non-printable, in-band kernel directives. Contains the BANcode Registry. Not text.</td>
 </tr>
 <tr>
-<td>Native SuperUnicode Space</td>
-<td><span class="mono">0x120000&ndash;0x7FFFFFFF</span></td>
-<td>OpenWindows allocations</td>
+<td><strong>Native SuperUnicode Space</strong></td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span></td>
+<td>OpenWindows native allocations, reached through RNUR coordinates and RCCR tags.</td>
 </tr>
 </tbody></table></div>
-<h2>Terminal region</h2>
+<p>The classification is exposed as <span class='mono'>sucs_codepoint_type_t</span>:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Constant</th>
+<th>Value</th>
+<th>Domain</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>SUCS_TYPE_UNICODE_COMPAT</span></td>
+<td>0</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x0010FFFF</span> &mdash; Unicode Parity Zone</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_TYPE_SYS_FUNCTION</span></td>
+<td>1</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x0011FFFF</span> &mdash; System Control Plane</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_TYPE_NATIVE_ALLOC</span></td>
+<td>2</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span> &mdash; Native Extended Allocations</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_TYPE_INVALID</span></td>
+<td>3</td>
+<td>outside the 31-bit Base address space</td>
+</tr>
+</tbody></table></div>
+<h3>4.1 Non-Contiguity in Use</h3>
+<p>The codespace is contiguous in span but deliberately non-contiguous in <em>use</em>. The UTF-16 surrogate range <span class='mono'>0xD800</span>&ndash;<span class='mono'>0xDFFF</span> is <strong>not</strong> excluded: SuperUnicode has no surrogates, so those 2,048 codepoints are ordinary valid codepoints inside the Native space and are allocated like any other. An implementation MUST NOT carve them out.</p>
+<h2>5. The System Control Plane</h2>
+<p>The SCP is a 64K-codepoint space of machine instructions carried <em>in band</em>, in the same codepoint stream as text. Its registry is partitioned into four severity clusters:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Cluster</th>
+<th>Range</th>
+<th>Count</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>B+ BANcode</strong></td>
+<td><span class='mono'>0x0011A000</span>&ndash;<span class='mono'>0x0011A7FF</span></td>
+<td>2,048</td>
+<td>Unrecoverable critical panics, hardware faults, fatal exceptions</td>
+</tr>
+<tr>
+<td><strong>W+ WARNcode</strong></td>
+<td><span class='mono'>0x0011A800</span>&ndash;<span class='mono'>0x0011ABFF</span></td>
+<td>1,024</td>
+<td>Non-fatal telemetry; threshold alerts, degraded performance, predictive maintenance</td>
+</tr>
+<tr>
+<td><strong>C+ COMcode</strong></td>
+<td><span class='mono'>0x0011AC00</span>&ndash;<span class='mono'>0x0011ADFF</span></td>
+<td>512</td>
+<td>IPC events, bus orchestration, hardware handshakes, driver attachment, control-plane signals; also success reports</td>
+</tr>
+<tr>
+<td><strong>S+ SOFTcode</strong></td>
+<td><span class='mono'>0x0011AE00</span>&ndash;<span class='mono'>0x0011AEFF</span></td>
+<td>256</td>
+<td>Soft recovery, fault containment, cache reconciliation, self-healing; also soft errors</td>
+</tr>
+</tbody></table></div>
+<p>The BANcode Registry spans <span class='mono'>0x0011A000</span>&ndash;<span class='mono'>0x0011AEFF</span> (3,840 codepoints) and all slots are unassigned at v0.1.0.</p>
+<h3>5.1 Trap Dispatch Geometry</h3>
+<div class='spec'>SUCS_TRAP_SLOT_COUNT     15<br>SUCS_BANCODES_PER_TRAP   128</div>
+<p>When the kernel faults it raises a <strong>B+ BANcode</strong>. <span class='mono'>sucs_bancode_to_trap()</span> maps a B+ codepoint to one of 15 trap slots in <span class='mono'>0x7FFFFFF0</span>&ndash;<span class='mono'>0x7FFFFFFE</span>:</p>
+<div class='spec'>slot = (bancode_cp - SUCS_BANCODE_RANGE_MIN) / SUCS_BANCODES_PER_TRAP;<br>trap = SUCS_KERNEL_TRAP_MIN + slot;</div>
+<p><span class='mono'>sucs_trap_to_bancode_range()</span> inverts it. The dispatch is O(1) &mdash; one subtract, one divide by a compile-time constant, one add.</p>
+<p>Three properties of this mapping are normative, and all three are load-bearing:</p>
 <ul>
-<li>Traps: <span class="mono">0x7FFFFFF0&ndash;0x7FFFFFFE</span></li>
-<li>Sentinel: <span class="mono">0x7FFFFFFF</span></li>
-<li>No allocation exists at or below the Sentinel.</li>
+<li><strong>B+ only.</strong> The mapping is defined for <span class='mono'>0x0011A000</span>&ndash;<span class='mono'>0x0011A7FF</span> and</li>
+</ul>
+<p><strong>nothing else</strong>. W+, C+ and S+ codepoints have <strong>no trap</strong>; they are classified (<span class='mono'>sucs_is_warncode()</span> etc.) but are never dispatch targets. A trap-bearing event is a fatal B+ event by construction.</p>
+<ul>
+<li><strong>Partial coverage.</strong> 15 slots &times; 128 = 1,920 governed codepoints, but B+</li>
+</ul>
+<p>contains 2,048. The topmost 128 B+ codepoints, <span class='mono'>0x0011A780</span>&ndash;<span class='mono'>0x0011A7FF</span>, are therefore <strong>unmapped</strong>: <span class='mono'>sucs_bancode_to_trap()</span> returns <span class='mono'>SUCS_INVALID_CODEPOINT</span> for them. The registry is 15 slots wide, not 16, and the arithmetic says so.</p>
+<ul>
+<li><strong>Invertibility is total.</strong> Every one of the 15 traps maps back to exactly</li>
+</ul>
+<p>one 128-codepoint B+ range. <span class='mono'>sucs_trap_to_bancode_range()</span> returns <span class='mono'>false</span> for the Sentinel, for values outside the trap range, and for null outputs.</p>
+<p>Because SCP codepoints are in-band <em>addresses</em>, they must survive canonical transformation untouched and in their original stream position. SUCF (SUAS-004) guarantees this, so no text pipeline may decompose, reorder, or drop a kernel directive.</p>
+<h2>6. The Terminal Region</h2>
+<p>The top of the space is reserved and is not allocated:</p>
+<div class='spec'>0x7FFFFFF0 &ndash; 0x7FFFFFFE   Kernel Security Traps   (15 slots)<br>0x7FFFFFFF               Sentinel                 (the in-band invalid value)</div>
+<ul>
+<li><strong>The 16 values from <span class='mono'>0x7FFFFFF0</span> to <span class='mono'>0x7FFFFFFF</span> are never allocated.</strong></li>
+</ul>
+<p>The top 15 are trap slots; the 16th is the Sentinel. This is what makes the Sentinel usable as a terminator, and it is why <span class='mono'>0x7FFFFFEF</span> &mdash; not <span class='mono'>0x7FFFFFFE</span> &mdash; is the last allocatable codepoint in Base SUCS.</p>
+<ul>
+<li>The Sentinel is an <strong>in-band</strong> invalid value. It constrains Levels 3 and 4</li>
+</ul>
+<p>(SUTR-1, SUTR-4): no SUTF form may emit it as data, and every SUST transport must be able to represent it as a terminator.</p>
+<ul>
+<li>ExtSUCS dissolves this constraint. The 64-bit space is unbounded, so</li>
+</ul>
+<p><span class='mono'>0x7FFFFFFF</span> becomes an ordinary codepoint and errors move entirely out of band. See SUTR-5.</p>
+<p><span class='mono'>sucs_is_valid()</span> is the normative predicate at every API boundary, and it is what distinguishes <em>addressable</em> from <em>allocatable</em>. It rejects the 16 terminal values, so a decoded stream that yields any of them is corrupt, not text.</p>
+<h2>7. Status Return Codes</h2>
+<p>Operations over the space report through <span class='mono'>sues_status_t</span>:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Code</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>SUES_SUCCESS</span></td>
+<td>0</td>
+<td>Operation succeeded</td>
+</tr>
+<tr>
+<td><span class='mono'>SUES_ERR_INVALID_BYTE</span></td>
+<td>-1</td>
+<td>Malformed input byte</td>
+</tr>
+<tr>
+<td><span class='mono'>SUES_ERR_BUFFER_TOO_SMALL</span></td>
+<td>-2</td>
+<td>Output buffer insufficient</td>
+</tr>
+<tr>
+<td><span class='mono'>SUES_ERR_OUT_OF_BOUNDS</span></td>
+<td>-3</td>
+<td>Address outside the 31-bit space</td>
+</tr>
+<tr>
+<td><span class='mono'>SUES_ERR_INVALID_CODEPOINT</span></td>
+<td>-4</td>
+<td>Sentinel or Kernel Security Trap range</td>
+</tr>
+</tbody></table></div>
+<p>Note that the trap range is reported as <span class='mono'>SUES_ERR_INVALID_CODEPOINT</span>: the trap slots are reserved, not allocatable, and a caller must not round-trip one as data.</p>
+<h2>8. Compliance Matrix</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Requirement</th>
+<th>Mandatory</th>
+<th>Verification</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>SUCS_CP</span> is 31 bits, span <span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span></td>
+<td>Yes</td>
+<td><span class='mono'>sizeof(sucs_char_t)</span>; <span class='mono'>SUCS_MAX_CODEPOINT</span></td>
+</tr>
+<tr>
+<td>Bit hierarchy is Zone 7 / District 8 / Plane 8 / Offset 8</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_GET_*</span> in <span class='mono'>sucs_plane.h</span></td>
+</tr>
+<tr>
+<td>128 &times; 256 &times; 256 &times; 256 = 2^31</td>
+<td>Yes</td>
+<td>Product identity</td>
+</tr>
+<tr>
+<td>Block and Range are variable-length, not address fields</td>
+<td>Yes</td>
+<td><span class='mono'>Blocks.txt</span>; plugin range tables</td>
+</tr>
+<tr>
+<td>Unicode Compatibility Space is <span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span></td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_TYPE_UNICODE_COMPAT</span> classification</td>
+</tr>
+<tr>
+<td>SCP is <span class='mono'>&times;</span>&ndash;<span class='mono'>0x11FFFF</span></td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_TYPE_SYS_FUNCTION</span> classification</td>
+</tr>
+<tr>
+<td>BANcode Registry is <span class='mono'>0x0011A000</span>&ndash;<span class='mono'>0x0011AEFF</span></td>
+<td>Yes</td>
+<td>Range macros; cluster boundaries sum to 3,840</td>
+</tr>
+<tr>
+<td>B+ / W+ / C+ / S+ are 2048 / 1024 / 512 / 256</td>
+<td>Yes</td>
+<td>Range macros in <span class='mono'>sucs_types.h</span></td>
+</tr>
+<tr>
+<td><span class='mono'>0xD800</span>&ndash;<span class='mono'>0xDFFF</span> are valid PUA, never reserved</td>
+<td>Yes</td>
+<td>Round-trip the whole block</td>
+</tr>
+<tr>
+<td>Traps are <span class='mono'>0x7FFFFFF0</span>&ndash;<span class='mono'>0x7FFFFFFE</span>, exactly 15</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_TRAP_SLOT_COUNT</span>; <span class='mono'>sucs_is_kernel_trap</span></td>
+</tr>
+<tr>
+<td>128 B+ BANcodes per trap</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_BANCODES_PER_TRAP</span></td>
+</tr>
+<tr>
+<td>Trap dispatch covers B+ only</td>
+<td>Yes</td>
+<td><span class='mono'>sucs_is_bancode()</span> guard in <span class='mono'>sucs_bancode_to_trap()</span></td>
+</tr>
+<tr>
+<td><span class='mono'>0x0011A780</span>&ndash;<span class='mono'>0x0011A7FF</span> is unmapped</td>
+<td>Yes</td>
+<td>Returns <span class='mono'>SUCS_INVALID_CODEPOINT</span></td>
+</tr>
+<tr>
+<td>BANcode ↔ trap mapping is O(1) and invertible</td>
+<td>Yes</td>
+<td><span class='mono'>sucs_bancode_to_trap()</span> / <span class='mono'>sucs_trap_to_bancode_range()</span></td>
+</tr>
+<tr>
+<td>Valid range is <span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFEF</span></td>
+<td>Yes</td>
+<td><span class='mono'>sucs_is_valid()</span>; <span class='mono'>0x7FFFFFEF</span> true, <span class='mono'>0x7FFFFFF5</span> false</td>
+</tr>
+<tr>
+<td>Sentinel is <span class='mono'>0x7FFFFFFF</span>, never allocated</td>
+<td>Yes</td>
+<td><span class='mono'>sucs_is_valid()</span> returns false</td>
+</tr>
+<tr>
+<td>Terminal 16 values are unallocatable</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_INVALID_CODEPOINT</span> = <span class='mono'>0x7FFFFFFF</span></td>
+</tr>
+<tr>
+<td>Trap range reports <span class='mono'>SUES_ERR_INVALID_CODEPOINT</span></td>
+<td>Yes</td>
+<td><span class='mono'>sues_status_t</span></td>
+</tr>
+<tr>
+<td>Freestanding C99</td>
+<td>Yes</td>
+<td><span class='mono'>-std=c99 -ffreestanding</span></td>
+</tr>
+</tbody></table></div>
+<h2>9. Terms &amp; Conventions</h2>
+<ul>
+<li><strong>SUCS</strong> &mdash; SuperUnicode Character System; the 31-bit Base codepoint space.</li>
+<li><strong><span class='mono'>SUCS_CP</span></strong> &mdash; the Base codepoint type (ED1).</li>
+<li><strong>Sentinel</strong> &mdash; <span class='mono'>0x7FFFFFFF</span>, the in-band invalid value (ED2).</li>
+<li><strong>Kernel Security Trap</strong> &mdash; one of 15 reserved dispatch slots (ED3).</li>
+<li><strong>BANcode / WARNcode / COMcode / SOFTcode</strong> &mdash; the four SCP severity</li>
+</ul>
+<p>clusters: B+ fatal, W+ warning, C+ command, S+ soft.</p>
+<ul>
+<li><strong>SCP</strong> &mdash; System Control Plane, <span class='mono'>&times;</span>&ndash;<span class='mono'>0x0011FFFF</span>.</li>
+<li><strong>Unicode Compatibility Space</strong> &mdash; <span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span>; see SUTR-6.</li>
+<li><strong>Native SuperUnicode Space</strong> &mdash; <span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span>.</li>
+<li><strong>ExtSUCS</strong> &mdash; the unbounded 64-bit space (<span class='mono'>sucs_ex_char_t</span>), which inherits</li>
+</ul>
+<p>this partition and adds the plugin space above the Sentinel.</p>
+<ul>
+<li><strong>SUES</strong> &mdash; SuperUnicode Encoding Status; the <span class='mono'>sues_status_t</span> return codes.</li>
+<li><strong>RNUR</strong> &mdash; Reddit Neographical Unicode Registry; the coordinate system for</li>
+</ul>
+<p>Native-space allocations.</p>
+<ul>
+<li><strong>RCCR</strong> &mdash; Reddit Conlang Code Registry; BCP 47 tags for RNUR-encoded</li>
+</ul>
+<p>conlangs and conscripts.</p>
+<ul>
+<li><strong>SUCEM</strong> &mdash; the four-level model, specified by SUTR-7.</li>
 </ul>
 </main>
 <footer class='site-footer'><div class='footer-inner'>

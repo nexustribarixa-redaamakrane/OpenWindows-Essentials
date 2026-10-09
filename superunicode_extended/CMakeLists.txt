@@ -52,9 +52,18 @@ set_target_properties(test_extconv PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
 )
 
+# Locks the shared UCS/UCB data set to the same Unicode release as the base
+# library; see superunicode/tests/test_sucs_ucd.c.
+add_executable(test_extsucs_ucd tests/test_extsucs_ucd.c)
+target_link_libraries(test_extsucs_ucd superunicode_extended_static)
+set_target_properties(test_extsucs_ucd PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+)
+
 enable_testing()
 add_test(NAME test_extsutf_all COMMAND test_extsutf_all)
 add_test(NAME test_extconv COMMAND test_extconv)
+add_test(NAME test_extsucs_ucd COMMAND test_extsucs_ucd)
 
 add_subdirectory(tools)
 

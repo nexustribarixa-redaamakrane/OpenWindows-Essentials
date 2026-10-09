@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
-<title>The hierarchy — codepoints to territory</title>
+<title>The hierarchy — codepoints to zones</title>
 <meta name='description' content='Codepoints, blocks, ranges, planes, districts, zones and territories, with the addressing math.'>
 <link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
 <link rel='icon' href='../favicon.svg' type='image/svg+xml'>
@@ -31,19 +31,16 @@
  &raquo; <a href='../index.html'>The Standard</a>
  &raquo; The hierarchy</nav>
 <h1>The <span class="grad">hierarchy</span></h1>
-<p class='subtitle'>Seven levels, from the atomic codepoint to the territory, all derived by bit-shifting.</p>
+<p class='subtitle'>Four bit-addressed levels, from the atomic codepoint to the zone, all derived by bit-shifting.</p>
 <div class="pyramid"><ol>
-<li class='t1'>Territory &mdash; 16 zones (256 MiB)</li>
-<li class='t2'>Zone &mdash; 16 districts (16 MiB)</li>
-<li class='t3'>District &mdash; 16 planes (1 MiB)</li>
-<li class='t4'>Plane &mdash; 65,536 codepoints</li>
-<li class='t5'>Range &mdash; a declared allocation</li>
-<li class='t6'>Block &mdash; a named run</li>
-<li class='t7'>Codepoint &mdash; the atomic unit</li>
+<li class='t1'>Zone &mdash; 128 zones (bits 24&ndash;30)</li>
+<li class='t2'>District &mdash; 256 per zone (bits 16&ndash;23)</li>
+<li class='t3'>Plane &mdash; 256 per district (bits 8&ndash;15)</li>
+<li class='t4'>Offset &mdash; 256 codepoints (bits 0&ndash;7)</li>
 </ol></div>
 <div class="table-wrap"><table class="plain"><thead><tr>
 <th>Level</th>
-<th>Size</th>
+<th>Span</th>
 <th>Derived by</th>
 <th>Notes</th>
 </tr></thead><tbody>
@@ -54,45 +51,46 @@
 <td>The atomic unit; e.g. <span class="mono">0x0011A000</span></td>
 </tr>
 <tr>
-<td>Block</td>
-<td>variable</td>
-<td>named run</td>
-<td>Recorded in <span class="mono">Blocks.txt</span></td>
-</tr>
-<tr>
-<td>Range</td>
-<td>variable</td>
-<td>declared allocation</td>
-<td>Plugins declare ranges; collisions are rejected at boot</td>
+<td>Offset</td>
+<td>256 codepoints</td>
+<td><span class="mono">CP &amp; 0xFF</span></td>
+<td>One plane</td>
 </tr>
 <tr>
 <td>Plane</td>
-<td>64 KiB</td>
-<td><span class="mono">CP &gt;&gt; 16</span></td>
-<td>8192 planes (0x00&ndash;0x7FF)</td>
+<td>256 offsets</td>
+<td><span class="mono">CP &gt;&gt; 8 &amp; 0xFF</span></td>
+<td>65,536 codepoints</td>
 </tr>
 <tr>
 <td>District</td>
-<td>16 planes</td>
-<td><span class="mono">CP &gt;&gt; 20</span></td>
-<td>128 districts (0x00&ndash;0x7F)</td>
+<td>256 planes</td>
+<td><span class="mono">CP &gt;&gt; 16 &amp; 0xFF</span></td>
+<td>16,777,216 codepoints</td>
 </tr>
 <tr>
 <td>Zone</td>
-<td>16 districts</td>
-<td><span class="mono">CP &gt;&gt; 24</span></td>
-<td>8 zones (0x00&ndash;0x07)</td>
+<td>256 districts</td>
+<td><span class="mono">CP &gt;&gt; 24 &amp; 0x7F</span></td>
+<td>4,294,967,296 codepoints &mdash; the top field</td>
 </tr>
 <tr>
-<td>Territory</td>
-<td>16 zones</td>
-<td><span class="mono">CP &gt;&gt; 28</span></td>
-<td>8 territories (0x00&ndash;0x07)</td>
+<td><em>Block</em></td>
+<td>variable</td>
+<td>named run</td>
+<td><em>Not an address field.</em> Recorded in <span class="mono">Blocks.txt</span></td>
+</tr>
+<tr>
+<td><em>Range</em></td>
+<td>variable</td>
+<td>declared allocation</td>
+<td><em>Not an address field.</em> Plugins declare ranges; collisions are rejected at boot</td>
 </tr>
 </tbody></table></div>
 <h2>The math</h2>
-<p>Address arithmetic makes the hierarchy total and cheap. Take the start of the BANcode registry, <span class="mono">0x0011A000</span>:</p>
-<div class='spec'>SUCS_CP 0x0011A000<br>plane     0x0011  <span class="hl">//</span> System Control Plane<br>district  0x0011 &gt;&gt; 4 = 0x01<br>zone      0x0011 &gt;&gt; 8 = 0x00<br>territory 0x0011 &gt;&gt; 12 = 0x00</div>
+<p>Address arithmetic makes the hierarchy total and cheap. <strong>128 zones &times; 256 districts &times; 256 planes &times; 256 offsets = 2<sup>31</sup></strong> exactly, so the four fields tile the codespace with no gaps. Take the start of the BANcode registry, <span class="mono">0x0011A000</span>:</p>
+<div class='spec'>SUCS_CP 0x0011A000<br>plane     0x0011 &gt;&gt;  8 &amp; 0xFF = 0xA0<br>district  0x0011 &gt;&gt; 16 &amp; 0xFF = 0x11  <span class="hl">//</span> District 17<br>zone      0x0011 &gt;&gt; 24 &amp; 0x7F = 0x00</div>
+<p>Note that <strong>Block</strong> and <strong>Range</strong> are semantic groupings, not address levels. They are variable-length by design, and nothing in the bit arithmetic depends on them &mdash; which is exactly why they cannot be bit fields. See <a href="../reports/SUTR-0.html">SUTR-0 &sect;1.2</a> (source: <span class="mono">docs/sutr/SUTR-0-sucs-core.md</span>).</p>
 <div class='callout '><p>Next: the three spaces built on this hierarchy &mdash; <a href="spaces.html">Unicode Compatibility Space, System Control Plane, Native Space &raquo;</a></p></div>
 </main>
 <footer class='site-footer'><div class='footer-inner'>

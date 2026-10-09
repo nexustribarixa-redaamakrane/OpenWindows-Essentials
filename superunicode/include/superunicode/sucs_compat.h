@@ -3,6 +3,14 @@
 
 #include "sucs_types.h"
 
+/* Unicode release the UCS/UCB (Unicode Compatibility Space / Bridge) data is
+ * synchronized with. Bumped whenever the block table below or the UCD name
+ * database (sucs_ucd_names.h) is regenerated from unicode.org. */
+#define SUCS_UNICODE_VERSION_MAJOR 18
+#define SUCS_UNICODE_VERSION_MINOR 0
+#define SUCS_UCD_UNICODE_VERSION \
+    (SUCS_UNICODE_VERSION_MAJOR * 100 + SUCS_UNICODE_VERSION_MINOR)
+
 #define SUCS_UNICODE_MAX_COMPAT 0x0010FFFFUL
 
 static inline bool sucs_is_unicode_compat(sucs_char_t cp) {
@@ -13,7 +21,7 @@ static inline bool sucs_is_native_extended(sucs_char_t cp) {
     return (cp > SUCS_UNICODE_MAX_COMPAT && cp <= SUCS_MAX_CODEPOINT);
 }
 
-/* Unicode 17.0 Block Definitions (from Blocks.txt) */
+/* Unicode 18.0 Block Definitions (from Blocks.txt) */
 #define SUCS_UCD_BLOCK_BASIC_LATIN_MIN 0x0000
 #define SUCS_UCD_BLOCK_BASIC_LATIN_MAX 0x007f
 #define SUCS_UCD_BLOCK_LATIN_1_SUPPLEMENT_MIN 0x0080
@@ -522,6 +530,8 @@ static inline bool sucs_is_native_extended(sucs_char_t cp) {
 #define SUCS_UCD_BLOCK_GUNJALA_GONDI_MAX 0x11daf
 #define SUCS_UCD_BLOCK_TOLONG_SIKI_MIN 0x11db0
 #define SUCS_UCD_BLOCK_TOLONG_SIKI_MAX 0x11def
+#define SUCS_UCD_BLOCK_BENGALI_SUPPLEMENT_MIN 0x11df0
+#define SUCS_UCD_BLOCK_BENGALI_SUPPLEMENT_MAX 0x11dff
 #define SUCS_UCD_BLOCK_MAKASAR_MIN 0x11ee0
 #define SUCS_UCD_BLOCK_MAKASAR_MAX 0x11eff
 #define SUCS_UCD_BLOCK_KAWI_MIN 0x11f00
@@ -536,6 +546,8 @@ static inline bool sucs_is_native_extended(sucs_char_t cp) {
 #define SUCS_UCD_BLOCK_CUNEIFORM_NUMBERS_AND_PUNCTUATION_MAX 0x1247f
 #define SUCS_UCD_BLOCK_EARLY_DYNASTIC_CUNEIFORM_MIN 0x12480
 #define SUCS_UCD_BLOCK_EARLY_DYNASTIC_CUNEIFORM_MAX 0x1254f
+#define SUCS_UCD_BLOCK_ARCHAIC_CUNEIFORM_NUMERALS_MIN 0x12550
+#define SUCS_UCD_BLOCK_ARCHAIC_CUNEIFORM_NUMERALS_MAX 0x1268f
 #define SUCS_UCD_BLOCK_CYPRO_MINOAN_MIN 0x12f90
 #define SUCS_UCD_BLOCK_CYPRO_MINOAN_MAX 0x12fff
 #define SUCS_UCD_BLOCK_EGYPTIAN_HIEROGLYPHS_MIN 0x13000
@@ -578,6 +590,10 @@ static inline bool sucs_is_native_extended(sucs_char_t cp) {
 #define SUCS_UCD_BLOCK_TANGUT_SUPPLEMENT_MAX 0x18d7f
 #define SUCS_UCD_BLOCK_TANGUT_COMPONENTS_SUPPLEMENT_MIN 0x18d80
 #define SUCS_UCD_BLOCK_TANGUT_COMPONENTS_SUPPLEMENT_MAX 0x18dff
+#define SUCS_UCD_BLOCK_JURCHEN_MIN 0x18e00
+#define SUCS_UCD_BLOCK_JURCHEN_MAX 0x1919f
+#define SUCS_UCD_BLOCK_JURCHEN_RADICALS_MIN 0x191a0
+#define SUCS_UCD_BLOCK_JURCHEN_RADICALS_MAX 0x191df
 #define SUCS_UCD_BLOCK_KANA_EXTENDED_B_MIN 0x1aff0
 #define SUCS_UCD_BLOCK_KANA_EXTENDED_B_MAX 0x1afff
 #define SUCS_UCD_BLOCK_KANA_SUPPLEMENT_MIN 0x1b000
@@ -604,6 +620,8 @@ static inline bool sucs_is_native_extended(sucs_char_t cp) {
 #define SUCS_UCD_BLOCK_MUSICAL_SYMBOLS_MAX 0x1d1ff
 #define SUCS_UCD_BLOCK_ANCIENT_GREEK_MUSICAL_NOTATION_MIN 0x1d200
 #define SUCS_UCD_BLOCK_ANCIENT_GREEK_MUSICAL_NOTATION_MAX 0x1d24f
+#define SUCS_UCD_BLOCK_MUSICAL_SYMBOLS_SUPPLEMENT_MIN 0x1d250
+#define SUCS_UCD_BLOCK_MUSICAL_SYMBOLS_SUPPLEMENT_MAX 0x1d28f
 #define SUCS_UCD_BLOCK_KAKTOVIK_NUMERALS_MIN 0x1d2c0
 #define SUCS_UCD_BLOCK_KAKTOVIK_NUMERALS_MAX 0x1d2df
 #define SUCS_UCD_BLOCK_MAYAN_NUMERALS_MIN 0x1d2e0
@@ -616,6 +634,8 @@ static inline bool sucs_is_native_extended(sucs_char_t cp) {
 #define SUCS_UCD_BLOCK_MATHEMATICAL_ALPHANUMERIC_SYMBOLS_MAX 0x1d7ff
 #define SUCS_UCD_BLOCK_SUTTON_SIGNWRITING_MIN 0x1d800
 #define SUCS_UCD_BLOCK_SUTTON_SIGNWRITING_MAX 0x1daaf
+#define SUCS_UCD_BLOCK_MISCELLANEOUS_SYMBOLS_AND_ARROWS_EXTENDED_MIN 0x1db00
+#define SUCS_UCD_BLOCK_MISCELLANEOUS_SYMBOLS_AND_ARROWS_EXTENDED_MAX 0x1dbff
 #define SUCS_UCD_BLOCK_LATIN_EXTENDED_G_MIN 0x1df00
 #define SUCS_UCD_BLOCK_LATIN_EXTENDED_G_MAX 0x1dfff
 #define SUCS_UCD_BLOCK_GLAGOLITIC_SUPPLEMENT_MIN 0x1e000
@@ -698,6 +718,8 @@ static inline bool sucs_is_native_extended(sucs_char_t cp) {
 #define SUCS_UCD_BLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_H_MAX 0x323af
 #define SUCS_UCD_BLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_J_MIN 0x323b0
 #define SUCS_UCD_BLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_J_MAX 0x3347f
+#define SUCS_UCD_BLOCK_SEAL_MIN 0x3d000
+#define SUCS_UCD_BLOCK_SEAL_MAX 0x3fc3f
 #define SUCS_UCD_BLOCK_TAGS_MIN 0xe0000
 #define SUCS_UCD_BLOCK_TAGS_MAX 0xe007f
 #define SUCS_UCD_BLOCK_VARIATION_SELECTORS_SUPPLEMENT_MIN 0xe0100
@@ -707,7 +729,7 @@ static inline bool sucs_is_native_extended(sucs_char_t cp) {
 #define SUCS_UCD_BLOCK_SUPPLEMENTARY_PRIVATE_USE_AREA_B_MIN 0x100000
 #define SUCS_UCD_BLOCK_SUPPLEMENTARY_PRIVATE_USE_AREA_B_MAX 0x10ffff
 
-#define SUCS_UCD_BLOCK_COUNT 346
+#define SUCS_UCD_BLOCK_COUNT 353
 
 typedef struct {
     sucs_char_t min;
@@ -969,6 +991,7 @@ static const sucs_ucd_block_t sucs_ucd_blocks[SUCS_UCD_BLOCK_COUNT] = {
     { 0x11d00, 0x11d5f }, /* Masaram Gondi */
     { 0x11d60, 0x11daf }, /* Gunjala Gondi */
     { 0x11db0, 0x11def }, /* Tolong Siki */
+    { 0x11df0, 0x11dff }, /* Bengali Supplement */
     { 0x11ee0, 0x11eff }, /* Makasar */
     { 0x11f00, 0x11f5f }, /* Kawi */
     { 0x11fb0, 0x11fbf }, /* Lisu Supplement */
@@ -976,6 +999,7 @@ static const sucs_ucd_block_t sucs_ucd_blocks[SUCS_UCD_BLOCK_COUNT] = {
     { 0x12000, 0x123ff }, /* Cuneiform */
     { 0x12400, 0x1247f }, /* Cuneiform Numbers and Punctuation */
     { 0x12480, 0x1254f }, /* Early Dynastic Cuneiform */
+    { 0x12550, 0x1268f }, /* Archaic Cuneiform Numerals */
     { 0x12f90, 0x12fff }, /* Cypro-Minoan */
     { 0x13000, 0x1342f }, /* Egyptian Hieroglyphs */
     { 0x13430, 0x1345f }, /* Egyptian Hieroglyph Format Controls */
@@ -997,6 +1021,8 @@ static const sucs_ucd_block_t sucs_ucd_blocks[SUCS_UCD_BLOCK_COUNT] = {
     { 0x18b00, 0x18cff }, /* Khitan Small Script */
     { 0x18d00, 0x18d7f }, /* Tangut Supplement */
     { 0x18d80, 0x18dff }, /* Tangut Components Supplement */
+    { 0x18e00, 0x1919f }, /* Jurchen */
+    { 0x191a0, 0x191df }, /* Jurchen Radicals */
     { 0x1aff0, 0x1afff }, /* Kana Extended-B */
     { 0x1b000, 0x1b0ff }, /* Kana Supplement */
     { 0x1b100, 0x1b12f }, /* Kana Extended-A */
@@ -1010,12 +1036,14 @@ static const sucs_ucd_block_t sucs_ucd_blocks[SUCS_UCD_BLOCK_COUNT] = {
     { 0x1d000, 0x1d0ff }, /* Byzantine Musical Symbols */
     { 0x1d100, 0x1d1ff }, /* Musical Symbols */
     { 0x1d200, 0x1d24f }, /* Ancient Greek Musical Notation */
+    { 0x1d250, 0x1d28f }, /* Musical Symbols Supplement */
     { 0x1d2c0, 0x1d2df }, /* Kaktovik Numerals */
     { 0x1d2e0, 0x1d2ff }, /* Mayan Numerals */
     { 0x1d300, 0x1d35f }, /* Tai Xuan Jing Symbols */
     { 0x1d360, 0x1d37f }, /* Counting Rod Numerals */
     { 0x1d400, 0x1d7ff }, /* Mathematical Alphanumeric Symbols */
     { 0x1d800, 0x1daaf }, /* Sutton SignWriting */
+    { 0x1db00, 0x1dbff }, /* Miscellaneous Symbols and Arrows Extended */
     { 0x1df00, 0x1dfff }, /* Latin Extended-G */
     { 0x1e000, 0x1e02f }, /* Glagolitic Supplement */
     { 0x1e030, 0x1e08f }, /* Cyrillic Extended-D */
@@ -1057,6 +1085,7 @@ static const sucs_ucd_block_t sucs_ucd_blocks[SUCS_UCD_BLOCK_COUNT] = {
     { 0x30000, 0x3134f }, /* CJK Unified Ideographs Extension G */
     { 0x31350, 0x323af }, /* CJK Unified Ideographs Extension H */
     { 0x323b0, 0x3347f }, /* CJK Unified Ideographs Extension J */
+    { 0x3d000, 0x3fc3f }, /* Seal */
     { 0xe0000, 0xe007f }, /* Tags */
     { 0xe0100, 0xe01ef }, /* Variation Selectors Supplement */
     { 0xf0000, 0xfffff }, /* Supplementary Private Use Area-A */

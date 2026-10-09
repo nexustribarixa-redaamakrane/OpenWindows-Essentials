@@ -39,7 +39,7 @@ $Pages['index'] = @{
             @{ title = 'Versions';          href = 'versions/index.html'; html = '0.1.0 release notes and roadmap.' }
             @{ title = 'Charts';            href = 'charts/index.html'; html = 'Block maps for Base and Extended spaces.' }
             @{ title = 'FAQ';               href = 'faq/index.html'; html = 'Compatibility, plugins, storage, encoding.' }
-            @{ title = 'Glossary';          href = 'glossary.html'; html = 'Codepoint, plane, territory and every term between.' }
+            @{ title = 'Glossary';          href = 'glossary.html'; html = 'Codepoint, plane, district, zone and every term between.' }
         ) }
         @{ t = 'h2'; html = 'News' }
         @{ t = 'ul'; items = @(

@@ -8,9 +8,15 @@
  * multi-byte mapping between ExtSUCS character encoding codepoints and
  * byte sequences, spanning the full unbounded (0 -> infinity) address space.
  *
+ * NOTE: vSUTF is NOT LEB128 and NOT a uniform variable-length integer. It has
+ * two regimes, distinguished by a fixed-width escape above the Base range.
+ * Transport/0.1.0/transport/vsutf.txt previously described it as LEB128
+ * while deferring here; this header is the normative definition.
+ *
  * Stream Structure:
  * - Codepoints 0x00000000 to 0x7FFFFFFF (Base SUCS fast-path):
- *   Encoded using standard SUTF-8 transport framing (1 to 6 bytes).
+ *   Encoded using standard SUTF-8 transport framing (1 to 6 bytes), with
+ *   exactly the SUTR-1 boundaries.
  *
  * - Codepoints 0x80000000 to 0xFFFFFFFFFFFFFFFF (ExtSUCS extended range):
  *   Encoded with extended prefix headers:
@@ -20,6 +26,17 @@
  *
  * Note: 0xFE and 0xFF are unused in SUTF-8 (which uses 0xC0-0xFD for lead
  * bytes), making them safe extension markers for vSUTF extended framing.
+ * A LEB128-style variable-length integer could NOT coexist with SUTF-8 lead
+ * bytes, because 0xFE and 0xFF would be ambiguous.
+ *
+ * Consequence: because the Base regime is byte-for-byte SUTF-8, any Base SUCS
+ * stream is already a valid vSUTF stream. vSUTF is a strict superset of
+ * SUTF-8; a decoder that understands the 0xFE escape needs no special case
+ * for Base text.
+ *
+ * Level: vSUTF emits bytes and exposes no host word, so it passes the
+ * SUTR-7 byte-order test as endian-neutral -- it is a Level 3 CEF in nature,
+ * not a Level 4 CES. See docs/sutr/SUTR-4-extsucs-transport.md.
  */
 
 #include "extsucs_types.h"
@@ -37,6 +54,11 @@ extern "C" {
 /**
  * Returns the vSUTF transport stream byte length for a given ExtSUCS codepoint.
  * Returns 0 if the codepoint is in the inherited trap range.
+ *
+ * For the Base range this reproduces the SUTF-8 length table exactly -- 1, 2,
+ * 3, 4, 5, 6 bytes at the SUTR-1 boundaries -- so a Base codepoint's vSUTF
+ * length equals its SUTF-8 length. Above 0x7FFFFFFF the length is constant
+ * (VSUTF_EXT64_TOTAL), not variable.
  */
 static inline size_t vsutf_codepoint_length(sucs_ex_char_t ex_cp) {
     if (!extsucs_is_valid(ex_cp)) {

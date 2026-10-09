@@ -17,7 +17,21 @@
  *
  * All formats use big-endian byte order with zero-padding in upper bytes.
  * Error handling is strictly out-of-band via return values.
- */
+ *
+ * RANGE LIMITS DIFFER BY WIDTH -- these are NOT all full 64-bit:
+ *   SUST-32   0x00000000 - 0xFFFFFFFF        (32-bit; Base SUCS fast path)
+ *   SUST-64   0x00000000 - 0xFFFFFFFFFFFFFFFF (full 64-bit ExtSUCS)
+ *   SUST-128  full 64-bit, zero-padded to 16 bytes
+ *   SUST-256  full 64-bit, zero-padded to 32 bytes
+ *   SUST-512  full 64-bit, zero-padded to 64 bytes
+ *   SUST-N    full 64-bit, caller-specified slot_bytes (minimum 8)
+ *
+ * SUST-32 is the one fixed width that cannot carry a 64-bit plugin
+ * codepoint; it returns false / 0 for values above 0xFFFFFFFF. A caller
+ * needing arbitrary ExtSUCS values must use SUST-64 or wider.
+ *
+ * A fixed-width framing is a TRANSPORT, not a form: there is no SUTF-32 or
+ * SUTF-64. See docs/sutr/SUTR-4-extsucs-transport.md.
 
 #include "extsucs_types.h"
 

@@ -441,15 +441,61 @@ Write-Host "site built: $pageCount pages + $(($Modules.Count)) module listings a
 if ($Deploy) {
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw 'git not found on PATH' }
     $work = Join-Path $env:TEMP 'sucs-ghpages'
+
+    # Tear down any worktree left behind by an earlier failed run.
     git -C $RepoRoot worktree remove --force $work 2>$null | Out-Null
-    $branchExists = git -C $RepoRoot rev-parse --verify "$Branch" 2>$null
-    if (-not $branchExists) { Write-Host "creating $Branch branch..."; git -C $RepoRoot branch $Branch }
-    git -C $RepoRoot worktree add $work $Branch 2>&1 | Out-Null
+    git -C $RepoRoot worktree prune 2>$null | Out-Null
+
+    $branchExists = git -C $RepoRoot rev-parse --verify $Branch 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "creating $Branch branch..."
+        git -C $RepoRoot branch $Branch
+        if ($LASTEXITCODE -ne 0) { throw "failed to create $Branch branch" }
+    }
+
+    $addOut = git -C $RepoRoot worktree add $work $Branch 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "worktree add failed:`n$($addOut | Out-String)" }
+
     Get-ChildItem -LiteralPath $work | Where-Object { $_.Name -notin @('.git') } | Remove-Item -Recurse -Force
     Copy-Item -Path (Join-Path $SiteOut '*') -Destination $work -Recurse -Force
     git -C $work add -A
-    git -C $work commit -m "deploy site $(Get-Date -Format 'yyyy-MM-dd HHmm')" 2>&1 | Out-Null
-    git -C $work push origin $Branch 2>&1 | Out-Null
+
+    # A no-op deploy is legitimate; a *failed* commit is not. "nothing to
+    # commit" exits 1, so exit code alone cannot tell the two apart.
+    $commitOut = git -C $work commit -m "deploy site $(Get-Date -Format 'yyyy-MM-dd HHmm')" 2>&1
+    $commitRc = $LASTEXITCODE
+    $commitText = $commitOut | Out-String
+    if ($commitRc -eq 0) {
+        $subject = ($commitText -split "`r?`n" | Where-Object { $_ -match '\S' } | Select-Object -First 1)
+        Write-Host "committed: $subject"
+    } elseif ($commitText -match 'nothing to commit') {
+        Write-Host 'no content changes - nothing to commit'
+    } else {
+        throw "commit failed (exit $commitRc):`n$commitText"
+    }
+
+    # A swallowed push failure is the worst case in this script: it reports
+    # success while the live site stays stale. Capture the output, check the
+    # exit code, and then confirm the remote actually moved.
+    $pushOut = git -C $work push origin $Branch 2>&1
+    $pushRc = $LASTEXITCODE
+    $pushText = $pushOut | Out-String
+    if ($pushRc -ne 0) {
+        Write-Host "PUSH FAILED - live site is NOT updated." -ForegroundColor Red
+        Write-Host "worktree left at $work for inspection" -ForegroundColor Yellow
+        throw "push to origin/$Branch failed (exit $pushRc):`n$pushText"
+    }
+
+    # Independent confirmation: the remote must now point at our commit.
+    $local = (git -C $work rev-parse HEAD | Out-String).Trim()
+    $remoteOut = git -C $RepoRoot rev-parse "origin/$Branch" 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "cannot read origin/$Branch - run 'git fetch' first`n$($remoteOut | Out-String)" }
+    $remote = ($remoteOut | Out-String).Trim()
+    if ($local -ne $remote) {
+        throw "verification failed: HEAD $local != origin/$Branch $remote"
+    }
+
     git -C $RepoRoot worktree remove --force $work
-    Write-Host "deployed to origin/$Branch — enable GitHub Pages with source = '$Branch' (branch root)"
+    Write-Host "deployed and verified: origin/$Branch at $local"
+    Write-Host 'note: GitHub Pages rebuilds asynchronously - a 404 immediately after this is rebuild latency, not a failed deploy.'
 }
