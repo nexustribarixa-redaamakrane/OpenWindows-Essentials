@@ -408,6 +408,10 @@ _pixman_gradient_walker_fill_wide(pixman_gradient_walker_t *walker,
 #define N_Y_FRAC(n)     ((n) == 1 ? 1 : (1 << ((n) / 2)) - 1)
 #define N_X_FRAC(n)     ((n) == 1 ? 1 : (1 << ((n) / 2)) + 1)
 
+/* Fuzzed input may overflow; wrap instead of invoking undefined behavior */
+#define ADD_WRAP(a, b) ((pixman_fixed_t) ((uint32_t)(a) + (uint32_t)(b)))
+#define SUB_WRAP(a, b) ((pixman_fixed_t) ((uint32_t)(a) - (uint32_t)(b)))
+
 #define STEP_Y_SMALL(n) (pixman_fixed_1 / N_Y_FRAC (n))
 #define STEP_Y_BIG(n)   (pixman_fixed_1 - (N_Y_FRAC (n) - 1) * STEP_Y_SMALL (n))
 
@@ -483,6 +487,12 @@ typedef void (*pixman_combine_float_func_t) (pixman_implementation_t *imp,
 					     const float *	      src,
 					     const float *	      mask,
 					     int		      n_pixels);
+
+typedef union
+{
+    pixman_combine_32_func_t	f32;
+    pixman_combine_float_func_t	ff;
+} pixman_combine_func_t;
 
 typedef void (*pixman_composite_func_t) (pixman_implementation_t *imp,
 					 pixman_composite_info_t *info);
@@ -561,7 +571,7 @@ _pixman_implementation_lookup_composite (pixman_implementation_t  *toplevel,
 					 pixman_implementation_t **out_imp,
 					 pixman_composite_func_t  *out_func);
 
-pixman_combine_32_func_t
+pixman_combine_func_t
 _pixman_implementation_lookup_combiner (pixman_implementation_t *imp,
 					pixman_op_t		 op,
 					pixman_bool_t		 component_alpha,
@@ -716,6 +726,36 @@ _pixman_iter_get_scanline_noop (pixman_iter_t *iter, const uint32_t *mask);
 
 void
 _pixman_iter_init_bits_stride (pixman_iter_t *iter, const pixman_iter_info_t *info);
+
+void
+_pixman_bilinear_cover_iter_init (pixman_iter_t *iter,
+				  const pixman_iter_info_t *info);
+
+uint32_t *
+_pixman_bits_image_fetch_bilinear_no_repeat_8888 (pixman_iter_t  *iter,
+						  const uint32_t *mask);
+
+typedef struct
+{
+    int       y;
+    uint64_t *buffer;
+} pixman_bilinear_line_t;
+
+typedef struct
+{
+    pixman_bilinear_line_t lines[2];
+    pixman_fixed_t         y;
+    pixman_fixed_t         x;
+    uint64_t               data[1];
+} pixman_bilinear_info_t;
+
+void
+_pixman_fetch_bilinear_horizontal (bits_image_t           *image,
+				   pixman_bilinear_line_t *line,
+				   int                     y,
+				   pixman_fixed_t          x,
+				   pixman_fixed_t          ux,
+				   int                     n);
 
 /* These "formats" all have depth 0, so they
  * will never clash with any real ones

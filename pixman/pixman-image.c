@@ -360,7 +360,8 @@ compute_image_info (pixman_image_t *image)
 		     t[0][0] | t[0][1] | t[0][2] |
 		     t[1][0] | t[1][1] | t[1][2]) == 0)			&&
 		(pixman_fixed_to_int (
-		    (t[0][0] + t[0][1]) & (t[1][0] + t[1][1])) % 2) == 1)
+		    (pixman_fixed_t) (((uint32_t)t[0][0] + (uint32_t)t[0][1]) &
+				      ((uint32_t)t[1][0] + (uint32_t)t[1][1]))) % 2) == 1)
 	    {
 		/* FIXME: there are some affine-test failures, showing that
 		 * handling of BILINEAR and NEAREST filter is not quite

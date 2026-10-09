@@ -209,9 +209,9 @@ linear_get_scanline (pixman_iter_t                 *iter,
 
 	    buffer += (Bpp / 4);
 
-	    v.vector[0] += unit.vector[0];
-	    v.vector[1] += unit.vector[1];
-	    v.vector[2] += unit.vector[2];
+	    v.vector[0] = ADD_WRAP (v.vector[0], unit.vector[0]);
+	    v.vector[1] = ADD_WRAP (v.vector[1], unit.vector[1]);
+	    v.vector[2] = ADD_WRAP (v.vector[2], unit.vector[2]);
 	}
     }
 

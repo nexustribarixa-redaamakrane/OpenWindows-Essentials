@@ -132,7 +132,10 @@ detect_cpu_features (void)
     arm_cpu_features_t features = 0;
     unsigned long hwcap = 0;
 
-    elf_aux_info (AT_HWCAP, &hwcap, sizeof(hwcap));
+    if (elf_aux_info (AT_HWCAP, &hwcap, sizeof(hwcap)) != 0)
+    {
+        return 0;
+    }
 
     if (hwcap & HWCAP_VFP)
         features |= ARM_VFP;
@@ -142,10 +145,10 @@ detect_cpu_features (void)
     return features;
 }
 
-#elif defined (HAVE_GETAUXAL)
+#elif defined (HAVE_GETAUXVAL)
 
 #include <sys/auxv.h>
-#include <string.h>
+#include <stdint.h>
 
 static arm_cpu_features_t
 detect_cpu_features (void)
@@ -161,12 +164,19 @@ detect_cpu_features (void)
     if (hwcap & HWCAP_ARM_NEON)
         features |= ARM_NEON;
 
-    plat = (const char *) getauxval (AT_PLATFORM);
+    plat = (const char *) (uintptr_t) getauxval (AT_PLATFORM);
 
-    if (strncmp (plat, "v7l", 3) == 0)
-        features |= (ARM_V7 | ARM_V6);
-    else if (strncmp (plat, "v6l", 3) == 0)
+    if (plat == NULL)
+        return features;
+
+    if (plat[0] == 'v'
+        && (plat[1] == '6' || plat[1] == '7')
+        && plat[2] == 'l')
+    {
         features |= ARM_V6;
+        if (plat[1] == '7')
+            features |= ARM_V7;
+    }
 
     return features;
 }

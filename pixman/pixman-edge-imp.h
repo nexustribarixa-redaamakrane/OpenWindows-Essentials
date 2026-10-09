@@ -166,14 +166,14 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 	{
 	    RENDER_EDGE_STEP_SMALL (l);
 	    RENDER_EDGE_STEP_SMALL (r);
-	    y += STEP_Y_SMALL(N_BITS);
+	    y = ADD_WRAP (y, STEP_Y_SMALL(N_BITS));
 	}
 	else
 #endif
 	{
 	    RENDER_EDGE_STEP_BIG (l);
 	    RENDER_EDGE_STEP_BIG (r);
-	    y += STEP_Y_BIG(N_BITS);
+	    y = ADD_WRAP (y, STEP_Y_BIG(N_BITS));
 	    line += stride;
 	}
     }

@@ -87,7 +87,7 @@ float_to_unorm (float f, int n_bits)
 
     if (f > 1.0)
 	f = 1.0;
-    if (f < 0.0)
+    if (!(f >= 0.0))
 	f = 0.0;
 
     u = f * (1 << n_bits);

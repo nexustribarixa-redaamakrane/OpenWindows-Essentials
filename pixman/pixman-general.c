@@ -132,7 +132,7 @@ general_composite_rect  (pixman_implementation_t *imp,
     uint8_t *scanline_buffer = (uint8_t *) stack_scanline_buffer;
     uint8_t *src_buffer, *mask_buffer, *dest_buffer;
     pixman_iter_t src_iter, mask_iter, dest_iter;
-    pixman_combine_32_func_t compose;
+    pixman_combine_func_t compose;
     pixman_bool_t component_alpha;
     iter_flags_t width_flag, src_iter_flags;
     int Bpp;
@@ -227,7 +227,11 @@ general_composite_rect  (pixman_implementation_t *imp,
 	s = src_iter.get_scanline (&src_iter, m);
 	d = dest_iter.get_scanline (&dest_iter, NULL);
 
-	compose (imp->toplevel, op, d, s, m, width);
+	if (width_flag != ITER_WIDE)
+	    compose.f32 (imp->toplevel, op, d, s, m, width);
+	else
+	    compose.ff (imp->toplevel, op, (float *)d, (const float *)s,
+			(const float *)m, width);
 
 	dest_iter.write_back (&dest_iter);
     }

@@ -42,7 +42,10 @@ is_rvv_1_0_available ()
 {
     unsigned long hwcap = 0;
 
-    elf_aux_info(AT_HWCAP, &hwcap, sizeof(hwcap));
+    if (elf_aux_info(AT_HWCAP, &hwcap, sizeof(hwcap)) != 0)
+    {
+        return 0;
+    }
 
 #ifdef HWCAP_ISA_V
     if (hwcap & HWCAP_ISA_V)

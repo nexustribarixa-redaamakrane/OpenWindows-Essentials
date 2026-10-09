@@ -727,7 +727,7 @@ fetch_scanline_a16b16g16r16_float (bits_image_t *  image,
     {
 	uint64_t a, r, g, b, p;
 
-	memcpy(&p, pixel++, sizeof(p));
+	memcpy(&p, (const void *)pixel++, sizeof(p));
 	a = (p >> 48) & 0xffff;
 	b = (p >> 32) & 0xffff;
 	g = (p >> 16) & 0xffff;
@@ -948,7 +948,7 @@ fetch_pixel_a16b16g16r16_float (bits_image_t *image,
     uint64_t a, r, g, b, p;
     argb_t argb;
 
-    memcpy(&p, bits + offset, sizeof(p));
+    memcpy(&p, (const void *)(bits + offset), sizeof(p));
     a = (p >> 48) & 0xffff;
     b = (p >> 32) & 0xffff;
     g = (p >> 16) & 0xffff;
@@ -1198,7 +1198,7 @@ store_scanline_a16b16g16r16_float (bits_image_t *  image,
 	b = pixman_float_to_unorm (values[i].b, 16);
 
 	p = (a << 48) | (b << 32) | (g << 16) | (r << 0) ;
-	memcpy(pixel++, &p, sizeof(uint64_t));
+	memcpy((void *)pixel++, &p, sizeof(uint64_t));
     }
 }
 

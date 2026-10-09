@@ -170,6 +170,14 @@ optimize_operator (pixman_op_t     op,
 /*
  * Computing composite region
  */
+static inline int
+sat_add (int a, int b)
+{
+    int64_t r = (int64_t)a + b;
+
+    return r > INT32_MAX ? INT32_MAX : (r < INT32_MIN ? INT32_MIN : (int)r);
+}
+
 static inline pixman_bool_t
 clip_general_image (pixman_region32_t * region,
                     pixman_region32_t * clip,
@@ -183,13 +191,14 @@ clip_general_image (pixman_region32_t * region,
 	pixman_box32_t *  cbox = pixman_region32_rectangles (clip, NULL);
 	int v;
 
-	if (rbox->x1 < (v = cbox->x1 + dx))
+	/* Saturate rather than overflow for extreme offsets */
+	if (rbox->x1 < (v = sat_add (cbox->x1, dx)))
 	    rbox->x1 = v;
-	if (rbox->x2 > (v = cbox->x2 + dx))
+	if (rbox->x2 > (v = sat_add (cbox->x2, dx)))
 	    rbox->x2 = v;
-	if (rbox->y1 < (v = cbox->y1 + dy))
+	if (rbox->y1 < (v = sat_add (cbox->y1, dy)))
 	    rbox->y1 = v;
-	if (rbox->y2 > (v = cbox->y2 + dy))
+	if (rbox->y2 > (v = sat_add (cbox->y2, dy)))
 	    rbox->y2 = v;
 	if (rbox->x1 >= rbox->x2 || rbox->y1 >= rbox->y2)
 	{

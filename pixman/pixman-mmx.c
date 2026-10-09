@@ -384,7 +384,7 @@ static force_inline __m64 ldq_u(__m64 *p)
 #ifdef USE_X86_MMX
     /* x86's alignment restrictions are very relaxed, but that's no excuse */
     __m64 r;
-    memcpy(&r, p, sizeof(__m64));
+    memcpy(&r, (const void *)p, sizeof(__m64));
     return r;
 #else
     struct __una_u64 { __m64 x __attribute__((packed)); };
@@ -398,7 +398,7 @@ static force_inline uint32_t ldl_u(const uint32_t *p)
 #ifdef USE_X86_MMX
     /* x86's alignment restrictions are very relaxed. */
     uint32_t r;
-    memcpy(&r, p, sizeof(uint32_t));
+    memcpy(&r, (const void *)p, sizeof(uint32_t));
     return r;
 #else
     struct __una_u32 { uint32_t x __attribute__((packed)); };

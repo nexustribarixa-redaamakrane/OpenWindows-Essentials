@@ -425,9 +425,9 @@ radial_get_scanline (pixman_iter_t                 *iter,
 
 	    buffer += (Bpp / 4);
 
-	    v.vector[0] += unit.vector[0];
-	    v.vector[1] += unit.vector[1];
-	    v.vector[2] += unit.vector[2];
+	    v.vector[0] = ADD_WRAP (v.vector[0], unit.vector[0]);
+	    v.vector[1] = ADD_WRAP (v.vector[1], unit.vector[1]);
+	    v.vector[2] = ADD_WRAP (v.vector[2], unit.vector[2]);
 	}
     }
 
@@ -492,9 +492,9 @@ pixman_image_create_radial_gradient (const pixman_point_fixed_t *  inner,
     radial->c2.radius = outer_radius;
 
     /* warning: this computations may overflow */
-    radial->delta.x = radial->c2.x - radial->c1.x;
-    radial->delta.y = radial->c2.y - radial->c1.y;
-    radial->delta.radius = radial->c2.radius - radial->c1.radius;
+    radial->delta.x = SUB_WRAP (radial->c2.x, radial->c1.x);
+    radial->delta.y = SUB_WRAP (radial->c2.y, radial->c1.y);
+    radial->delta.radius = SUB_WRAP (radial->c2.radius, radial->c1.radius);
 
     /* computed exactly, then cast to double -> every bit of the double
        representation is correct (53 bits) */

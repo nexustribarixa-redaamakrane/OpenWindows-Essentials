@@ -74,11 +74,13 @@ include:
       runner_tag_arm64: $[[ inputs.runner_tag_arm64 ]]
   - local: "/.gitlab-ci.d/02-build.yml"
     inputs:
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
       runner_tag_amd64: $[[ inputs.runner_tag_amd64 ]]
       runner_tag_qemu: $[[ inputs.runner_tag_qemu ]]
       runner_tag_arm64: $[[ inputs.runner_tag_arm64 ]]
   - local: "/.gitlab-ci.d/03-test.yml"
     inputs:
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
       runner_tag_amd64: $[[ inputs.runner_tag_amd64 ]]
       runner_tag_qemu: $[[ inputs.runner_tag_qemu ]]
       runner_tag_arm64: $[[ inputs.runner_tag_arm64 ]]

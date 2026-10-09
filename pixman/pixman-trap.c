@@ -96,7 +96,7 @@ pixman_edge_step (pixman_edge_t *e,
 {
     pixman_fixed_48_16_t ne;
 
-    e->x += n * e->stepx;
+    e->x += n * (pixman_fixed_48_16_t) e->stepx;
 
     ne = e->e + n * (pixman_fixed_48_16_t) e->dx;
 
@@ -134,7 +134,7 @@ _pixman_edge_multi_init (pixman_edge_t * e,
     pixman_fixed_48_16_t ne;
 
     ne = n * (pixman_fixed_48_16_t) e->dx;
-    stepx = n * e->stepx;
+    stepx = (pixman_fixed_t) ((uint32_t)n * (uint32_t)e->stepx);
 
     if (ne > 0)
     {
@@ -164,8 +164,8 @@ pixman_edge_init (pixman_edge_t *e,
 
     e->x = x_top;
     e->e = 0;
-    dx = x_bot - x_top;
-    dy = y_bot - y_top;
+    dx = SUB_WRAP (x_bot, x_top);
+    dy = SUB_WRAP (y_bot, y_top);
     e->dy = dy;
     e->dx = 0;
 
@@ -192,7 +192,7 @@ pixman_edge_init (pixman_edge_t *e,
 	_pixman_edge_multi_init (e, STEP_Y_BIG (n),
 				 &e->stepx_big, &e->dx_big);
     }
-    pixman_edge_step (e, y_start - y_top);
+    pixman_edge_step (e, SUB_WRAP (y_start, y_top));
 }
 
 /*
@@ -223,10 +223,10 @@ pixman_line_fixed_edge_init (pixman_edge_t *            e,
     }
     
     pixman_edge_init (e, n, y,
-                      top->x + x_off_fixed,
-                      top->y + y_off_fixed,
-                      bot->x + x_off_fixed,
-                      bot->y + y_off_fixed);
+                      ADD_WRAP (top->x, x_off_fixed),
+                      ADD_WRAP (top->y, y_off_fixed),
+                      ADD_WRAP (bot->x, x_off_fixed),
+                      ADD_WRAP (bot->y, y_off_fixed));
 }
 
 PIXMAN_EXPORT void
@@ -367,12 +367,12 @@ pixman_rasterize_trapezoid (pixman_image_t *          image,
 
     y_off_fixed = pixman_int_to_fixed (y_off);
 
-    t = trap->top + y_off_fixed;
+    t = ADD_WRAP (trap->top, y_off_fixed);
     if (t < 0)
 	t = 0;
     t = pixman_sample_ceil_y (t, bpp);
 
-    b = trap->bottom + y_off_fixed;
+    b = ADD_WRAP (trap->bottom, y_off_fixed);
     if (pixman_fixed_to_int (b) >= height)
 	b = pixman_int_to_fixed (height) - 1;
     b = pixman_sample_floor_y (b, bpp);
