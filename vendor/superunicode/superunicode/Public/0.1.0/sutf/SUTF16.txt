@@ -1,0 +1,22 @@
+# SUTF16.txt - SUCS UTF-16 framing (starter)
+# NO SURROGATES. SUCS has no surrogate concept at all: 0xD800-0xDFFF are
+# valid PUA codepoints, never surrogate halves, and never combine with a
+# following word.
+#
+# Framing (word space, endian-neutral; byte order is SUST-16's job):
+#   1 word : 0x0000 - 0x7FFF            (literal; bit 15 clear)
+#   2 words: 0x8000 - 0x7FFFFFFF        (marker lead word carries the high
+#            15 bits, second word the low 16)
+#             word0 = 0x8000 | ((cp >> 16) & 0x7FFF)
+#             word1 = cp & 0xFFFF
+# A word with bit 15 set is ALWAYS a marker, so a lone marker word is
+# detectable truncation. The whole native space above 0x7FFF has a 16-bit
+# form; nothing is left to SUTF8/SUTF32.
+#
+# Serialized byte streams use an EXPLICITLY SELECTED byte order chosen per
+# transport via SUST-16: sust16_encode_bytes / sust16_decode_bytes (canonical
+# BIG-ENDIAN), sust16_encode_bytes_be / sust16_decode_bytes_be (explicit BE),
+# or sust16_encode_bytes_le / sust16_decode_bytes_le (LITTLE-ENDIAN). No BOM
+# can exist (every word >= 0x8000 is a marker, so no signature word is
+# representable); the order is fixed by the sender, never self-describing,
+# and the sender's encode_* must be paired with its matching decode_* order.

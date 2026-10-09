@@ -1,0 +1,6 @@
+# sudat/assignments.txt - SCP slot assignments (starter)
+# Each machine instruction occupies one SCP slot (control plane).
+# Registry convention: BANcode 0x0011A000-0x0011A7FF, WARNcode
+# 0x0011A800-0x0011ABFF, COMcode 0x0011AC00-0x0011ADFF, SOFTcode
+# 0x0011AE00-0x0011AEFF. Slots below 0x0011A000 are reserved for
+# future registry blocks; see control/SCP.txt.

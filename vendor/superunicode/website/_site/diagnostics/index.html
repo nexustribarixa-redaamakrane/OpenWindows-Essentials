@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Diagnostics</title>
+<meta name='description' content='How SuperUnicode reports and dispatches machine diagnostics.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../standard/index.html'>The Standard</a>
+ &raquo; Diagnostics</nav>
+<h1>Diagnostics</h1>
+<p class='subtitle'>How SuperUnicode reports and dispatches machine diagnostics.</p>
+<p>Diagnostics are first-class citizens of the encoding: they are codepoints, they are typed, and they flow through the same stream as text. The SCP registry defines the codes; traps deliver them; the kernel acts. The registry runs in <strong>System mode</strong> (fatal codes dispatch through Kernel Security Traps, the krnl path) or <strong>App mode</strong> (fatal codes crash the application through its own handler, bypassing the krnl dispatch table) &mdash; both modes share the identical codepoint registry.</p>
+<div class="grid">
+<div class='card'><h3><a href='../diagnostics/bancode.html'>The BANcode Registry</a></h3><p>BANcode, WARNcode, COMcode and SOFTcode blocks, plus the System/App operating modes.</p></div>
+<div class='card'><h3><a href='../diagnostics/traps.html'>Traps</a></h3><p>How a diagnostic code becomes an interrupt &mdash; the System-mode (krnl) dispatch path.</p></div>
+</div>
+<p class='note'>The formal contract is <span class="mono">SUTR-0</span> and the data in <span class="mono">sudat/control/</span>.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

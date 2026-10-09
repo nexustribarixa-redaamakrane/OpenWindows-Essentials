@@ -1,0 +1,9 @@
+# OpenWindows Recovery Mode
+
+set_mode text
+load_driver sio
+load_driver atapio
+mount_readonly owfs0 "VIP0:" "C:"
+start owsh --recovery
+log "Recovery shell started"
+

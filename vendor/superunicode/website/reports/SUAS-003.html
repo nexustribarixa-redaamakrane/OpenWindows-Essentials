@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUAS-003 — System Boundary & Line Break Rules</title>
+<meta name='description' content='SUAS-003: System Boundary & Line Break Rules (SBR) — single-pass deterministic line breaking over the 64-bit SUCS space.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html' class='active'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Technical Reports</a>
+ &raquo; SUAS-003 — SBR</nav>
+<h1>SUAS-003 &mdash; System Boundary <span class="grad">&amp; Line Break Rules</span></h1>
+<p class='subtitle'>The third SuperUnicode Architecture Standard: single-pass deterministic line breaking over 64-bit SUCS.</p>
+<p>SUAS-003 (SBR) is the third SuperUnicode Architecture Standard. It defines where a line may, must, or must not be broken over the full 64-bit SUCS space (<span class="mono">sucs_ex_char_t</span>) via a <strong>single-pass deterministic state transition table</strong> (a UAX #14 analog) &mdash; no multi-pass buffer algorithm, zero allocation, O(1) pair resolution.</p>
+<h2>Break statuses</h2>
+<ul>
+<li><strong>MUST_BREAK</strong> &mdash; a line boundary is mandatory (e.g. after a control).</li>
+<li><strong>CAN_BREAK</strong> &mdash; an allowed / opportunistic boundary.</li>
+<li><strong>NO_BREAK</strong> &mdash; a prohibited boundary.</li>
+<li><strong>ALPHANUM_BREAK</strong> &mdash; mandatory CJK/numeric alphabetic break.</li>
+</ul>
+<h2>Explicit SCP Break Markers</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Codepoint</th>
+<th>Directive</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">0x00110020</span></td>
+<td><span class="mono">SCP_BRK_MANDATORY</span> — force a line break here</td>
+</tr>
+<tr>
+<td><span class="mono">0x00110021</span></td>
+<td><span class="mono">SCP_BRK_PROHIBITED</span> — force no line break here</td>
+</tr>
+<tr>
+<td><span class="mono">0x00110022</span></td>
+<td><span class="mono">SCP_BRK_OPPORTUNISTIC</span> — allow a break here</td>
+</tr>
+</tbody></table></div>
+<h2>Zone dispatch</h2>
+<ol>
+<li><strong>Unicode Bridge</strong> <span class="mono">0x00000000&ndash;0x0010FFFF</span> &mdash; curated UAX #14 break-class table + transition matrix.</li>
+<li><strong>SCP</strong> <span class="mono">0x00110000&ndash;0x0011FFFF</span> &mdash; Explicit Break Markers override; other controls are mandatory.</li>
+<li><strong>Native SUCS</strong> <span class="mono">0x00120000&ndash;0x7FFFFFFE</span> &mdash; O(1) high-bit range bitmask word test.</li>
+<li><strong>ExtSUCS</strong> <span class="mono">&gt;0x7FFFFFFF</span> &mdash; neutral gap default.</li>
+</ol>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Feature</th>
+<th>Status</th>
+</tr></thead><tbody>
+<tr>
+<td>Four break statuses (MUST/CAN/NO/ALPHANUM)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Single-pass O(1) transition-matrix pair resolution</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Zero heap allocation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>64-bit extSUCS zone dispatch</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Explicit SCP Break Markers override</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Invisible formatting (WJ, ZWSP)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Native SUCS high-bit bitmask word test</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Alphanumeric (CJK numeric) break</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Tailoring override hook</td>
+<td>Yes</td>
+</tr>
+</tbody></table></div>
+<div class='callout '><p>Reference implementation: <span class="mono">include/suas/suas_sbr.h</span> + <span class="mono">src/suas/suas_sbr.c</span> (freestanding C99, no heap), registered in <span class="mono">suas_static</span>.</p></div>
+<p class='note'>Source of truth: <span class="mono">docs/suas/SUAS-003-sbr.md</span> in the repository.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

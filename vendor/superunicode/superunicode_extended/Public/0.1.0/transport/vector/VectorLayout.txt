@@ -1,0 +1,5 @@
+# transport/vector/ - codepoint vector layout (starter)
+# A vector is an in-memory sequence of sucs_ex_char_t (uint64, LE).
+# Length is carried by the stream framing, NOT by the data (the sentinel
+# 0x7FFFFFFF terminates a Base SUCS stream; a vector is length-prefixed).
+UNIT  uint64, little-endian, one codepoint per unit

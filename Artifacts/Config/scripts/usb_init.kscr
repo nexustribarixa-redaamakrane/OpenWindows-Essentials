@@ -1,0 +1,7 @@
+# OpenWindows USB Initialization
+
+load_driver ehci
+load_driver xhci
+scan_usb_devices
+log "USB subsystem ready"
+

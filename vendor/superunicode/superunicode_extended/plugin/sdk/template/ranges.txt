@@ -1,0 +1,7 @@
+# SuperUnicode Plugin Codepoint Ranges (template)
+# Format: <start_hex> <end_hex>, one pair per line. '#' = comment.
+# EVERY range MUST start above the base limit 0x7FFFFFFF.
+# Ranges may not overlap another plugin's ranges.
+
+# Example: one block of 4096 codepoints
+0x80000000 0x80000FFF

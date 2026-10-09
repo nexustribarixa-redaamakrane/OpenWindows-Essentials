@@ -1,0 +1,6 @@
+# extsucd/registry.txt - ExtSUCS plugin registry (starter)
+# One row per APPROVED plugin. Columns:
+#   plugin_id | version | ranges | partition_fs | state
+# Ranges column: <count> blocks at the listed starts (see each plugin's
+# ranges.txt for full span).
+org.openwindows.hellocp | 1.0.0 | 1 @ 0x80000000-0x80000FFF | OWFS | approved

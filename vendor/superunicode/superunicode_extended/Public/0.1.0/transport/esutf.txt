@@ -1,0 +1,3 @@
+# esutf.txt - Extended SUTF (starter)
+# Family of fixed-base encodings over ExtSUCS (64-bit). Complements Base
+# SUTF8/16/32 which cap at 0x7FFFFFFF. See esutf.h for the reference.

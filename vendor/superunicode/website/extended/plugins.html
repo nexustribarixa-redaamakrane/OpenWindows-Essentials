@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Plugins — SuperUnicode Extended</title>
+<meta name='description' content='The plugin lifecycle: stage, reboot, checksum gate, mount, register, quarantine.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html' class='active'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Extended</a>
+ &raquo; Plugins</nav>
+<h1>Plugins</h1>
+<p class='subtitle'>Self-contained packages of codepoints above the Base ceiling.</p>
+<p>A plugin is a self-contained package of codepoints: it declares ranges (all strictly above <span class="mono">0x7FFFFFFF</span>), a name table, properties, mappings and optional collation. A plugin blob is a single packed file validated before it is ever mounted.</p>
+<h2>Lifecycle</h2>
+<ol>
+<li><strong>Install &amp; stage.</strong> The blob lands in the staging table. The API returns <span class="mono">SUCS_PLUGIN_REBOOT_REQUIRED</span> (status 13).</li>
+<li><strong>Reboot.</strong> Mandatory &mdash; mounting changes the active namespace, exactly like switching a runtime mode.</li>
+<li><strong>Boot commit.</strong> <span class="mono">plugin_commit_on_boot()</span> verifies CRC32c + Fletcher-64, then validates ranges (sorted, non-overlapping, above the base limit, no collisions with mounted plugins).</li>
+<li><strong>Mount.</strong> A valid plugin mounts as a SuperUnicode Plugin Partition &mdash; OWFS exclusively, read-only.</li>
+<li><strong>Register.</strong> The plugin&rsquo;s ranges enter the active ExtSUCS namespace and codepoint lookups can resolve them.</li>
+<li><strong>Quarantine.</strong> Any failed gate quarantines the plugin; it is never mounted and never registers.</li>
+</ol>
+<h2>Blob format</h2>
+<p>The blob header (94 bytes, packed) carries the magic <span class="mono">SUCS</span>, blob version, the plugin version (<span class="mono">major.minor.patch</span>), the plugin id (64 bytes), range count, blob size, and the two integrity checksums computed over the whole blob with the checksum fields zeroed.</p>
+<div class='spec'>magic &quot;SUCS&quot; | blob_version 1 | ver major.minor.patch | id[64]<br>| range_count | blob_size | <span class="hl">crc32c</span> | <span class="hl">fletcher64</span><br>then ranges (16-byte LE pairs), then the payload</div>
+<div class='callout '><p>Practical guide: <a href="sdk.html">the plugin SDK</a>, and <a href="../modules/unicode-extended/index.html">the plugin sources</a> in the repository.</p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

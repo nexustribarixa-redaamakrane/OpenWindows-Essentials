@@ -1,0 +1,6 @@
+# Sentinel.txt - SUCS_CP_SENTINEL (starter)
+VALUE  0x7FFFFFFF
+ROLE   End-of-stream marker; not a printable allocation. Stops cursor
+       advance and terminates the current machine-instruction stream.
+NOTE   No plugin may allocate at or below this value. Plugin ranges
+       begin strictly ABOVE 0x7FFFFFFF (see the Extended tree).

@@ -1,0 +1,27 @@
+# OpenWindows Configuration Tree Registry Daemon
+
+case "$1" in
+    start)
+        echo ":: Starting kconf Registry Sync Daemon..."
+        load_dll kconf64
+        "C:\OpenWindows\Software\kconfctl.owx" --daemon --sync-interval 60 &
+        echo ":: kconf daemon running."
+        ;;
+    stop)
+        echo ":: Committing kconf Registry..."
+        kconfctl save "C:\OpenWindows\Config\system.kconf"
+        owkill --name kconfctl
+        echo ":: kconf daemon stopped."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        kconfctl status
+        ;;
+    *)
+        echo "Usage: rc.kconf {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

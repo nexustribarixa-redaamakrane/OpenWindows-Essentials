@@ -1,0 +1,7 @@
+# OpenWindows Audio Initialization
+
+load_driver ac97
+load_driver hdaudio
+set_volume 75
+log "Audio subsystem ready"
+

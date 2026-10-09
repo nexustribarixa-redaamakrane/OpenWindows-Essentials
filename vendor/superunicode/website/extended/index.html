@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SuperUnicode Extended — ExtSUCS</title>
+<meta name='description' content='ExtSUCS: an unbounded 64-bit space beyond the Base ceiling, built from plugin partitions.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html' class='active'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<h1>SuperUnicode <span class="grad">Extended</span></h1>
+<p class='subtitle'>ExtSUCS &mdash; codepoint territory without a ceiling, added by plugins.</p>
+<p>Base SUCS ends at the Sentinel value <span class="mono">0x7FFFFFFF</span> &mdash; the default runtime ceiling on websites and ordinary devices. <strong>SuperUnicode Extended (ExtSUCS)</strong> removes the ceiling: its codepoints are held in a 64-bit <span class="mono">sucs_ex_char_t</span>, and new codepoints are contributed by <strong>plugins</strong>.</p>
+<h2>Explore Extended</h2>
+<div class="grid">
+<div class='card'><h3><a href='../extended/plugins.html'>Plugins</a></h3><p>The lifecycle: stage, reboot, checksum gate, mount, register, quarantine.</p></div>
+<div class='card'><h3><a href='../extended/partitions.html'>Partitions</a></h3><p>SuperUnicode Plugin Partitions: OWFS only, always read-only.</p></div>
+<div class='card'><h3><a href='../extended/registry.html'>The registry</a></h3><p>Approved plugins, their ranges and states.</p></div>
+<div class='card'><h3><a href='../extended/sdk.html'>The SDK</a></h3><p>Template, hellocp example, plugin_pack and plugin_verify.</p></div>
+<div class='card'><h3><a href='../extended/transport.html'>Transport</a></h3><p>Vector, vsutf and e-SUST framing over 64-bit codepoints.</p></div>
+</div>
+<h2>How a plugin works</h2>
+<ol>
+<li><strong>Stage.</strong> The plugin blob is written to the staging table. The kernel answers <span class="mono">SUCS_PLUGIN_REBOOT_REQUIRED</span> &mdash; a restart is mandatory.</li>
+<li><strong>Commit on boot.</strong> At early boot the kernel runs the <strong>checksum gate</strong>: the blob&rsquo;s CRC32c and Fletcher-64 must match. A valid plugin mounts as a <strong>SuperUnicode Plugin Partition</strong> and its ranges register into ExtSUCS.</li>
+<li><strong>Quarantine.</strong> A blob that fails any gate is never mounted and never registers. It is quarantined and dispatched through the trap/BANcode machinery.</li>
+</ol>
+<div class='spec'>stage install  -&gt;  <span class="pv">SUCS_PLUGIN_REBOOT_REQUIRED</span><br>boot           -&gt;  crc32c + fletcher64 verify<br>             -&gt;  mount <span class="hl">SuperUnicode Plugin Partition</span> (OWFS, read-only)<br>             -&gt;  register ranges into ExtSUCS<br>gate failed    -&gt;  <span class="hl">quarantine</span> &mdash; never mounted</div>
+<div class='callout '><p><strong>Base and Extended are one system.</strong> ExtSUCS inherits the SCP, traps and Sentinel from Base SUCS verbatim. Base partitions may be OWFS or USFS; plugin partitions are always OWFS, always read-only, always checksum-gated. <a href="../standard/index.html">Back to the Base standard &raquo;</a></p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

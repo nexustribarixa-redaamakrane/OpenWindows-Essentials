@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUAS-004 — SuperUnicode Canonical Forms (SUCF)</title>
+<meta name='description' content='SUAS-004: SuperUnicode Canonical Forms (SUCF) — dual-target canonical decomposition/composition over the 64-bit SUCS space.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html' class='active'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Technical Reports</a>
+ &raquo; SUAS-004 — SUCF</nav>
+<h1>SUAS-004 &mdash; SuperUnicode <span class="grad">Canonical Forms</span></h1>
+<p class='subtitle'>The fourth SuperUnicode Architecture Standard: dual-target, zero-allocation canonical (de)composition over 64-bit SUCS.</p>
+<p>SUAS-004 (SUCF) is the fourth SuperUnicode Architecture Standard. It defines canonical equivalence over the full 64-bit SUCS space (<span class="mono">sucs_ex_char_t</span>) via a <strong>single-pass sliding-window engine</strong> (a UAX #15 analog) with two targets: <strong>SUCF-C</strong> (canonical composition &mdash; the compact storage / equality form) and <strong>SUCF-D</strong> (canonical decomposition &mdash; the analysis / stripping / sorting form). Zero allocation: all reordering lives in a small stack-allocated window.</p>
+<h2>Dual targets</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Target</th>
+<th>Purpose</th>
+<th>Behavior</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">SUCF-C</span></td>
+<td>Compact storage &amp; equality</td>
+<td>decompose, reorder by CCC, then recompose greedily (Hangul algorithmic)</td>
+</tr>
+<tr>
+<td><span class="mono">SUCF-D</span></td>
+<td>Analysis, stripping &amp; sorting</td>
+<td>decompose and reorder by CCC; never recompose</td>
+</tr>
+</tbody></table></div>
+<h2>CCC reordering</h2>
+<p>Every combining mark carries a Canonical Combining Class (CCC). Marks sort ascending by CCC; a pair swaps iff <span class="mono">CCC_A &gt; CCC_B</span> and <span class="mono">CCC_B &ne; 0</span> &mdash; stable for equal classes, and a starter (CCC 0) never moves. Stream-safe bound: 30 non-starters per run.</p>
+<h2>Hangul</h2>
+<p>No table rows: syllables <span class="mono">0xAC00&ndash;0xD7A3</span> decompose algorithmically to L+V(+T); SUCF-C composes explicit L+V and LV+T sequences arithmetically.</p>
+<h2>SCP immunity</h2>
+<p>SCP <span class="mono">0x00110000&ndash;0x0011FFFF</span>, BANcodes, Trap and Sentinel are canonically invariant: they pass through untouched and never disturb combining state, while preserved in their original stream position.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Feature</th>
+<th>Status</th>
+</tr></thead><tbody>
+<tr>
+<td>Dual targets (SUCF-C composition / SUCF-D decomposition)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Single-pass sliding-window engine</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Zero heap allocation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Curated CCC + decomposition tables (Unicode Bridge)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Algorithmic Hangul (de)composition</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Composition exclusions (singletons, non-starters)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>30 non-starter stream-safe bound</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SCP / Trap / Sentinel invariance</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Quick check YES/NO/MAYBE</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Streaming &equiv; bulk transform</td>
+<td>Yes</td>
+</tr>
+</tbody></table></div>
+<div class='callout '><p>Reference implementation: <span class="mono">include/suas/suas_sucf.h</span> + <span class="mono">src/suas/suas_sucf.c</span> (freestanding C99, no heap), registered in <span class="mono">suas_static</span>.</p></div>
+<p class='note'>Source of truth: <span class="mono">docs/suas/SUAS-004-sucf.md</span> in the repository.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

@@ -1,0 +1,18 @@
+# vsutf.txt - vSUTF (Variable SUTF) Transformation Format
+#
+# Two regimes, not a uniform variable-length integer:
+#
+#   0x00000000 - 0x7FFFFFFF   standard SUTF-8 framing, 1-6 bytes
+#   0x80000000 - 0xFFFF..FF   0xFE prefix + 8 bytes big-endian = 9 bytes
+#   0xFF prefix              reserved, for a future >64-bit domain
+#
+# 0xFE and 0xFF are unused as SUTF-8 lead bytes (which are 0xC0-0xFD), so
+# they are safe extension markers. A LEB128-style variable-length integer
+# could NOT coexist with SUTF-8 lead bytes, because those two values would
+# be ambiguous.
+#
+# The Base regime is byte-for-byte SUTF-8, so any Base SUCS stream is
+# already a valid vSUTF stream. VSUTF_MAX_BYTES is 9. A codepoint in the
+# inherited trap range returns length 0 and is not encodable.
+#
+# See vsutf.h for the normative reference implementation.

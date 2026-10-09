@@ -1,0 +1,28 @@
+# OpenWindows Device Manager & Hardware Dispatcher
+
+case "$1" in
+    start)
+        echo ":: Starting OpenWindows Device Manager..."
+        load_dll owdev64
+        load_dll owevent64
+        "C:\OpenWindows\Software\owdevmgr.owx" --daemon &
+        echo ":: Device Manager running."
+        ;;
+    stop)
+        echo ":: Stopping Device Manager..."
+        owkill --name owdevmgr
+        echo ":: Device Manager stopped."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        owlspci
+        owlsdrv
+        ;;
+    *)
+        echo "Usage: rc.devmgr {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

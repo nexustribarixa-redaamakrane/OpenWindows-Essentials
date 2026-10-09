@@ -1,0 +1,10 @@
+# DerivedCoreProperties.txt (starter)
+# Inherited property closure over the core set.
+0000..0010FFFF;Alphabetic
+00110000..0011FFFF;Control
+0011A000..0011A7FF;Control
+0011A800..0011ABFF;Control
+0011AC00..0011ADFF;Control
+0011AE00..0011AEFF;Control
+00120000..7FFFFFEF;Alphabetic
+7FFFFFF0..7FFFFFFE;Control

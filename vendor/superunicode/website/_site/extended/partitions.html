@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Partitions — SuperUnicode Extended</title>
+<meta name='description' content='SuperUnicode Plugin Partitions: OWFS only, always read-only, mounted after the checksum gate.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html' class='active'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Extended</a>
+ &raquo; Partitions</nav>
+<h1>Partitions</h1>
+<p class='subtitle'>Storage governed by the OpenWindows Storage specification.</p>
+<p>A SuperUnicode Partition is a removable filesystem whose layout is declared by SuperUnicode machine instructions. Two formats exist, from the OpenWindows Storage specification (<span class="mono">libowfs.a</span> and <span class="mono">libusfs.a</span>):</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Format</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">OWFS</span></td>
+<td>Native drive filesystem. Data starts at drive offset <span class="mono">0x10000</span>; integrity is CRC32c + Fletcher-64; identity via <span class="mono">htl_device_t</span>/<span class="mono">ow_sec</span>; optional ChaCha20 data-at-rest encryption.</td>
+</tr>
+<tr>
+<td><span class="mono">USFS</span></td>
+<td>Portable external-media filesystem for removable drives.</td>
+</tr>
+</tbody></table></div>
+<h2>Policy</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Partition type</th>
+<th>Allowed formats</th>
+<th>Used by</th>
+<th>Mounted</th>
+</tr></thead><tbody>
+<tr>
+<td>SuperUnicode Partition</td>
+<td>OWFS <em>or</em> USFS</td>
+<td>Base SUCS &mdash; bugfix and rescue payloads only</td>
+<td>read-only</td>
+</tr>
+<tr>
+<td>SuperUnicode <strong>Plugin</strong> Partition</td>
+<td><strong>OWFS exclusively</strong></td>
+<td>ExtSUCS plugins (Extended-only)</td>
+<td>read-only, after the boot checksum gate</td>
+</tr>
+</tbody></table></div>
+<div class='callout '><p>Plugin partitions are never USFS and never writable. Quarantined (gate-failed) plugins are never mounted and never register ranges. The full policy text is in both <span class="mono">Public</span> trees under <span class="mono">partitions/spec.txt</span>.</p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

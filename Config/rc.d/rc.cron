@@ -1,0 +1,25 @@
+# OpenWindows Scheduled Task Dispatcher
+
+case "$1" in
+    start)
+        echo ":: Starting OpenWindows Task Scheduler..."
+        "C:\OpenWindows\Software\owcron.owx" --daemon &
+        echo ":: Task Scheduler running."
+        ;;
+    stop)
+        echo ":: Stopping Task Scheduler..."
+        owkill --name owcron
+        echo ":: Task Scheduler stopped."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        owps | grep owcron
+        ;;
+    *)
+        echo "Usage: rc.cron {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

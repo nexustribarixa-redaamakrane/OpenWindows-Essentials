@@ -1,0 +1,31 @@
+# OpenWindows UniVIP Storage Volume Manager
+
+case "$1" in
+    start)
+        echo ":: Mounting Volume Indexing Protocol (UniVIP) storage volumes..."
+        load_dll packmgr
+        load_dll owfs64
+        load_dll owdisk64
+        "C:\OpenWindows\Software\vipmount.owx" --auto-mount-all
+        echo ":: Storage volumes online."
+        ;;
+    stop)
+        echo ":: Syncing filesystem blocks and dismounting secondary volumes..."
+        sync
+        owdiskchk --flush
+        umount "D:"
+        umount "E:"
+        echo ":: Storage safely disconnected."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        owdf -h
+        ;;
+    *)
+        echo "Usage: rc.storage {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

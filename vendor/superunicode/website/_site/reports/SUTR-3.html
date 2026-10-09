@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUTR-3 &mdash; SuperUnicode Storage</title>
+<meta name='description' content='Partition formats and the mount policy for SuperUnicode media'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html' class='active'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Technical Reports</a>
+ &raquo; SUTR-3 &mdash; SuperUnicode Storage</nav>
+<h1><span class='mono'>SUTR-3</span> &mdash; <span class='grad'>SuperUnicode Storage</span></h1>
+<p class='subtitle'>Partition formats and the mount policy for SuperUnicode media</p>
+<p class='note'><strong>Standard ID:</strong> <span class='mono'>SUTR-3</span><br><strong>Status:</strong> 0.1.0 &mdash; Published<br><strong>Scope:</strong> Partition formats and the mount policy for SuperUnicode media<br><strong>Applies to:</strong> removable media, boot and rescue payloads, plugin partitions<br><strong>Last updated:</strong> <span class='mono'>2026-09-30</span><br><strong>Source:</strong> <span class='mono'>docs/sutr/SUTR-3-superunicode-storage.md</span> &mdash; this page is generated from it, and the repository copy governs where they differ.</p>
+<h2>1. Overview</h2>
+<p>Storage is governed by the OpenWindows Storage specification (<span class='mono'>compat/OpenWindows-storage/</span>, <span class='mono'>libowfs.a</span> = OWFS, <span class='mono'>libusfs.a</span> = USFS). This report records the SuperUnicode-specific policy layered on top of those two filesystems.</p>
+<p>A <strong>SuperUnicode Partition</strong> is a removable filesystem whose layout is declared by <strong>SuperUnicode machine instructions</strong> &mdash; that is, by SCP codepoints (SUTR-0 §5). The layout is not described out of band, so a partition's structure is expressed in the same in-band directive vocabulary the rest of the system uses.</p>
+<h3>1.1 Goals</h3>
+<ul>
+<li><strong>Portability where it is safe.</strong> A bugfix or rescue payload must survive</li>
+</ul>
+<p>being carried on whatever media an operator has.</p>
+<ul>
+<li><strong>Integrity before availability.</strong> A payload that fails its checksum is</li>
+</ul>
+<p>rejected rather than repaired; there is no repair path in the base policy.</p>
+<ul>
+<li><strong>No writable SuperUnicode mounts.</strong> Nothing in the standard mounts</li>
+</ul>
+<p>read-write, so a compromised payload cannot persist.</p>
+<ul>
+<li><strong>Plugin isolation.</strong> Plugin partitions are an Extended-only feature with</li>
+</ul>
+<p>stricter rules than Base payloads, because they extend the codepoint space.</p>
+<h2>2. Formats</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Format</th>
+<th>Library</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>OWFS</strong></td>
+<td><span class='mono'>libowfs.a</span></td>
+<td>Native drive filesystem. Data starts at drive offset <span class='mono'>&times;</span>. Integrity via <strong>CRC32c + Fletcher-64</strong>. Identity via <span class='mono'>htl_device_t</span> + <span class='mono'>ow_sec</span>. Optional <strong>ChaCha20</strong> data-at-rest encryption.</td>
+</tr>
+<tr>
+<td><strong>USFS</strong></td>
+<td><span class='mono'>libusfs.a</span></td>
+<td>Portable external-media filesystem.</td>
+</tr>
+</tbody></table></div>
+<p>Both integrity algorithms are computed over the partition payload, and both are used together deliberately: CRC32c is a hardware-accelerated polynomial check good at detecting burst corruption, while Fletcher-64 is a cheaper running sum that catches localized damage across longer spans. Neither alone covers the other's failure modes adequately for media that is expected to fail slowly.</p>
+<p>OWFS is the <em>native</em> format and is the only one permitted for plugins, because the plugin trust chain (SUTR-5) depends on OWFS identity and integrity guarantees that USFS does not provide.</p>
+<h2>3. Policy</h2>
+<p>The normative policy, as published in <span class='mono'>partitions/spec.txt</span>:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Partition class</th>
+<th>Formats permitted</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Base SuperUnicode Partition</strong></td>
+<td>OWFS <strong>or</strong> USFS</td>
+<td>Bugfix and rescue payloads <strong>only</strong></td>
+</tr>
+<tr>
+<td><strong>Plugin Partition</strong></td>
+<td><strong>OWFS only</strong> (never USFS)</td>
+<td>Extended-only; carries plugin blobs</td>
+</tr>
+</tbody></table></div>
+<p>Three rules, stated as MUSTs:</p>
+<ol>
+<li>Base SuperUnicode uses SuperUnicode Partitions <strong>only</strong> for bugfix and</li>
+</ol>
+<p>rescue payloads. It is not a general storage mechanism, and the absence of compression or garbage collection is deliberate.</p>
+<ol>
+<li>Plugin Partitions are an <strong>Extended-only</strong> feature and MUST be OWFS, never</li>
+</ol>
+<p>USFS.</p>
+<ol>
+<li>All partitions mount <strong>read-only</strong>.</li>
+</ol>
+<h3>3.1 The format restriction</h3>
+<p>The OWFS-only rule for plugins is a trust decision, not a portability one. A plugin blob is verified by checksum (SUTR-5) and then contributes codepoint ranges to the live address space. Binding that to a filesystem that carries <span class='mono'>htl_device_t</span> identity and dual-integrity checking means a mounted plugin partition has a verifiable provenance chain. USFS, being designed for removable external media, offers neither.</p>
+<h3>3.2 No compression</h3>
+<p>The standard defines <strong>no compression scheme at any level</strong> (SUTR-7, Transfer Encoding Syntax). Compression is deliberately left to the storage layer and out of the encoding model, so that the encoding of a codepoint never depends on the medium carrying it. An implementation may compress a partition; the SuperUnicode stream inside it is unchanged.</p>
+<h2>4. Mount Policy</h2>
+<div class='spec'>read-only always<br>Base SuperUnicode mounts its partition at boot<br>plugin partitions mount only after the boot checksum gate passes</div>
+<p>The ordering is the security property. A plugin partition MUST NOT be mounted during ordinary boot; it is mounted only after the boot checksum gate has validated staged blobs (SUTR-5 §4). Until that gate passes, no plugin contributes codepoints to ExtSUCS, so a corrupt or tampered blob has no window in which its ranges are addressable.</p>
+<p>The mode interaction is covered by SUTR-1 §6: plugin partitions exist only in <span class='mono'>SUCS_MODE_EXTENDED</span>, and switching to that mode requires a kernel restart.</p>
+<h2>5. Data</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Path</th>
+<th>Contents</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>Public/0.1.0/partitions/spec.txt</span></td>
+<td>The normative partition policy, published in both /Public trees</td>
+</tr>
+<tr>
+<td><span class='mono'>superunicode/Public/zipped/partitions.zip</span></td>
+<td>Packaged distribution</td>
+</tr>
+<tr>
+<td><span class='mono'>compat/OpenWindows-storage/owfs/</span></td>
+<td>OWFS headers, incl. <span class='mono'>owfs_types.h</span></td>
+</tr>
+<tr>
+<td><span class='mono'>compat/OpenWindows-storage/usfs/</span></td>
+<td>USFS headers, incl. <span class='mono'>usfs_types.h</span></td>
+</tr>
+</tbody></table></div>
+<p>The policy text is duplicated verbatim in both the Base and Extended <span class='mono'>/Public</span> trees, so a reader of either tree finds the same contract.</p>
+<h2>6. Compliance Matrix</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Requirement</th>
+<th>Mandatory</th>
+<th>Verification</th>
+</tr></thead><tbody>
+<tr>
+<td>Partition layout declared by SCP instructions</td>
+<td>Yes</td>
+<td><span class='mono'>partitions/spec.txt</span></td>
+</tr>
+<tr>
+<td>OWFS data starts at offset <span class='mono'>&times;</span></td>
+<td>Yes</td>
+<td><span class='mono'>owfs_types.h</span></td>
+</tr>
+<tr>
+<td>Integrity is CRC32c <strong>and</strong> Fletcher-64</td>
+<td>Yes</td>
+<td>Both computed and verified</td>
+</tr>
+<tr>
+<td>ChaCha20 at-rest encryption optional</td>
+<td>Yes</td>
+<td>Feature-detect, not required</td>
+</tr>
+<tr>
+<td>Base partitions MAY be OWFS or USFS</td>
+<td>Yes</td>
+<td>Mount accepts either</td>
+</tr>
+<tr>
+<td>Base partitions used only for bugfix/rescue</td>
+<td>Yes</td>
+<td>Policy; no general mounts</td>
+</tr>
+<tr>
+<td>Plugin partitions MUST be OWFS</td>
+<td>Yes</td>
+<td>Reject USFS with a diagnostic</td>
+</tr>
+<tr>
+<td>All partitions mount read-only</td>
+<td>Yes</td>
+<td>No write path exists</td>
+</tr>
+<tr>
+<td>Plugin partitions mount only after the checksum gate</td>
+<td>Yes</td>
+<td>Mount ordering in boot</td>
+</tr>
+<tr>
+<td>Plugin partitions are Extended-only</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_MODE_EXTENDED</span> required</td>
+</tr>
+<tr>
+<td>No compression defined in the encoding model</td>
+<td>Yes</td>
+<td>SUTR-7 §Transfer Encoding Syntax</td>
+</tr>
+</tbody></table></div>
+<h2>7. Terms &amp; Conventions</h2>
+<ul>
+<li><strong>SuperUnicode Partition</strong> &mdash; a removable filesystem whose layout is declared</li>
+</ul>
+<p>by SuperUnicode machine instructions.</p>
+<ul>
+<li><strong>OWFS</strong> &mdash; native drive filesystem; <span class='mono'>libowfs.a</span>; <span class='mono'>&times;</span> data offset;</li>
+</ul>
+<p>CRC32c + Fletcher-64; <span class='mono'>htl_device_t</span> + <span class='mono'>ow_sec</span> identity; optional ChaCha20.</p>
+<ul>
+<li><strong>USFS</strong> &mdash; portable external-media filesystem; <span class='mono'>libusfs.a</span>.</li>
+<li><strong>CRC32c</strong> &mdash; Castagnoli polynomial checksum, hardware-accelerated.</li>
+<li><strong>Fletcher-64</strong> &mdash; running-sum checksum over longer spans.</li>
+<li><strong>ChaCha20</strong> &mdash; optional stream cipher for data at rest.</li>
+<li><strong>Base SuperUnicode Partition</strong> &mdash; OWFS or USFS, bugfix and rescue payloads.</li>
+<li><strong>Plugin Partition</strong> &mdash; OWFS, read-only, Extended-only, post-checksum-gate.</li>
+<li><strong>SCP</strong> &mdash; System Control Plane; the directive vocabulary that declares</li>
+</ul>
+<p>partition layout (SUTR-0 §5).</p>
+<ul>
+<li><strong>ExtSUCS</strong> &mdash; the unbounded 64-bit space plugins extend (SUTR-5).</li>
+<li><strong>Boot checksum gate</strong> &mdash; the validation stage a plugin blob must pass before</li>
+</ul>
+<p>mount (SUTR-5 §4).</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

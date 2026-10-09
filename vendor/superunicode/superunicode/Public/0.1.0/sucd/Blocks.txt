@@ -1,0 +1,10 @@
+# Blocks.txt - named blocks of the Base SUCS space (starter)
+0000..0010FFFF;Unicode Bridge
+00110000..0011FFFF;SuperUnicode Control Plane
+0011A000..0011A7FF;BANcode
+0011A800..0011ABFF;WARNcode
+0011AC00..0011ADFF;COMcode
+0011AE00..0011AEFF;SOFTcode
+00120000..7FFFFFFF;Native
+7FFFFFF0..7FFFFFFE;Traps
+7FFFFFFF..7FFFFFFF;Sentinel

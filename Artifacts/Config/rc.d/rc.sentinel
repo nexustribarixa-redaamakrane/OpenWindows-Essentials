@@ -1,0 +1,26 @@
+# OpenWindows Damage Control Sentinel Recovery Agent
+
+case "$1" in
+    start)
+        echo ":: Starting Sentinel Damage Control daemon..."
+        load_dll sentinel64
+        "C:\OpenWindows\Software\damage_control" --daemon &
+        echo ":: Sentinel recovery monitor active."
+        ;;
+    stop)
+        echo ":: Stopping Sentinel Recovery Agent..."
+        owkill --name damage_control
+        echo ":: Sentinel stopped."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        owps | grep damage_control
+        ;;
+    *)
+        echo "Usage: rc.sentinel {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,57 @@
+# SUCA.txt - SuperUnicode Collation Algorithm (SUCET), Base SUCS
+# ---------------------------------------------------------------------
+# Formalized by SUTS-001 (docs/suts/SUTS-001-suca.md). This file describes
+# the default SuperUnicode Collation Element Table (SUCET) for the BASE 31-bit
+# SUCS space, and the ordering contract it yields. The reference implementation
+# (include/suts/suts_suca.h, src/suts/suts_suca.c) embeds a compiled subset of
+# this table. ExtSUCS (64-bit) plugin behavior is described by ExtUCA.txt.
+#
+# Contract summary
+#   * Multilevel collation elements (L1..L4) + optional identical level.
+#   * Defaults: strength=tertiary, variable=shifted, normalization=NFD on,
+#     backward secondary=off, case=lower-first.
+#   * Variable (collation-ignorable at L1-L3, resolving at L4/identical):
+#     punctuation below SUCA_VAR_MAX, and ALL SCP control codepoints.
+#   * Identical level tie-breaks by SUCS native codepoint order (sentinel
+#     highest), restoring the historical "binary order" contract.
+#
+# Weight constants (embedded defaults)
+#   SUCA_MIN2          = 0x0020    unaccented secondary minimum
+#   SUCA_MIN3          = 0x0002    lowercase tertiary minimum
+#   SUCA_T3_UPPER      = 0x0008    uppercase tertiary
+#   SUCA_VAR_MAX       = 0x00FF    maximum variable primary
+#   SUCA_IMPLICIT_BASE = 0x1000000 base for algorithmic implicit primaries
+#
+# Curated repertoire (bridge), primary weights L1:
+#   letters  a..z = 0x0100..0x0164 (step 4, room for tailoring)
+#   digits   0..9 = 0x0200..0x0209 (non-variable, above letters)
+#   SPACE    = 0x0001  (variable)
+#   HYPHEN   = 0x0002  (variable)
+#   COMMA    = 0x0003  (variable)
+#   PERIOD   = 0x0004  (variable)
+#   (        = 0x0005  (variable)
+#   )        = 0x0006  (variable)
+#   QUOTE    = 0x0007  (variable)
+#
+# Contractions (2-codepoint -> single CE):
+#   c h  -> 0x0109   (Slovak ch, a single letter between c and d)
+#
+# Expansions (1 codepoint -> 2 CEs):
+#   U+0153 (oe) -> o (0x0138) + e (0x0110)
+#
+# Combining marks use secondary weights SUCA_MIN2+1.. (class 230 canonical
+# combining class; CGJ = U+034F blocks contraction matching).
+#
+# Algorithmic implicit primary for any otherwise-unassigned codepoint cp:
+#   cp < 2^32     -> 0x1000000 + cp   (monotonic, exact)
+#   cp >= 2^32    -> 0x1000000 + 0xFFFFF  (documented clamp; extSUCS plugin
+#                  space is finite-container-limited; see extsucs_types.h)
+#
+# Zone summary:
+#   UNICODE_BRIDGE  0x00000000-0x0010FFFF  curated subset + implicit for Han/other
+#   SCP             0x00110000-0x0011FFFF  all variable (ignorable L1-L3)
+#   NATIVE          0x00120000-0x7FFFFFFE  implicit primaries, not variable
+#   SENTINEL        0x7FFFFFFF             collates highest at every level
+#
+# Per-language reordering is achieved via tailoring rules (& base < x, <<,
+# <<<, =) applied through suts_suca_apply_rules().

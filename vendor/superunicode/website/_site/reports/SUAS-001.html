@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUAS-001 — Structural Directional Framing</title>
+<meta name='description' content='SUAS-001: Structural Directional Framing (SDF) — core BiDi architecture, scope isolation and glyph mirroring over the SUCS space.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html' class='active'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Technical Reports</a>
+ &raquo; SUAS-001 — SDF</nav>
+<h1>SUAS-001 &mdash; Structural Directional <span class="grad">Framing</span></h1>
+<p class='subtitle'>The first SuperUnicode Architecture Standard: core BiDi architecture, scope isolation and glyph mirroring.</p>
+<p>SUAS-001 (SDF) is the first SuperUnicode Architecture Standard and the <strong>core architecture</strong> for bi-directional text layout, scope isolation and glyph mirroring. It is a <strong>non-negotiable</strong> invariant: every conforming renderer MUST resolve bi-directional text through the SDF engine.</p>
+<h2>Design</h2>
+<ul>
+<li><strong>Single-pass, zero-allocation</strong> &mdash; a state-machine pipeline carried in the SCP and the SUTF/SUST decoding streams.</li>
+<li><strong>Dual-Mode Directional Resolver</strong> &mdash; Unicode Bridge classifies from SUCD BiDi; SCP directives are explicit; Native SUCS inherits.</li>
+<li><strong>Fixed isolate stack</strong> &mdash; push/pop are O(1) on an embedded fixed array; overflow/underflow are structural errors.</li>
+<li><strong>Framed output word</strong> &mdash; 64-bit: 31b codepoint, 3b dir_type, 1b mirrored, 29b reserved; renderers mirror instantly.</li>
+</ul>
+<h2>SCP directional directives</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Codepoint</th>
+<th>Directive</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">0x00110101</span></td>
+<td><span class="mono">SCP_DIR_LTR</span> — set resolved direction left-to-right</td>
+</tr>
+<tr>
+<td><span class="mono">0x00110102</span></td>
+<td><span class="mono">SCP_DIR_RTL</span> — set resolved direction right-to-left</td>
+</tr>
+<tr>
+<td><span class="mono">0x00110104</span></td>
+<td><span class="mono">SCP_DIR_ISOLATE_PUSH</span> — open an isolate</td>
+</tr>
+<tr>
+<td><span class="mono">0x00110108</span></td>
+<td><span class="mono">SCP_DIR_ISOLATE_POP</span> — close the active isolate</td>
+</tr>
+</tbody></table></div>
+<h2>Full BiDi processing model (UAX #9)</h2>
+<p>For renderers that require lexical bi-directional layout, SDF also implements the full Unicode Bidirectional Algorithm processing model: paragraph levels (P1&ndash;P3), explicit embedding/override/isolate levels (X1&ndash;X8), X9 removal, weak and neutral resolution (W1&ndash;W7, N0&ndash;N2), implicit levels (I1&ndash;I2), and reordering with mirroring (L1&ndash;L4).</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Feature</th>
+<th>Status</th>
+</tr></thead><tbody>
+<tr>
+<td>Single-pass deterministic consumption</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Zero heap allocation</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>O(1) isolate stack push/pop on fixed array</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>dir_type + mirrored metadata on every framed word</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Dual-mode direction resolution</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Full BiDi processing model (UAX #9)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Explicit-only scope changes (four SCP directives)</td>
+<td>Yes</td>
+</tr>
+</tbody></table></div>
+<div class='callout '><p>Reference implementation: <span class="mono">include/suas/suas_sdf.h</span> + <span class="mono">src/suas/suas_sdf.c</span> (freestanding C99, no heap), registered in <span class="mono">suas_static</span>.</p></div>
+<p class='note'>Source of truth: <span class="mono">docs/suas/SUAS-001-sdf.md</span> in the repository.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

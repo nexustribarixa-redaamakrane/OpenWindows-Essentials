@@ -1,0 +1,12 @@
+# OpenWindows Network Initialization
+
+load_driver e1000
+load_driver rtl8139
+load_driver ipstack
+load_driver tcpcore
+load_driver udpcore
+load_driver pfwall
+start_service dhcpcli
+start_service dnscli
+log "Network stack initialized"
+

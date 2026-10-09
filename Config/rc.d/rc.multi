@@ -1,0 +1,21 @@
+# OpenWindows Multi-User Console Mode (Runlevel 3)
+
+echo ":: Entering Runlevel 3 (Multi-User Console)..."
+
+# Start background daemons
+call "C:\OpenWindows\Config\rc.d\rc.syslog" start
+call "C:\OpenWindows\Config\rc.d\rc.devmgr" start
+call "C:\OpenWindows\Config\rc.d\rc.kconf" start
+call "C:\OpenWindows\Config\rc.d\rc.storage" start
+call "C:\OpenWindows\Config\rc.d\rc.network" start
+call "C:\OpenWindows\Config\rc.d\rc.firewall" start
+call "C:\OpenWindows\Config\rc.d\rc.audio" start
+call "C:\OpenWindows\Config\rc.d\rc.banhammer" start
+call "C:\OpenWindows\Config\rc.d\rc.sentinel" start
+call "C:\OpenWindows\Config\rc.d\rc.cron" start
+
+# Run local startup hook
+call "C:\OpenWindows\Config\rc.d\rc.local"
+
+echo ":: OpenWindows Runlevel 3 Ready. Spawning login console..."
+"C:\OpenWindows\Software\owlogin.owx" "\Device\Console0"

@@ -1,0 +1,50 @@
+# Build & Binary Directories
+build/
+bin/
+superunicode/build/
+sutf/build/
+sutf/bin/
+superunicode_extended/build/
+superunicode_extended/bin/
+_build_verify/
+
+# Compiled Binaries & Objects
+*.o
+*.a
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS-generated Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# CMake Generated Files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
+install_manifest.txt
+CTestTestfile.cmake
+
+# Private / Agent / AI Memory Files
+.memory.md
+WHAT-TO-DO.md
+.agents/
+.gemini/
+*.log
+
+# CMake filler files
+cmake/
+.clangd

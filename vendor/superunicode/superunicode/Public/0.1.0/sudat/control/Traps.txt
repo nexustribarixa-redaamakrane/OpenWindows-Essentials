@@ -1,0 +1,6 @@
+# Traps.txt - trap machine-instruction range (starter)
+# A trap raises the current instruction stream into the diagnostic
+# subsystem and does NOT advance the cursor (control / type 1).
+RANGE  7FFFFFF0-7FFFFFFE
+UNASSIGNED  7FFFFFF0-7FFFFFFE   each trap codepoint pending assignment
+SEE    sucs_bancode_to_trap()   dispatch of diagnostic blocks via traps

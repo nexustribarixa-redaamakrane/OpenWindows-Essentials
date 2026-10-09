@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>News</title>
+<meta name='description' content='News from SuperUnicode.'>
+<link rel='icon' href='favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='assets/img/logo.png'>
+<link rel='manifest' href='manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='index.html'><img src='assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='index.html' class='active'>Home</a>
+<a href='standard/index.html'>The Standard</a>
+<a href='ucd/index.html'>Machine-Instruction Database</a>
+<a href='extended/index.html'>Extended</a>
+<a href='reports/index.html'>Technical Reports</a>
+<a href='versions/index.html'>Versions</a>
+<a href='charts/index.html'>Charts</a>
+<a href='faq/index.html'>FAQ</a>
+<a href='modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<h1>News</h1>
+<ul>
+<li><strong>2026-08-14</strong> &mdash; The full multi-page website launches, mirroring the structure of unicode.org, with repository directory listings for every module.</li>
+<li><strong>2026-08-14</strong> &mdash; SuperUnicode 0.1.0 released: Base and Extended /Public trees, plugin subsystem with boot-time checksum gate, OWFS-only plugin partitions, SDK with template and hellocp example.</li>
+<li><strong>2026-08-14</strong> &mdash; The plugin pipeline is verified end-to-end: <span class="mono">plugin_pack</span> &rarr; <span class="mono">plugin_verify</span> passes the hellocp blob through the exact checksum gate the boot loader runs.</li>
+<li><strong>2026-08-26</strong> &mdash; The SUST serialization module lands: SUTF-16 gains explicit big-endian (canonical) and little-endian byte-order transports (<span class="mono">sust16</span>), the SUST fixed-width and e-SUST IPC families complete the byte layer, and SUTF-16 is documented surrogate-free. Framing (<span class="mono">sutf</span>) and serialization (<span class="mono">sust</span>) are now separate modules.</li>
+<li><strong>Coming in 0.2.0</strong> &mdash; first native allocations, SCP registry assignments, and additional SUTR reports.</li>
+</ul>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='index.html'>Home</a> &middot; <a href='standard/index.html'>Standard</a> &middot; <a href='ucd/index.html'>SUCD</a> &middot; <a href='extended/index.html'>Extended</a> &middot; <a href='reports/index.html'>Reports</a> &middot; <a href='faq/index.html'>FAQ</a> &middot; <a href='sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

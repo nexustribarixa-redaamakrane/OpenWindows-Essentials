@@ -1,0 +1,26 @@
+# OpenWindows Packet Filter Firewall Daemon
+
+case "$1" in
+    start)
+        echo ":: Loading Packet Filter security policy..."
+        load_driver pfwall
+        pfwctl --load-policy "C:\OpenWindows\Config\scripts\firewall_rules.kscr"
+        echo ":: Packet Filter active."
+        ;;
+    stop)
+        echo ":: Disabling Packet Filter..."
+        pfwctl --flush
+        echo ":: Packet Filter disabled."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        pfwctl --list
+        ;;
+    *)
+        echo "Usage: rc.firewall {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

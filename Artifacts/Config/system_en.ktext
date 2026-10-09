@@ -1,0 +1,16 @@
+# ==============================================================================
+# OpenWindows Kernel Text Catalog (English / SUTF-8) (.ktext)
+# Format: <MSG_ID> = "<TEXT_CONTENT>"
+# ==============================================================================
+
+MSG_KERNEL_BANNER       = "OpenWindows Kernel v1.0 [Clean-Slate NT-like Freestanding C99]"
+MSG_ZERO_ALLOC_INIT     = "Zero-Allocation Core Memory Pools: OK (64 MB pre-allocated)"
+MSG_MBL_HANDOFF_OK      = "Modular Bootloader Handoff Verification: Passed"
+MSG_SIO_READY           = "Serial I/O 16550 UART (COM1 115200 8N1): Active"
+MSG_SUPERUNICODE_ACTIVE = "SuperUnicode Transports (SUCS/SUTF-8/SUST-16): Online"
+MSG_VIP_SCAN_START      = "Volume Indexing Protocol (VIP): Scanning storage partitions..."
+MSG_VIP_ROOT_MOUNTED    = "Volume Indexing Protocol (VIP): Root volume mounted successfully"
+MSG_BANHAMMER_ENGAGED   = "BANhammer Panic Engine: Armed (Sentinel Recovery Active)"
+MSG_OWINIT_SPAWN        = "Spawning initial session manager: owinit.owx"
+MSG_FROZEN_PROCESS_KILL = "Sentinel watchdog: Terminated unresponsive process thread"
+MSG_PANIC_HALT          = "KERNEL PANIC: Execution halted. Telemetry saved."

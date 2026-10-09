@@ -1,0 +1,12 @@
+CompileFlags:
+  CompilationDatabase: build
+  Add:
+    - "-I${CONFIG}/superunicode/include"
+    - "-I${CONFIG}/sutf/include"
+    - "-I${CONFIG}/superunicode_extended/include"
+    - "-I${CONFIG}/superunicode_extended/plugin/include"
+    - "-I${CONFIG}/suf/include"
+    - "-I${CONFIG}/include"
+
+Diagnostics:
+  UnusedIncludes: None

@@ -1,0 +1,11 @@
+# OpenWindows Default Firewall Rules
+# Format: action protocol src_port dst_port
+
+allow tcp * 80
+allow tcp * 443
+allow udp * 53
+allow icmp * *
+deny tcp * 23
+deny tcp * 445
+log_dropped yes
+

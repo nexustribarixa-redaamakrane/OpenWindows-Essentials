@@ -1,0 +1,395 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUTR-1 &mdash; SuperUnicode Transformation Formats (SUTF)</title>
+<meta name='description' content='Level 3 (Character Encoding Form) of the SuperUnicode Character Encoding Model'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html' class='active'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Technical Reports</a>
+ &raquo; SUTR-1 &mdash; SuperUnicode Transformation Formats (SUTF)</nav>
+<h1><span class='mono'>SUTR-1</span> &mdash; <span class='grad'>SuperUnicode Transformation Formats (SUTF)</span></h1>
+<p class='subtitle'>Level 3 (Character Encoding Form) of the SuperUnicode Character Encoding Model</p>
+<p class='note'><strong>Standard ID:</strong> <span class='mono'>SUTR-1</span><br><strong>Status:</strong> 0.1.0 &mdash; Published<br><strong>Scope:</strong> Level 3 (Character Encoding Form) of the SuperUnicode Character Encoding Model<br><strong>Applies to:</strong> Base SUCS (31-bit), ExtSUCS (64-bit, via vSUTF), text codecs, terminals, IPC channels, storage adapters<br><strong>Last updated:</strong> <span class='mono'>2026-09-30</span><br><strong>Source:</strong> <span class='mono'>docs/sutr/SUTR-1-sutf.md</span> &mdash; this page is generated from it, and the repository copy governs where they differ.</p>
+<h2>1. Overview</h2>
+<p>SUTF is the <strong>SuperUnicode Transformation Format</strong> family: the <em>Level 3</em> (Character Encoding Form, CEF) layer of SUCEM. A CEF maps the integers of a coded character set &mdash; the 31-bit <span class='mono'>SUCS_CP</span> of Base SUCS &mdash; to sequences of <strong>code units</strong>. A <em>code unit</em> is an integer of a specified binary width.</p>
+<p>The forms defined here are:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Form</th>
+<th>Code unit</th>
+<th>Unit count</th>
+<th>Range covered</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>SUTF-8</strong></td>
+<td>byte (<span class='mono'>uint8_t</span>)</td>
+<td>variable, 1&ndash;6</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span></td>
+</tr>
+<tr>
+<td><strong>SUTF-16</strong></td>
+<td>16-bit word</td>
+<td>variable, 1&ndash;2</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span></td>
+</tr>
+<tr>
+<td><strong>SUTF-4</strong></td>
+<td>4-bit nibble</td>
+<td>fixed 8 (4 bytes)</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span></td>
+</tr>
+<tr>
+<td><strong>SUTF-2</strong></td>
+<td>2-bit symbol frame</td>
+<td>fixed 16 (4 bytes)</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span></td>
+</tr>
+<tr>
+<td><strong>vSUTF</strong></td>
+<td>byte</td>
+<td>variable</td>
+<td>full 64-bit ExtSUCS space</td>
+</tr>
+</tbody></table></div>
+<p>All four Base forms are lossless over the <strong>entire 31-bit space</strong>, not merely over the Unicode Bridge. vSUTF extends the model to the unbounded 64-bit ExtSUCS domain and is defined in the <span class='mono'>extsutf</span> library.</p>
+<h3>1.1 Goals</h3>
+<ul>
+<li><strong>Losslessness over the whole codespace.</strong> Every valid Base SUCS codepoint</li>
+</ul>
+<p>round-trips through every Base form. No form is restricted to <span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span>.</p>
+<ul>
+<li><strong>Endian neutrality.</strong> A form is a <em>transformation</em>, not a serialization. It</li>
+</ul>
+<p>MUST NOT fix, imply, or depend on a byte order (§5).</p>
+<ul>
+<li><strong>Uniform vocabulary.</strong> Each form exposes the same three-function API &mdash;</li>
+</ul>
+<p><span class='mono'>sutfN_codepoint_length()</span>, <span class='mono'>sutfN_encode_char()</span>, <span class='mono'>sutfN_decode_char()</span> &mdash; so a caller can select a form without learning a new interface.</p>
+<ul>
+<li><strong>Freestanding C99.</strong> The reference implementation compiles under</li>
+</ul>
+<p><span class='mono'>-std=c99 -ffreestanding</span> with no heap.</p>
+<h3>1.2 Non-Negotiable Invariants</h3>
+<ol>
+<li><strong>31-bit coverage.</strong> A Base form MUST encode every <span class='mono'>sucs_char_t</span> in</li>
+</ol>
+<p><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFEF</span>. The 16 terminal values <span class='mono'>0x7FFFFFF0</span>&ndash;<span class='mono'>0x7FFFFFFF</span> &mdash; 15 trap slots and the Sentinel &mdash; are not encodable and MUST NOT be produced as data.</p>
+<ol>
+<li><strong>No surrogates.</strong> SuperUnicode has no surrogate mechanism. The range</li>
+</ol>
+<p><span class='mono'>0xD800</span>&ndash;<span class='mono'>0xDFFF</span> is an ordinary block of valid PUA codepoints and MUST be encoded as such &mdash; never paired, never reserved, never rejected.</p>
+<ol>
+<li><strong>Endian neutrality.</strong> A form MUST yield the same code-unit sequence</li>
+</ol>
+<p>regardless of host byte order (§5).</p>
+<ol>
+<li><strong>Canonical framing only.</strong> A decoder MUST reject an encoding that uses</li>
+</ol>
+<p>more code units than the minimum required for the codepoint (§4.1).</p>
+<ol>
+<li><strong>Transport independence.</strong> A form MUST NOT define byte order, bit-packing</li>
+</ol>
+<p>across code units, register alignment, or stream framing. Those belong to the SUST family (SUTR-4).</p>
+<h2>2. Scope</h2>
+<p>SUTF defines <strong>how many code units</strong> a codepoint becomes and <strong>what they contain</strong>. It does not define how those units reach memory or a wire. The distinction is the whole point of the Level 3 / Level 4 split, and is normative &mdash; see §5.</p>
+<p>SUTF concerns the <em>representation of characters</em>. It does not define glyph shaping, bidirectional layout, line breaking, width metrics, or collation; those are SUAS-001 (SDF), SUAS-002 (SGW), SUAS-003 (SBR), and SUTS-001 (SUCA) respectively. SUTF-7 (SUCEM) places this document in the full model.</p>
+<h2>3. Definitions</h2>
+<ul>
+<li><strong>ED1 &mdash; Code unit.</strong> The minimal bit combination representing one unit of</li>
+</ul>
+<p>encoded text, of a width fixed by the form: a byte, a 16-bit word, a 4-bit nibble, or a 2-bit symbol frame.</p>
+<ul>
+<li><strong>ED2 &mdash; Form (CEF).</strong> A reversible mapping from CCS integers to sequences of</li>
+</ul>
+<p>code units, with no byte-order decision (§5).</p>
+<ul>
+<li><strong>ED3 &mdash; Transport (CES).</strong> A reversible mapping from code-unit sequences to</li>
+</ul>
+<p>serialized byte sequences, including byte order and framing. Defined by the SUST family, not here.</p>
+<ul>
+<li><strong>ED4 &mdash; Canonical framing.</strong> The unique encoding of a codepoint that uses the</li>
+</ul>
+<p>minimum number of code units for its magnitude. Any longer encoding is overlong and invalid.</p>
+<ul>
+<li><strong>ED5 &mdash; Sentinel.</strong> <span class='mono'>0x7FFFFFFF</span>. The single in-band invalid codepoint. It</li>
+</ul>
+<p>terminates a Base stream and is never allocated.</p>
+<ul>
+<li><strong>ED6 &mdash; Overlong form.</strong> An encoding of a codepoint using more code units</li>
+</ul>
+<p>than ED4 requires. Always rejected.</p>
+<ul>
+<li><strong>ED7 &mdash; vSUTF.</strong> The variable multi-byte streaming form covering the 64-bit</li>
+</ul>
+<p>ExtSUCS domain, defined in <span class='mono'>extsutf</span>.</p>
+<h2>4. The Forms</h2>
+<h3>4.1 SUTF-8 &mdash; Byte Stream Transformation</h3>
+<p>SUTF-8 is the general-purpose form: byte-oriented, self-delimiting, and standard UTF-8 compatible across the Unicode Bridge. It extends UTF-8 to the full 31-bit SUCS space by continuing the leading-byte pattern to six bytes.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Length</th>
+<th>Codepoint range</th>
+<th>Leading bytes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x0000007F</span></td>
+<td><span class='mono'>0xxxxxxx</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x000007FF</span></td>
+<td><span class='mono'>110xxxxx 10xxxxxx</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x0000FFFF</span></td>
+<td><span class='mono'>1110xxxx 10xxxxxx 10xxxxxx</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x0010FFFF</span></td>
+<td><span class='mono'>11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x03FFFFFF</span></td>
+<td><span class='mono'>111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</span></td>
+</tr>
+<tr>
+<td>6</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span></td>
+<td><span class='mono'>1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</span></td>
+</tr>
+</tbody></table></div>
+<p>The five- and six-byte forms are where SUTF-8 departs from UTF-8. They exist because Base SUCS is 31 bits, not 21: a codepoint above <span class='mono'>0x10FFFF</span> &mdash; the System Control Plane, the Native Space, and everything in between &mdash; has no UTF-8 representation and requires 5 or 6 bytes.</p>
+<p>A conforming decoder MUST reject:</p>
+<ul>
+<li>a five-byte sequence denoting a value above <span class='mono'>0x10FFFF</span> (ED6, overlong</li>
+</ul>
+<p>relative to the four-byte form), and</p>
+<ul>
+<li>a six-byte sequence denoting a value above <span class='mono'>0x3FFFFFF</span> (ED6, overlong</li>
+</ul>
+<p>relative to the five-byte form),</p>
+<p>so that a codepoint has exactly one valid encoding, per ED4. The reference decoder enforces both bounds in <span class='mono'>sutf8_decode_char()</span>.</p>
+<p>Because SUTF-8 is byte-oriented, it has an identity serialization: there is no <span class='mono'>SUST-8</span> and no byte-order question to answer. A SUCS codepoint cast to a byte array <em>is</em> an SUTF-8 stream, but note that the cast is itself a serialization decision &mdash; see the caution in §5.</p>
+<h3>4.2 SUTF-16 &mdash; 16-Bit Word Transformation</h3>
+<p>SUTF-16 covers the entire 31-bit space in at most two words, using a marker bit rather than a surrogate range:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Words</th>
+<th>Codepoint range</th>
+<th>Shape</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x00007FFF</span></td>
+<td>payload word, top bit clear</td>
+</tr>
+<tr>
+<td>2</td>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x7FFFFFFF</span></td>
+<td>marker word, then payload word</td>
+</tr>
+</tbody></table></div>
+<p>The consequence is the invariant most often misread: <strong><span class='mono'>0xD800</span>&ndash;<span class='mono'>0xDFFF</span> are ordinary codepoints.</strong> They are encoded as two words like any other value above <span class='mono'>0x7FFF</span>, and they are never paired into a supplementary character. The word framing is a <em>length</em> signal, not a <em>value</em> signal.</p>
+<p>SUTF-16 defines words, not bytes. Turning the word sequence into a byte stream requires a byte-order decision, which is <strong>SUST-16</strong> (§5).</p>
+<h3>4.3 SUTF-4 &mdash; 4-Bit Hex Nibble Transformation</h3>
+<p>SUTF-4 encodes every codepoint as a fixed <strong>8 nibbles (4 bytes)</strong>, rendered as hex digits. It is not a compact form; it is a <em>debuggable</em> one, for console dumps, terminal logging, and low-level bus tracing where a human-readable fixed-width field matters more than density. The form is fixed-width, so <span class='mono'>sutf4_codepoint_length()</span> is constant and the stream is trivially seekable.</p>
+<h3>4.4 SUTF-2 &mdash; 2-Bit Symbol Frame Transformation</h3>
+<p>SUTF-2 encodes every codepoint as a fixed <strong>16 frames (4 bytes)</strong> of 2 bits. It trades the widest form for the narrowest, targeting compressed inter-thread IPC channels and bitstream links where per-codepoint overhead dominates. As with SUTF-4, the length is constant and the stream is positionally addressable.</p>
+<h3>4.5 vSUTF &mdash; Variable Multi-Byte Streaming Form</h3>
+<p>vSUTF (<span class='mono'>extsutf</span> / <span class='mono'>vsutf.h</span>) extends the model to the <strong>64-bit ExtSUCS</strong> domain, which is unbounded and therefore cannot be covered by a fixed-width form. It is variable-length and streaming, with a fast path for Base SUCS. It is the only form in the family that is not lossless over a bounded 31-bit space by construction.</p>
+<h2>5. The CEF / CES Boundary (Normative)</h2>
+<p>The separation of <span class='mono'>sutf/</span> and <span class='mono'>sust/</span> into distinct libraries is not an organizational convenience. It follows directly from one question:</p>
+<div class='callout '><p><strong>If the processor byte order changed, would this format change?</strong>  &mdash; <strong>No</strong> &rarr; Level 3, a <strong>CEF</strong>. SUTF-8, SUTF-16, SUTF-4, SUTF-2, vSUTF. &mdash; <strong>Yes</strong> &rarr; Level 4, a <strong>CES</strong>. SUST-16, SUST-32/64/128/256/512/N, e-SUST.</p></div>
+<p>A CEF is a pure function of the codepoint. A CES adds a serialization policy. The two compose as a product &mdash; one CEF with many CESs, one CES carrying many CEFs &mdash; and they have genuinely different invariants: a CEF must be lossless and order-agnostic, while a CES must be byte-exact and order-explicit.</p>
+<p>This has three practical consequences:</p>
+<ol>
+<li><strong>A fixed 32-bit form is not an SUTF form.</strong> Fixed-width 32-, 64-, 128-,</li>
+</ol>
+<p>256-, 512-bit and arbitrary <em>N</em>-word framings are <span class='mono'>SUST-32/64/128/256/512/N</span>, defined in <span class='mono'>sust/include/sustfixed.h</span>. There is no <span class='mono'>SUTF-32</span>.</p>
+<ol>
+<li><strong>Little-endian is not an SUTF form.</strong> <span class='mono'>SUTF-16</span> is endian-neutral. The</li>
+</ol>
+<p>byte order is chosen by <span class='mono'>SUST-16</span>, whose canonical order is big-endian and which also provides a little-endian variant selected by entry point. Either way the order is a <em>transport</em> attribute, not a property of the form; there is no <span class='mono'>SUTF-16-LE</span>.</p>
+<ol>
+<li><strong>A narrow cast is a serialization.</strong> Reinterpreting a <span class='mono'>sucs_char_t</span> or a</li>
+</ol>
+<p><span class='mono'>uint32_t</span> as <span class='mono'>uint8_t[]</span> produces a byte array in host order. That is a Level 4 operation performed implicitly. Code that needs a portable byte stream MUST call a SUST transport explicitly.</p>
+<p>A test suite that passes for a CEF says nothing about a CES, and vice versa. Keeping them in separate libraries makes "is this artifact portable?" a question about the type, not about reading the implementation.</p>
+<h2>6. Kernel Mode Switching</h2>
+<p><span class='mono'>sucs_mode.h</span> governs which family of forms is live. Because the mode governs the encoding and the transport together, changing it is a <strong>kernel restart</strong>, not a runtime switch.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Mode</th>
+<th>Encoding</th>
+<th>Forms</th>
+<th>Transports</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>SUCS_MODE_BASE</span> (0)</td>
+<td>31-bit Base SUCS</td>
+<td>SUTF-8/16/4/2</td>
+<td>SUST-16, SUST-32/64/128/256/512/N</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_MODE_EXTENDED</span> (1)</td>
+<td>unbounded 64-bit ExtSUCS</td>
+<td>vSUTF</td>
+<td>SUST-64..512, e-SUST</td>
+</tr>
+</tbody></table></div>
+<p>A mode alteration is staged with <span class='mono'>sucs_request_mode_switch()</span> and committed during early boot by <span class='mono'>sucs_commit_mode_on_boot()</span>. Runtime callers receive <span class='mono'>SUCS_SWITCH_REBOOT_REQUIRED</span> rather than a silent transition, because live data already framed under the previous form would otherwise be reinterpreted under the next one.</p>
+<h2>7. Recommendations</h2>
+<h3>7.1 Choosing a Form</h3>
+<ul>
+<li><strong>Default to SUTF-8</strong> for text interchange, file storage, and anything that</li>
+</ul>
+<p>must interoperate with UTF-8 consumers. The Unicode Bridge is byte-identical to UTF-8, so bridge-only content needs transcoding nowhere.</p>
+<ul>
+<li><strong>Choose SUTF-16</strong> when the consumer is word-addressed and the data is</li>
+</ul>
+<p>mostly BMP-range; the fixed word stride suits word-at-a-time processing.</p>
+<ul>
+<li><strong>Choose SUTF-4 or SUTF-2</strong> only for the debugging and narrow-channel cases</li>
+</ul>
+<p>in §4.3&ndash;§4.4. Both cost 4 bytes per codepoint at any magnitude, so they are strictly worse than SUTF-8 for storage.</p>
+<ul>
+<li><strong>Choose vSUTF</strong> only when the domain actually extends above</li>
+</ul>
+<p><span class='mono'>0x7FFFFFFF</span>; otherwise the Base forms are simpler and faster.</p>
+<h3>7.2 Portability Discipline</h3>
+<ul>
+<li>Always state the form <em>and</em> the transport when specifying a wire format.</li>
+</ul>
+<p>"SuperUnicode encoded" is not a complete specification.</p>
+<ul>
+<li>Prefer the canonical big-endian <span class='mono'>SUST-16</span> for anything persisted or</li>
+</ul>
+<p>exchanged, and treat little-endian as a machine-local optimization.</p>
+<ul>
+<li>Reject the Sentinel at the API boundary. <span class='mono'>sucs_is_valid()</span> is the</li>
+</ul>
+<p>normative predicate; a decoded stream that yields <span class='mono'>0x7FFFFFFF</span> is corrupt, not text.</p>
+<h2>8. Compliance Matrix</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Requirement</th>
+<th>Mandatory</th>
+<th>Verification</th>
+</tr></thead><tbody>
+<tr>
+<td>31-bit lossless coverage, all four Base forms</td>
+<td>Yes</td>
+<td>Round-trip every boundary value; <span class='mono'>test_sutf_all</span></td>
+</tr>
+<tr>
+<td>SUTF-8 spans 1&ndash;6 bytes with the §4.1 boundaries</td>
+<td>Yes</td>
+<td><span class='mono'>sutf8_codepoint_length()</span> at each threshold</td>
+</tr>
+<tr>
+<td>SUTF-8 rejects 5-byte forms above <span class='mono'>0x10FFFF</span></td>
+<td>Yes</td>
+<td><span class='mono'>sutf8_decode_char()</span> returns 0</td>
+</tr>
+<tr>
+<td>SUTF-8 rejects 6-byte forms above <span class='mono'>0x3FFFFFF</span></td>
+<td>Yes</td>
+<td><span class='mono'>sutf8_decode_char()</span> returns 0</td>
+</tr>
+<tr>
+<td>Unique encoding per codepoint (ED4)</td>
+<td>Yes</td>
+<td>Overlong-form rejection</td>
+</tr>
+<tr>
+<td>No surrogates; <span class='mono'>0xD800</span>&ndash;<span class='mono'>0xDFFF</span> valid PUA</td>
+<td>Yes</td>
+<td>Encode/decode the whole <span class='mono'>0xD800</span>&ndash;<span class='mono'>0xDFFF</span> block</td>
+</tr>
+<tr>
+<td>SUTF-16: 1 word ≤ <span class='mono'>0x7FFF</span>, 2 words above</td>
+<td>Yes</td>
+<td><span class='mono'>sutf16_codepoint_length()</span> at <span class='mono'>0x7FFF</span>/<span class='mono'>&times;</span></td>
+</tr>
+<tr>
+<td>SUTF-4 fixed 8 nibbles (4 bytes)</td>
+<td>Yes</td>
+<td><span class='mono'>sutf4_codepoint_length()</span> constant</td>
+</tr>
+<tr>
+<td>SUTF-2 fixed 16 frames (4 bytes)</td>
+<td>Yes</td>
+<td><span class='mono'>sutf2_codepoint_length()</span> constant</td>
+</tr>
+<tr>
+<td>Endian neutrality (ED3)</td>
+<td>Yes</td>
+<td>Identical code-unit output on both orders</td>
+</tr>
+<tr>
+<td>Sentinel never produced as data</td>
+<td>Yes</td>
+<td><span class='mono'>sucs_is_valid()</span> gate on every encode</td>
+</tr>
+<tr>
+<td>No byte order / framing defined here</td>
+<td>Yes</td>
+<td>No CES symbol appears in <span class='mono'>sutf/</span></td>
+</tr>
+<tr>
+<td>Freestanding C99, no heap</td>
+<td>Yes</td>
+<td><span class='mono'>-std=c99 -ffreestanding</span>, no <span class='mono'>malloc</span></td>
+</tr>
+<tr>
+<td>Mode switch requires kernel restart</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_SWITCH_REBOOT_REQUIRED</span></td>
+</tr>
+</tbody></table></div>
+<h2>9. Terms &amp; Conventions</h2>
+<ul>
+<li><strong>SUTF</strong> &mdash; SuperUnicode Transformation Format; the Level 3 CEF family.</li>
+<li><strong>CEF</strong> &mdash; Character Encoding Form (SUTM Level 3). Endian-neutral.</li>
+<li><strong>CES</strong> &mdash; Character Encoding Scheme (SUTM Level 4). Byte order + framing.</li>
+<li><strong>SUST</strong> &mdash; SuperUnicode Serialization Transport; the CES family of SUTR-4.</li>
+<li><strong>SUCS</strong> &mdash; SuperUnicode Character System; 31-bit Base (<span class='mono'>SUCS_CP</span>).</li>
+<li><strong>ExtSUCS</strong> &mdash; the unbounded 64-bit space (<span class='mono'>sucs_ex_char_t</span>).</li>
+<li><strong>Code unit</strong> &mdash; the minimal bit combination of a given width (ED1).</li>
+<li><strong>Sentinel</strong> &mdash; <span class='mono'>0x7FFFFFFF</span>, the in-band invalid codepoint (ED5).</li>
+<li><strong>Overlong form</strong> &mdash; a non-minimal encoding of a codepoint (ED6).</li>
+<li><strong>UTF-8</strong> &mdash; the 1&ndash;4 byte form covering <span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span>; a strict prefix</li>
+</ul>
+<p>of SUTF-8 over the Unicode Bridge.</p>
+<ul>
+<li><strong>UAX #29</strong> &mdash; Unicode Text Segmentation; consumes SUTF streams and governs</li>
+</ul>
+<p>canonical transformation, including the rule that SCP directives pass through normalization untouched.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

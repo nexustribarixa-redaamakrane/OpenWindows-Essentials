@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SuperUnicode — The Machine-Instruction Standard</title>
+<meta name='description' content='SuperUnicode is the native character encoding of the OpenWindows kernel. A 31-bit Base character system compatible with Unicode, a System Control Plane, and an unbounded plugin-extensible Extended space.'>
+<link rel='icon' href='favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='assets/img/logo.png'>
+<link rel='manifest' href='manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='index.html'><img src='assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='index.html' class='active'>Home</a>
+<a href='standard/index.html'>The Standard</a>
+<a href='ucd/index.html'>Machine-Instruction Database</a>
+<a href='extended/index.html'>Extended</a>
+<a href='reports/index.html'>Technical Reports</a>
+<a href='versions/index.html'>Versions</a>
+<a href='charts/index.html'>Charts</a>
+<a href='faq/index.html'>FAQ</a>
+<a href='modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<h1>The <span class="grad">SuperUnicode</span>&reg; Standard</h1>
+<p class='subtitle'>Version 0.1.0 &mdash; the native character encoding of the <strong>OpenWindows</strong> kernel.</p>
+<p><strong>SuperUnicode</strong> defines the character system, machine instructions and storage framing that the OpenWindows kernel speaks natively. It is organized as two complementary systems:</p>
+<ul>
+<li><strong>Base SUCS</strong> &mdash; a 31-bit space (<span class="mono">0x00000000&ndash;0x7FFFFFFF</span>) that is 1:1 compatible with Unicode in its low range, carries its own <em>System Control Plane</em> of machine instructions, and reserves a vast native space for OpenWindows codepoints.</li>
+<li><strong>ExtSUCS (SuperUnicode Extended)</strong> &mdash; an unbounded, 64-bit space beyond the Base ceiling. New codepoints are added by <em>plugins</em> that mount as read-only OWFS partitions after a boot-time checksum gate.</li>
+</ul>
+<div class='callout '><p><strong>What does &ldquo;native&rdquo; mean?</strong> Every string, filename and data file in OpenWindows is a SuperUnicode stream by default. The kernel renders it directly &mdash; no transcoding step, no code-page table. Storage (OWFS/USFS), framing (SUTF) and diagnostics (the SCP) are all defined by the same standard.</p></div>
+<h2>Explore the standard</h2>
+<div class="grid">
+<div class='card'><h3><a href='standard/index.html'>The SuperUnicode Standard</a></h3><p>Codepoints, blocks, ranges, planes, districts, zones and territories &mdash; and the three spaces that make up Base SUCS.</p></div>
+<div class='card'><h3><a href='extended/index.html'>SuperUnicode Extended</a></h3><p>ExtSUCS, the plugin lifecycle, plugin partitions, the registry and the plugin SDK.</p></div>
+<div class='card'><h3><a href='ucd/index.html'>Machine-Instruction Database (SUCD)</a></h3><p>The character database: core inventory, SCP, Traps, Sentinel, names, collation, mappings and the /Public tree.</p></div>
+<div class='card'><h3><a href='reports/index.html'>Technical Reports</a></h3><p>SUTR specifications: framing, collation, storage, transport and the Unicode Compatibility Bridge.</p></div>
+<div class='card'><h3><a href='versions/index.html'>Versions</a></h3><p>Version 0.1.0 release notes and the roadmap to 0.2.0.</p></div>
+<div class='card'><h3><a href='modules/unicode/index.html'>Data Files (/Public)</a></h3><p>Versioned machine-instruction data, zipped archives, drafts and security attestations.</p></div>
+<div class='card'><h3><a href='charts/index.html'>Code Charts</a></h3><p>Block maps and printable charts for the Base and Extended spaces.</p></div>
+<div class='card'><h3><a href='faq/index.html'>FAQ</a></h3><p>Common questions about compatibility, scope and the relationship to Unicode.</p></div>
+</div>
+<h2>How the space is organized</h2>
+<div class="spaces">
+<div class='space u'><h3>Unicode Compatibility Space</h3><span class='range mono'>0x000000 &ndash; 0x10FFFF</span><p>1:1 with Unicode, forever &mdash; even when Unicode publishes new versions or codepoints.</p></div>
+<div class='space s'><h3>System Control Plane</h3><span class='range mono'>0x110000 &ndash; 0x11FFFF</span><p>Machine instructions. Hosts the BANcode Registry (diagnostics, WARN/COM/SOFT codes).</p></div>
+<div class='space g'><h3>Native SuperUnicode Space</h3><span class='range mono'>0x120000 &ndash; 0x7FFFFFFF</span><p>OpenWindows&rsquo; own allocations. Above it, plugins extend the space without limit.</p></div>
+</div>
+<p><a href="standard/index.html">Read the full hierarchy &raquo;</a></p>
+<h2>News</h2>
+<ul>
+<li><strong>2026-08-14</strong> &mdash; SuperUnicode 0.1.0 released: Base and Extended /Public trees, plugin subsystem with boot-time checksum gate, OWFS-only plugin partitions, SDK with template and hellocp example, and this website.</li>
+<li><strong>2026-08-14</strong> &mdash; The website goes live, mirroring the layout of unicode.org.</li>
+<li><strong>Coming in 0.2.0</strong> &mdash; first native allocations, SCP registry assignments and additional SUTR reports.</li>
+</ul>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='index.html'>Home</a> &middot; <a href='standard/index.html'>Standard</a> &middot; <a href='ucd/index.html'>SUCD</a> &middot; <a href='extended/index.html'>Extended</a> &middot; <a href='reports/index.html'>Reports</a> &middot; <a href='faq/index.html'>FAQ</a> &middot; <a href='sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

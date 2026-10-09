@@ -1,0 +1,22 @@
+# partitions/spec.txt - SuperUnicode Partition policy
+# (Ref: OpenWindows-Storage; libowfs.a = OWFS, libusfs.a = USFS.)
+
+A SuperUnicode Partition is a removable filesystem whose layout is
+declared by SuperUnicode machine instructions.
+
+FORMATS
+  OWFS   native drive filesystem (data starts at drive offset 0x10000;
+         integrity = CRC32c + Fletcher-64; htl_device_t + ow_sec identity;
+         ChaCha20 data-at-rest encryption optional).
+  USFS   portable external-media filesystem (libusfs.a).
+
+POLICY
+  Base SUCS uses SuperUnicode Partitions ONLY for bugfix and rescue
+  payloads, and MAY be OWFS or USFS.
+  Plugin Partitions are an Extended-only feature and MUST be OWFS
+  (never USFS), mounted read-only.
+
+MOUNT RULE
+  Read-only always. Base SuperUnicode mounts its partition at boot;
+  plugin partitions mount only after the boot checksum gate passes
+  (see superunicode_extended/Public/0.1.0/extsucd/ and the plugin SDK).

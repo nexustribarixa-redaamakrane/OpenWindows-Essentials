@@ -1,0 +1,26 @@
+# OpenWindows BANhammer Panic & Crash Diagnostic Daemon
+
+case "$1" in
+    start)
+        echo ":: Starting BANhammer Panic Diagnostic Monitor..."
+        load_driver banhammer
+        "C:\OpenWindows\Software\banhammer_cli.owx" --daemon &
+        echo ":: BANhammer service running."
+        ;;
+    stop)
+        echo ":: Stopping BANhammer Monitor..."
+        owkill --name banhammer_cli
+        echo ":: BANhammer service stopped."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        owps | grep banhammer
+        ;;
+    *)
+        echo "Usage: rc.banhammer {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

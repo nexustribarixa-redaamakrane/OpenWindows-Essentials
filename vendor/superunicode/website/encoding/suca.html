@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUCA collation</title>
+<meta name='description' content='The SuperUnicode Collation Algorithm (SUTS-001).'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html' class='active'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Encoding</a>
+ &raquo; SUCA collation</nav>
+<h1>SUCA <span class="grad">collation</span></h1>
+<p class='subtitle'>The UCA-equivalent multilevel ordering contract for SuperUnicode strings.</p>
+<p>SUCA (SUTS-001) is a full Unicode-UTS-#10-equivalent multilevel collation algorithm over the 64-bit SuperUnicode space. Strings are NFD-normalized, mapped to collation elements (L1&ndash;L4 + identical), and compared level by level.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Level</th>
+<th>Weights</th>
+<th>Example difference</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">L1</span></td>
+<td>Base letters</td>
+<td><span class="mono">role &lt; roles</span></td>
+</tr>
+<tr>
+<td><span class="mono">L2</span></td>
+<td>Accents</td>
+<td><span class="mono">role &lt; r&ocirc;le</span></td>
+</tr>
+<tr>
+<td><span class="mono">L3</span></td>
+<td>Case</td>
+<td><span class="mono">role &lt; Role</span></td>
+</tr>
+<tr>
+<td><span class="mono">L4</span></td>
+<td>Variable (punctuation) interleaving</td>
+<td><span class="mono">shifted: de-luge &asymp; deluge</span></td>
+</tr>
+<tr>
+<td><span class="mono">Identical</span></td>
+<td>NFD codepoint tie-break (native codepoint order)</td>
+<td>deterministic total order</td>
+</tr>
+</tbody></table></div>
+<ul>
+<li><strong>Canonical equivalence</strong> &mdash; normalized input collates equal (e.g. precomposed vs decomposed accents).</li>
+<li><strong>Contractions</strong> &mdash; e.g. Slovak <span class="mono">c h</span> as a single base letter; <strong>expansions</strong> &mdash; e.g. <span class="mono">&#339; &asymp; oe</span>.</li>
+<li><strong>Variable weighting</strong> &mdash; shifted (default), blanked, non-ignorable, shift-trimmed; SCP controls are collation-ignorable at L1&ndash;L3.</li>
+<li><strong>Backward secondary</strong> &mdash; French dictionary order.</li>
+<li><strong>Implicit weights</strong> &mdash; unassigned, Han, Native and ExtSUCS plugin codepoints derive algorithmic primaries from the 64-bit codepoint.</li>
+<li><strong>Tailoring</strong> &mdash; programmatic rules (<span class="mono">&amp; base &lt; x</span>, <span class="mono">&lt;&lt;</span>, <span class="mono">&lt;&lt;&lt;</span>, <span class="mono">=</span>, contractions).</li>
+</ul>
+<p class='note'>Formalized in <a href="../reports/SUTR-2.html">SUTR-2</a> and <a href="../reports/SUTS-001.html">SUTS-001</a>. Data: <span class="mono">collation/SUCA.txt</span> (Base) and <span class="mono">collation/ExtUCA.txt</span> (Extended) &mdash; both extSUCS-compatible.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

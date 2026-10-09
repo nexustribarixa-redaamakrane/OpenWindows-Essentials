@@ -1,0 +1,26 @@
+# OpenWindows System Event & Kernel Ring Buffer Logger
+
+case "$1" in
+    start)
+        echo ":: Starting System Event Logger..."
+        load_dll owlog64
+        "C:\OpenWindows\Software\owsyslog.owx" --daemon --log-file "C:\OpenWindows\Logs\system.log" &
+        echo ":: System Logger active."
+        ;;
+    stop)
+        echo ":: Stopping System Logger..."
+        owkill --name owsyslog
+        echo ":: System Logger stopped."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        owdmesg | tail -n 20
+        ;;
+    *)
+        echo "Usage: rc.syslog {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

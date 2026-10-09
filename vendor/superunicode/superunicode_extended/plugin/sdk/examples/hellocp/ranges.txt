@@ -1,0 +1,2 @@
+# hellocp plugin ranges — one block of 4096 codepoints past the base limit.
+0x80000000 0x80000FFF

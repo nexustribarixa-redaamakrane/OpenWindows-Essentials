@@ -1,0 +1,8 @@
+# OpenWindows Security Initialization
+
+load_dll owacl64
+load_dll owcrypt
+load_driver entropy
+init_random_seed
+log "Security subsystem ready"
+

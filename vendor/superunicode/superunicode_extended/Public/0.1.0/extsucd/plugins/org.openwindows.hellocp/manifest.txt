@@ -1,0 +1,10 @@
+# org.openwindows.hellocp plugin package (approved 0.1.0)
+# Mirror of sdk/examples/hellocp. Blob: hellocp.sucsplugin
+plugin_id    = org.openwindows.hellocp
+ver_major    = 1
+ver_minor    = 0
+ver_patch    = 0
+maintainer   = openwindows-dev@example.com
+base_limit   = 0x7FFFFFFF
+partition_fs = OWFS
+description  = Hello Codepoints demonstration plugin

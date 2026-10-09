@@ -1,0 +1,39 @@
+# OpenWindows System Runlevel Shutdown Sequence
+# Executed before system halt, powerdown, or reboot
+
+echo ":: Initiating OpenWindows system shutdown..."
+
+# 1. Stop all active daemons in reverse order
+echo ":: Terminating active services..."
+call "C:\OpenWindows\Config\rc.d\rc.gui" stop
+call "C:\OpenWindows\Config\rc.d\rc.cron" stop
+call "C:\OpenWindows\Config\rc.d\rc.sentinel" stop
+call "C:\OpenWindows\Config\rc.d\rc.banhammer" stop
+call "C:\OpenWindows\Config\rc.d\rc.audio" stop
+call "C:\OpenWindows\Config\rc.d\rc.firewall" stop
+call "C:\OpenWindows\Config\rc.d\rc.network" stop
+call "C:\OpenWindows\Config\rc.d\rc.storage" stop
+call "C:\OpenWindows\Config\rc.d\rc.kconf" stop
+call "C:\OpenWindows\Config\rc.d\rc.devmgr" stop
+call "C:\OpenWindows\Config\rc.d\rc.syslog" stop
+
+# 2. Terminate userland processes
+echo ":: Terminating user sessions..."
+owkill --all --term
+sleep 1
+owkill --all --kill
+
+# 3. Commit configuration tree to disk
+echo ":: Flushing kconf registry changes..."
+kconfctl save "C:\OpenWindows\Config\system.kconf"
+
+# 4. Flush caches and dismount UniVIP volumes
+echo ":: Flushing storage disk caches..."
+owdiskchk --flush
+sync
+echo ":: Safely unmounting UniVIP volumes..."
+umount "C:\OpenWindows\Temp"
+umount "C:\Users"
+mount --readonly "VIP0:"
+
+echo ":: System safely halted."

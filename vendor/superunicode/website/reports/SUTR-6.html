@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUTR-6 &mdash; Unicode Compatibility Bridge</title>
+<meta name='description' content='The permanent 1:1 guarantee across `0x000000`&ndash;`0x10FFFF`'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html' class='active'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Technical Reports</a>
+ &raquo; SUTR-6 &mdash; Unicode Compatibility Bridge</nav>
+<h1><span class='mono'>SUTR-6</span> &mdash; <span class='grad'>Unicode Compatibility Bridge</span></h1>
+<p class='subtitle'>The permanent 1:1 guarantee across <span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span></p>
+<p class='note'><strong>Standard ID:</strong> <span class='mono'>SUTR-6</span><br><strong>Status:</strong> 0.1.0 &mdash; Published<br><strong>Scope:</strong> The permanent 1:1 guarantee across <span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span><br><strong>Applies to:</strong> every SuperUnicode consumer; text interchange with Unicode systems<br><strong>Last updated:</strong> <span class='mono'>2026-09-30</span><br><strong>Source:</strong> <span class='mono'>docs/sutr/SUTR-6-unicode-bridge.md</span> &mdash; this page is generated from it, and the repository copy governs where they differ.</p>
+<h2>1. Overview</h2>
+<p>Codepoints <span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span> correspond <strong>1:1</strong> with Unicode codepoints of the same numeric value. This is the <em>Unicode Compatibility Space</em>, and the correspondence is the single most load-bearing promise SuperUnicode makes to the outside world.</p>
+<div class='spec'>SUCS 0x000000 ↔ U+000000   // bi-directional, lossless<br>SUCS 0x10FFFF ↔ U+10FFFF   // the ceiling of the bridge</div>
+<h3>1.1 Why it matters</h3>
+<p>A conlang or neography that has graduated into the Unicode standard is already allocated a codepoint. SuperUnicode's promise is that the same abstract character occupies the same numeric value in both systems, forever &mdash; so graduation is a <em>bookkeeping</em> event (a new tag is issued, an allocation is recorded) and never a re-encoding. A conlang encoded in the bridge today will not need a migration when it is encoded natively tomorrow. This is the strongest argument for the design, and it is why the guarantee is stated as permanent rather than as a version-to-version compatibility claim.</p>
+<h2>2. The Guarantee</h2>
+<p>Three properties, all normative:</p>
+<p><strong>1. Bidirectional and lossless.</strong> <span class='mono'>sucs_downcast()</span> of a bridged codepoint yields the identical Unicode value, and every Unicode codepoint has a SuperUnicode identity. No information is added, removed, or transformed at the boundary.</p>
+<p><strong>2. Permanent by position, not by version.</strong> The mapping is fixed at release 0.1.0 and does <strong>not</strong> change when Unicode publishes new versions, new blocks, or new codepoints. This is the crucial distinction: <em>compatibility</em> is a weaker claim than <em>identity</em>, and SuperUnicode claims identity.</p>
+<p><strong>3. Growth without remapping.</strong> New Unicode codepoints appear at the same numeric values they occupy in Unicode. The bridge tracks Unicode growth with no translation table, no surrogate escape, and no re-encoding of existing text.</p>
+<p>The bridge stops exactly where the System Control Plane begins: above <span class='mono'>0x10FFFF</span>, SuperUnicode is fully its own system (SUTR-0 §4).</p>
+<h2>3. The Mapping Is Frozen; the Data Is Not</h2>
+<p>This is the distinction most often collapsed, and it is worth stating plainly:</p>
+<div class='callout '><p>The <strong>mapping</strong> is frozen by position. The <strong>data</strong> published about the bridge &mdash; block definitions and character names &mdash; is regenerated from a concrete Unicode release whenever one is adopted.</p></div>
+<p>So <span class='mono'>0x1F600</span> is <span class='mono'>U+1F600 GRINNING FACE</span> in SuperUnicode 0.1.0 and in every future release, but the <em>table</em> that says so was built from a specific UCD snapshot. Adopting Unicode 19 would change the tables, not the mapping.</p>
+<p>The current synchronized release is queryable at compile time:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Macro</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>SUCS_UNICODE_VERSION_MAJOR</span> / <span class='mono'>_MINOR</span></td>
+<td><span class='mono'>18</span> / <span class='mono'>0</span></td>
+<td>Unicode release the UCS/UCB data is synchronized with</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_UCD_UNICODE_VERSION</span></td>
+<td><span class='mono'>1800</span></td>
+<td>Same, packed as <span class='mono'>major * 100 + minor</span></td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_UCD_BLOCK_COUNT</span></td>
+<td><span class='mono'>353</span></td>
+<td>Unicode blocks in <span class='mono'>sucs_compat.h</span></td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_UCD_NAME_COUNT</span></td>
+<td><span class='mono'>41232</span></td>
+<td>Named codepoints in <span class='mono'>sucs_ucd_names.h</span></td>
+</tr>
+</tbody></table></div>
+<p><span class='mono'>SUCS_UNICODE_MAX_COMPAT</span> fixes the bridge ceiling at <span class='mono'>0x0010FFFFUL</span>, and is independent of the synchronized release: it does not move when Unicode grows, because the bridge ceiling is a SuperUnicode constant, not a Unicode one.</p>
+<h2>4. Adopting a New Unicode Release</h2>
+<p>The tables are regenerated from <span class='mono'>unicode.org/Public/&lt;version&gt;/ucd/</span> by <span class='mono'>superunicode/tools/gen_ucd_names.py</span>, which carries the target version in <span class='mono'>SUCD_UNICODE_VERSION</span> and resolves the download and output paths from it. Adopting a release means updating that constant, regenerating <span class='mono'>sucs_compat.h</span>, <span class='mono'>sucs_ucd_names.h</span> and <span class='mono'>sucs_ucd_names.c</span>, and updating the pinned expectations in the test suite.</p>
+<h3>4.1 Test-Pinned Values</h3>
+<p><span class='mono'>test_sucs_ucd</span> pins the version, block count and name count, and asserts block sortedness, non-overlap, and the Unicode 18 additions. A <strong>partial</strong> bump &mdash; new macro without regenerated tables, or vice versa &mdash; therefore fails the build rather than shipping inconsistent data. The suite also pins the practical edge cases of the generated name table:</p>
+<ul>
+<li>The <span class='mono'>First</span>/<span class='mono'>Last</span> range markers of a block (<span class='mono'>&lt;CJK Ideograph, First&gt;</span>) carry</li>
+</ul>
+<p><strong>no</strong> name, so <span class='mono'>0x4E00</span> and <span class='mono'>0x9FFF</span> look up as unnamed even though <span class='mono'>0x4E01</span>&ndash;<span class='mono'>0x9FFE</span> are named.</p>
+<ul>
+<li>Unassigned codepoints look up as unnamed; <span class='mono'>0x18E00</span> is unassigned, so the</li>
+</ul>
+<p>Jurchen block is probed at its first assigned codepoint, <span class='mono'>0x191A0</span>.</p>
+<ul>
+<li>The packed name pool stores names <strong>without</strong> a NUL terminator, and</li>
+</ul>
+<p><span class='mono'>sucs_ucd_get_name()</span> returns a non-NUL-terminated slice. Callers compare with <span class='mono'>memcmp</span> over <span class='mono'>sucs_ucd_name_length()</span> bytes; the <span class='mono'>sucs_ucd_get_name_copy()</span> variant is the one that NUL-terminates.</p>
+<h2>5. ExtSUCS Shares This Data Set</h2>
+<p><span class='mono'>superunicode_extended</span> keeps <strong>no UCD tables of its own</strong>:</p>
+<ul>
+<li><span class='mono'>extsucs_compat.h</span> re-exports the base block table and adds the aliases</li>
+</ul>
+<p><span class='mono'>EXTSUCS_UNICODE_VERSION_MAJOR</span>, <span class='mono'>EXTSUCS_UNICODE_VERSION_MINOR</span>, <span class='mono'>EXTSUCS_UCD_UNICODE_VERSION</span> and <span class='mono'>EXTSUCS_UCD_BLOCK_COUNT</span>.</p>
+<ul>
+<li><span class='mono'>extsucs_ucd_names.h</span> re-exports the base name API and adds</li>
+</ul>
+<p><span class='mono'>EXTSUCS_UCD_NAME_COUNT</span>.</p>
+<ul>
+<li><span class='mono'>extsucs_ucd_names.c</span> delegates name lookups to the base implementation, and</li>
+</ul>
+<p><span class='mono'>extsucs_ucd_block_lookup()</span> / <span class='mono'>extsucs_is_in_ucd_block()</span> wrap the base block table.</p>
+<p>So both modules always report the same Unicode release, by construction rather than by convention. <span class='mono'>test_extsucs_ucd</span> asserts that the ExtSUCS aliases equal the base macros, so a <strong>one-sided</strong> bump &mdash; updating the base tables without extending the aliases &mdash; also fails the build. The ExtSUCS test additionally checks that a 64-bit value above the bridge ceiling is rejected rather than silently truncated to 31 bits.</p>
+<p>This delegation is a deliberate consequence of §2: if the two modules held independent UCD snapshots, they could disagree about what <span class='mono'>0x1F600</span> is, and a document that says "1:1 with Unicode" would mean two different things depending on which library answered.</p>
+<h2>6. Compliance Matrix</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Requirement</th>
+<th>Mandatory</th>
+<th>Verification</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span> is 1:1 with Unicode, both directions</td>
+<td>Yes</td>
+<td><span class='mono'>sucs_downcast()</span>; <span class='mono'>test_sucs_ucd</span></td>
+</tr>
+<tr>
+<td>Mapping is permanent; new Unicode uses the same values</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_UNICODE_MAX_COMPAT</span> = <span class='mono'>0x0010FFFFUL</span></td>
+</tr>
+<tr>
+<td>Bridge ceiling does not move with Unicode releases</td>
+<td>Yes</td>
+<td>Constant independent of <span class='mono'>SUCD_UNICODE_VERSION</span></td>
+</tr>
+<tr>
+<td>Version, block count and name count queryable at compile time</td>
+<td>Yes</td>
+<td>Four macros in <span class='mono'>sucs_compat.h</span> / <span class='mono'>sucs_ucd_names.h</span></td>
+</tr>
+<tr>
+<td>Blocks sorted and non-overlapping</td>
+<td>Yes</td>
+<td><span class='mono'>test_sucs_ucd</span></td>
+</tr>
+<tr>
+<td><span class='mono'>First</span>/<span class='mono'>Last</span> range markers carry no name</td>
+<td>Yes</td>
+<td><span class='mono'>0x4E00</span>, <span class='mono'>0x9FFF</span> unnamed</td>
+</tr>
+<tr>
+<td>Unassigned codepoints carry no name</td>
+<td>Yes</td>
+<td><span class='mono'>0x18E00</span> unnamed; <span class='mono'>0x191A0</span> named</td>
+</tr>
+<tr>
+<td>Packed pool is not NUL-terminated</td>
+<td>Yes</td>
+<td><span class='mono'>memcmp</span> + <span class='mono'>sucs_ucd_name_length()</span></td>
+</tr>
+<tr>
+<td><span class='mono'>sucs_ucd_get_name_copy()</span> NUL-terminates</td>
+<td>Yes</td>
+<td>Copy variant test</td>
+</tr>
+<tr>
+<td>Partial Unicode bump fails the build</td>
+<td>Yes</td>
+<td><span class='mono'>test_sucs_ucd</span> pinned values</td>
+</tr>
+<tr>
+<td>ExtSUCS holds no independent UCD tables</td>
+<td>Yes</td>
+<td><span class='mono'>extsucs_ucd_names.c</span> delegates</td>
+</tr>
+<tr>
+<td>ExtSUCS aliases match base macros</td>
+<td>Yes</td>
+<td><span class='mono'>test_extsucs_ucd</span></td>
+</tr>
+<tr>
+<td>One-sided bump fails the build</td>
+<td>Yes</td>
+<td><span class='mono'>test_extsucs_ucd</span></td>
+</tr>
+<tr>
+<td>Above-bridge 64-bit values rejected, not truncated</td>
+<td>Yes</td>
+<td><span class='mono'>test_extsucs_ucd</span> 64-bit guards</td>
+</tr>
+<tr>
+<td>Regeneration is scripted from the UCD</td>
+<td>Yes</td>
+<td><span class='mono'>gen_ucd_names.py</span>, <span class='mono'>SUCD_UNICODE_VERSION</span></td>
+</tr>
+</tbody></table></div>
+<h2>7. Terms &amp; Conventions</h2>
+<ul>
+<li><strong>Unicode Compatibility Bridge</strong> &mdash; the 1:1 correspondence between</li>
+</ul>
+<p><span class='mono'>&times;</span>&ndash;<span class='mono'>0x10FFFF</span> and Unicode codepoints of the same value.</p>
+<ul>
+<li><strong>Unicode Compatibility Space</strong> &mdash; the bridged region itself.</li>
+<li><strong><span class='mono'>SUCS_UNICODE_MAX_COMPAT</span></strong> &mdash; the bridge ceiling, <span class='mono'>0x0010FFFFUL</span>.</li>
+<li><strong>UCD</strong> &mdash; Unicode Character Database; the source of block and name data.</li>
+<li><strong>UCS</strong> &mdash; Unicode Character Standard; the abstract repertoire.</li>
+<li><strong>UCB</strong> &mdash; Unicode Code Block; the block table in <span class='mono'>sucs_compat.h</span>.</li>
+<li><strong><span class='mono'>sucs_downcast()</span></strong> &mdash; the bidirectional bridge accessor.</li>
+<li><strong>Packed name pool</strong> &mdash; the NUL-less concatenated name storage in</li>
+</ul>
+<p><span class='mono'>sucs_ucd_names.c</span>.</p>
+<ul>
+<li><strong>Range marker</strong> &mdash; a <span class='mono'>&lt;Block, First&gt;</span>/<span class='mono'>&lt;Block, Last&gt;</span> pseudo-name, which is</li>
+</ul>
+<p>skipped by the name generator.</p>
+<ul>
+<li><strong>Graduation</strong> &mdash; a conlang or script moving from the Native space into the</li>
+</ul>
+<p>bridge; a bookkeeping event under this guarantee, never a re-encoding.</p>
+<ul>
+<li><strong>RNUR</strong> &mdash; Reddit Neographical Unicode Registry; the Native-space</li>
+</ul>
+<p>coordinate system, outside the bridge by construction.</p>
+<ul>
+<li><strong>SUTR-0</strong> &mdash; SUCS Core, which defines the bridge as one of three spaces.</li>
+</ul>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

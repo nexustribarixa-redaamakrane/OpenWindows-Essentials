@@ -1,0 +1,9 @@
+# NamesList.txt - Base SUCS names (starter)
+# Ranges carry family names; individual allocations are named in later
+# releases as the SCP registry fills.
+0011A000;BLOCK BANCODE
+0011A800;BLOCK WARNCODE
+0011AC00;BLOCK COMCODE
+0011AE00;BLOCK SOFTCODE
+7FFFFFF0;BLOCK TRAPS
+7FFFFFFF;SENTINEL

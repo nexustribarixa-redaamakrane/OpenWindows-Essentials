@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Naming — Machine-Instruction Database</title>
+<meta name='description' content='NamesList, name aliases, and how names are assigned and stabilized.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html' class='active'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Machine-Instruction Database</a>
+ &raquo; Naming</nav>
+<h1>Naming</h1>
+<p class='subtitle'>How codepoints get their names, and why those names never change.</p>
+<p>Names live in <span class="mono">names/NamesList.txt</span>, with alternates in <span class="mono">names/NameAliases.txt</span>. In 0.1.0 the registry blocks and the Sentinel carry names; per-codepoint names arrive with native allocations in 0.2.0.</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Name</th>
+<th>Codepoint</th>
+</tr></thead><tbody>
+<tr>
+<td><span class="mono">BLOCK BANCODE</span></td>
+<td><span class="mono">0x0011A000</span></td>
+</tr>
+<tr>
+<td><span class="mono">BLOCK WARNCODE</span></td>
+<td><span class="mono">0x0011A800</span></td>
+</tr>
+<tr>
+<td><span class="mono">BLOCK COMCODE</span></td>
+<td><span class="mono">0x0011AC00</span></td>
+</tr>
+<tr>
+<td><span class="mono">BLOCK SOFTCODE</span></td>
+<td><span class="mono">0x0011AE00</span></td>
+</tr>
+<tr>
+<td><span class="mono">BLOCK TRAPS</span></td>
+<td><span class="mono">0x7FFFFFF0</span></td>
+</tr>
+<tr>
+<td><span class="mono">SENTINEL</span></td>
+<td><span class="mono">0x7FFFFFFF</span></td>
+</tr>
+</tbody></table></div>
+<h2>Stability</h2>
+<ul>
+<li>Names, once assigned, are permanent and unique within the space.</li>
+<li>Names are stable across versions: a codepoint never changes name, and a name is never reused.</li>
+<li>Aliases may be added but never removed.</li>
+</ul>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

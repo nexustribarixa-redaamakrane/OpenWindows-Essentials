@@ -1,0 +1,11 @@
+# SuperUnicode Plugin Manifest (template)
+# Copy this file into your plugin and fill every field.
+
+plugin_id     = <org.openwindows.yourplugin>     # unique, reverse-DNS
+ver_major     = 1
+ver_minor     = 0
+ver_patch     = 0
+maintainer    = <you@example.com>
+base_limit    = 0x7FFFFFFF                        # default runtime ceiling
+partition_fs  = OWFS                              # MUST be OWFS (read-only)
+description   = <one-line description of the codepoints this plugin adds>

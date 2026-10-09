@@ -1,0 +1,407 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>SUTR-5 &mdash; Plugin Lifecycle &amp; Blob Format</title>
+<meta name='description' content='ExtSUCS plugin space &mdash; blob format, validation gates, mount, registry'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html'>Extended</a>
+<a href='../reports/index.html' class='active'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Technical Reports</a>
+ &raquo; SUTR-5 &mdash; Plugin Lifecycle &amp; Blob Format</nav>
+<h1><span class='mono'>SUTR-5</span> &mdash; <span class='grad'>Plugin Lifecycle &amp; Blob Format</span></h1>
+<p class='subtitle'>ExtSUCS plugin space &mdash; blob format, validation gates, mount, registry</p>
+<p class='note'><strong>Standard ID:</strong> <span class='mono'>SUTR-5</span><br><strong>Status:</strong> 0.1.0 &mdash; Published<br><strong>Scope:</strong> ExtSUCS plugin space &mdash; blob format, validation gates, mount, registry<br><strong>Applies to:</strong> plugin authors, <span class='mono'>plugin_pack</span> / <span class='mono'>plugin_verify</span>, the boot checksum gate<br><strong>Last updated:</strong> <span class='mono'>2026-09-30</span><br><strong>Source:</strong> <span class='mono'>docs/sutr/SUTR-5-plugin-lifecycle.md</span> &mdash; this page is generated from it, and the repository copy governs where they differ.</p>
+<h2>1. Overview</h2>
+<p>SUTR-5 defines how a plugin goes from a packed blob on a partition to registered codepoints in the live ExtSUCS address space. It specifies the blob format, the four validation gates, the status codes, and the mount ordering that together make the plugin space safe to expose to the address space.</p>
+<p>The plugin space is the one part of SuperUnicode that is <strong>not</strong> frozen at release. Base SUCS is 31 bits and permanent; ExtSUCS is unbounded and accepts new codepoint ranges from plugins. That openness is the whole point of the design, and it is also the only part of the system that can extend the meaning of a codepoint &mdash; which is why the gate sequence here is normative and strict.</p>
+<h2>2. Blob Format</h2>
+<p>A plugin blob is one packed file:</p>
+<div class='spec'>header (94 bytes) | range_count &times; 16-byte ranges | payload bytes</div>
+<h3>2.1 Header Layout</h3>
+<p><span class='mono'>sucs_plugin_blob_header_t</span>, packed:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Field</th>
+<th>Type</th>
+<th>Bytes</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>magic</span></td>
+<td><span class='mono'>uint32_t</span></td>
+<td>4</td>
+<td><span class='mono'>SUCS_PLUGIN_BLOB_MAGIC</span> = <span class='mono'>&times;</span> (<span class='mono'>"SUCS"</span>)</td>
+</tr>
+<tr>
+<td><span class='mono'>blob_version</span></td>
+<td><span class='mono'>uint16_t</span></td>
+<td>2</td>
+<td>Blob format version</td>
+</tr>
+<tr>
+<td><span class='mono'>ver_major</span></td>
+<td><span class='mono'>uint8_t</span></td>
+<td>1</td>
+<td>Plugin semantic version</td>
+</tr>
+<tr>
+<td><span class='mono'>ver_minor</span></td>
+<td><span class='mono'>uint8_t</span></td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td><span class='mono'>ver_patch</span></td>
+<td><span class='mono'>uint8_t</span></td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td><span class='mono'>reserved</span></td>
+<td><span class='mono'>uint8_t</span></td>
+<td>1</td>
+<td>Must be zero</td>
+</tr>
+<tr>
+<td><span class='mono'>id</span></td>
+<td><span class='mono'>char[64]</span></td>
+<td>64</td>
+<td><span class='mono'>SUCS_PLUGIN_ID_MAX</span>; NUL-terminated</td>
+</tr>
+<tr>
+<td><span class='mono'>range_count</span></td>
+<td><span class='mono'>uint32_t</span></td>
+<td>4</td>
+<td>Number of 16-byte range records following</td>
+</tr>
+<tr>
+<td><span class='mono'>blob_size</span></td>
+<td><span class='mono'>uint32_t</span></td>
+<td>4</td>
+<td>Total blob size in bytes</td>
+</tr>
+<tr>
+<td><span class='mono'>crc32c</span></td>
+<td><span class='mono'>uint32_t</span></td>
+<td>4</td>
+<td>CRC32c (Castagnoli)</td>
+</tr>
+<tr>
+<td><span class='mono'>fletcher64</span></td>
+<td><span class='mono'>uint64_t</span></td>
+<td>8</td>
+<td>Fletcher-64</td>
+</tr>
+</tbody></table></div>
+<p>Total: 4 + 2 + 1 + 1 + 1 + 1 + 64 + 4 + 4 + 4 + 8 = <strong>94 bytes</strong>.</p>
+<p>Range records are 16-byte little-endian pairs (<span class='mono'>start</span>, <span class='mono'>end</span>) &mdash; 8 bytes each for the 64-bit ExtSUCS domain. The payload follows the ranges.</p>
+<h3>2.2 Checksum Computation</h3>
+<p><span class='mono'>crc32c</span> and <span class='mono'>fletcher64</span> are computed over the <strong>entire blob</strong> with the two checksum fields themselves <strong>zeroed</strong>. Computing over the stored value instead would be self-referential and unsatisfiable.</p>
+<p>The dual algorithm is the same choice as SUTR-3: CRC32c is hardware-accelerated and good at burst corruption; Fletcher-64 is a cheaper running sum that catches damage spread across long spans. Both MUST be present, and both MUST match.</p>
+<h2>3. Status Codes</h2>
+<p>The plugin ABI exposes a 14-value status enum, <span class='mono'>sucs_plugin_status_t</span>:</p>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Code</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_OK</span></td>
+<td>0</td>
+<td>Operation succeeded</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_INVALID_BLOB</span></td>
+<td>1</td>
+<td>Malformed plugin blob</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_INVALID_ID</span></td>
+<td>2</td>
+<td>Empty / malformed plugin id</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_INVALID_RANGE</span></td>
+<td>3</td>
+<td>Malformed codepoint range</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_RANGE_BELOW_BASE</span></td>
+<td>4</td>
+<td>Range does not extend past base limit</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_RANGE_COLLISION</span></td>
+<td>5</td>
+<td>Range overlaps an active plugin</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_CHECKSUM_MISMATCH</span></td>
+<td>6</td>
+<td>Stored checksum does not match blob</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_NOT_OWFS</span></td>
+<td>7</td>
+<td>Plugin partition must be OWFS</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_MOUNT_FAILED</span></td>
+<td>8</td>
+<td>Partition mount failed</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_BUFFER_TOO_SMALL</span></td>
+<td>9</td>
+<td>Blob exceeds staging capacity</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_DUPLICATE_ID</span></td>
+<td>10</td>
+<td>Plugin id already staged / active</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_STAGING_FULL</span></td>
+<td>11</td>
+<td>Staging table is full</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_ERR_UNSUPPORTED_VERSION</span></td>
+<td>12</td>
+<td>Blob format version unsupported</td>
+</tr>
+<tr>
+<td><span class='mono'>SUCS_PLUGIN_REBOOT_REQUIRED</span></td>
+<td>13</td>
+<td>Plugin staged; system restart required</td>
+</tr>
+</tbody></table></div>
+<p>Note that 13 is a <strong>success</strong> condition, not an error: staging a plugin always requires a restart, and the distinct code makes that unambiguous to a caller that would otherwise have to infer it from a generic <span class='mono'>OK</span>. Gate failures return the specific diagnostic state rather than a collapsed error, so an operator can tell a bad checksum from a colliding range without re-deriving it.</p>
+<h2>4. The Gate Sequence</h2>
+<div class='spec'>blob<br> ├─► checksum gate   CRC32c + Fletcher-64 over the whole blob (fields zeroed)<br> ├─► range gate      ranges sorted, non-overlapping, strictly above the base limit<br> ├─► collision gate  no overlap with any mounted plugin's ranges<br> ├─► mount gate      OWFS only, read-only<br> └─► register        ranges enter ExtSUCS and lookups resolve</div>
+<p><strong>1. Checksum gate.</strong> Both checksums must match. This runs first because it is the cheapest way to reject a corrupt or tampered blob, before any structural parsing of ranges.</p>
+<p><strong>2. Range gate.</strong> Each range must be well-formed (<span class='mono'>start</span> ≤ <span class='mono'>end</span>), the range list must be sorted, ranges must not overlap <em>each other</em>, and every range must lie <strong>strictly above the base limit</strong> &mdash; the plugin space begins above <span class='mono'>0x7FFFFFFF</span>. A blob cannot claim part of the frozen Base space, which is what keeps Base SUCS permanent (SUTR-0 §6, SUTR-6).</p>
+<p><strong>3. Collision gate.</strong> No range may overlap the ranges of any already-mounted plugin. This is what makes the plugin space <em>additive</em> and non-overlapping: two plugins can coexist, and their ranges can never be ambiguous, because a codepoint address resolves to at most one plugin.</p>
+<p><strong>4. Mount gate.</strong> The partition must be OWFS and mounts read-only (SUTR-3 §3). USFS is rejected with <span class='mono'>SUCS_PLUGIN_ERR_NOT_OWFS</span>; there is no fallback.</p>
+<p><strong>5. Register.</strong> Only after all four gates pass do the ranges enter ExtSUCS and ordinary lookups resolve them. Registration happens during the early boot commit, never at runtime.</p>
+<h3>4.1 Reboot Requirement</h3>
+<p>Staging returns <span class='mono'>SUCS_PLUGIN_REBOOT_REQUIRED</span> (13) on success. The plugin is <em>staged</em>, not active: its ranges do not resolve until the kernel restart commits the staged table. This mirrors the mode-switch contract in SUTR-1 §6 &mdash; <span class='mono'>sucs_request_mode_switch()</span> stages, <span class='mono'>sucs_commit_mode_on_boot()</span> commits &mdash; and it is why no in-band path exists to activate a plugin while text is in flight. A codepoint that becomes valid mid-stream would break the invariant that a stream's meaning is fixed by its framing.</p>
+<h2>5. Partition Requirements</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Requirement</th>
+<th>Value</th>
+<th>Rationale</th>
+</tr></thead><tbody>
+<tr>
+<td>Format</td>
+<td><strong>OWFS only</strong></td>
+<td>Trust chain: OWFS carries <span class='mono'>htl_device_t</span> identity and dual integrity (SUTR-3)</td>
+</tr>
+<tr>
+<td>Mount mode</td>
+<td>read-only</td>
+<td>No persistence for a tampered payload</td>
+</tr>
+<tr>
+<td>Mode</td>
+<td><span class='mono'>SUCS_MODE_EXTENDED</span></td>
+<td>Plugin space exists only in the 64-bit Extended domain</td>
+</tr>
+<tr>
+<td>Mount point</td>
+<td>after boot checksum gate</td>
+<td>No window in which unvalidated ranges are addressable</td>
+</tr>
+</tbody></table></div>
+<p>Per SUTR-3 §4, a plugin partition MUST NOT mount during ordinary boot. Until the checksum gate passes, no plugin contributes to ExtSUCS.</p>
+<h2>6. Tooling</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>plugin_pack</span></td>
+<td>Builds a blob from ranges and a payload, computing both checksums</td>
+</tr>
+<tr>
+<td><span class='mono'>plugin_verify</span></td>
+<td>Re-runs the checksum and range gates offline, against a blob</td>
+</tr>
+</tbody></table></div>
+<p>Both reproduce the gate sequence without a mounted partition, so a plugin author validates a blob before shipping it rather than discovering the problem at boot. <span class='mono'>sample_plugin.scsp</span> is a worked example.</p>
+<h2>7. Data and Implementation</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Path</th>
+<th>Contents</th>
+</tr></thead><tbody>
+<tr>
+<td><span class='mono'>superunicode_extended/plugin/include/superunicode_extended/plugin.h</span></td>
+<td>Blob header, magic, <span class='mono'>SUCS_PLUGIN_ID_MAX</span>, status enum</td>
+</tr>
+<tr>
+<td><span class='mono'>.../plugin_checksum.h</span></td>
+<td>CRC32c + Fletcher-64</td>
+</tr>
+<tr>
+<td><span class='mono'>.../plugin_stage.h</span></td>
+<td>Staging; returns <span class='mono'>SUCS_PLUGIN_REBOOT_REQUIRED</span></td>
+</tr>
+<tr>
+<td><span class='mono'>.../plugin_partition.h</span></td>
+<td>OWFS mount and <span class='mono'>plugin_id</span> association</td>
+</tr>
+<tr>
+<td><span class='mono'>.../plugin_boot.h</span></td>
+<td>Boot-time commit</td>
+</tr>
+<tr>
+<td><span class='mono'>superunicode_extended/plugin/tools/</span></td>
+<td><span class='mono'>plugin_pack.c</span>, <span class='mono'>plugin_verify.c</span></td>
+</tr>
+<tr>
+<td><span class='mono'>superunicode_extended/Public/zipped/Plugin-SDK.zip</span></td>
+<td>Distributed SDK</td>
+</tr>
+<tr>
+<td><span class='mono'>superunicode_extended/Public/0.1.0/extsucd/</span></td>
+<td>ExtSUCD registry (referenced by the boot gate)</td>
+</tr>
+</tbody></table></div>
+<p>Conformance: <span class='mono'>test_plugin_lifecycle</span>.</p>
+<h2>8. Compliance Matrix</h2>
+<div class="table-wrap"><table class="plain"><thead><tr>
+<th>Requirement</th>
+<th>Mandatory</th>
+<th>Verification</th>
+</tr></thead><tbody>
+<tr>
+<td>Blob header is exactly 94 bytes, packed</td>
+<td>Yes</td>
+<td><span class='mono'>sizeof(sucs_plugin_blob_header_t)</span></td>
+</tr>
+<tr>
+<td>Magic is <span class='mono'>&times;</span> (<span class='mono'>"SUCS"</span>)</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_PLUGIN_BLOB_MAGIC</span></td>
+</tr>
+<tr>
+<td><span class='mono'>id</span> is NUL-terminated, max 64 bytes</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_PLUGIN_ID_MAX</span></td>
+</tr>
+<tr>
+<td>Range records are 16-byte little-endian pairs</td>
+<td>Yes</td>
+<td>Blob layout</td>
+</tr>
+<tr>
+<td><span class='mono'>crc32c</span> and <span class='mono'>fletcher64</span> computed over the whole blob, fields zeroed</td>
+<td>Yes</td>
+<td><span class='mono'>plugin_checksum.h</span>; reference recomputation</td>
+</tr>
+<tr>
+<td>Checksum gate runs before range parsing</td>
+<td>Yes</td>
+<td>Gate order</td>
+</tr>
+<tr>
+<td>Ranges sorted, non-overlapping, strictly above base limit</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_PLUGIN_ERR_INVALID_RANGE</span> / <span class='mono'>_RANGE_BELOW_BASE</span></td>
+</tr>
+<tr>
+<td>No overlap with any mounted plugin</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_PLUGIN_ERR_RANGE_COLLISION</span></td>
+</tr>
+<tr>
+<td>Plugin partition MUST be OWFS</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_PLUGIN_ERR_NOT_OWFS</span></td>
+</tr>
+<tr>
+<td>Mounted read-only</td>
+<td>Yes</td>
+<td><span class='mono'>plugin_partition.h</span></td>
+</tr>
+<tr>
+<td>Staging returns <span class='mono'>SUCS_PLUGIN_REBOOT_REQUIRED</span> (13)</td>
+<td>Yes</td>
+<td><span class='mono'>sucs_plugin_status_t</span></td>
+</tr>
+<tr>
+<td>Registration only at boot commit</td>
+<td>Yes</td>
+<td><span class='mono'>plugin_boot.h</span></td>
+</tr>
+<tr>
+<td>Plugin space is Extended-only</td>
+<td>Yes</td>
+<td><span class='mono'>SUCS_MODE_EXTENDED</span> required</td>
+</tr>
+<tr>
+<td><span class='mono'>plugin_verify</span> reproduces gates offline</td>
+<td>Yes</td>
+<td><span class='mono'>plugin_verify.c</span></td>
+</tr>
+</tbody></table></div>
+<h2>9. Terms &amp; Conventions</h2>
+<ul>
+<li><strong>Plugin</strong> &mdash; an ExtSUCS extension contributing codepoint ranges to the space</li>
+</ul>
+<p>above the Sentinel.</p>
+<ul>
+<li><strong>Blob</strong> &mdash; the packed on-disk/slot plugin file: 94-byte header, range</li>
+</ul>
+<p>records, payload.</p>
+<ul>
+<li><strong><span class='mono'>SUCS_PLUGIN_BLOB_MAGIC</span></strong> &mdash; <span class='mono'>&times;</span>, the ASCII bytes <span class='mono'>SUCS</span>.</li>
+<li><strong><span class='mono'>SUCS_PLUGIN_ID_MAX</span></strong> &mdash; 64; the maximum plugin identifier length.</li>
+<li><strong>Checksum gate</strong> &mdash; CRC32c + Fletcher-64 over the whole blob.</li>
+<li><strong>Range gate</strong> &mdash; structural validity, sortedness, non-overlap, and</li>
+</ul>
+<p>above-base-limit.</p>
+<ul>
+<li><strong>Collision gate</strong> &mdash; non-overlap with already-mounted plugins.</li>
+<li><strong>Mount gate</strong> &mdash; OWFS-only, read-only.</li>
+<li><strong>Staging</strong> &mdash; accepting a validated blob as pending; returns</li>
+</ul>
+<p><span class='mono'>SUCS_PLUGIN_REBOOT_REQUIRED</span>.</p>
+<ul>
+<li><strong>Commit</strong> &mdash; activating staged plugins during early boot.</li>
+<li><strong>Base limit</strong> &mdash; <span class='mono'>0x7FFFFFFF</span>, the Sentinel; plugin ranges lie strictly</li>
+</ul>
+<p>above it (SUTR-0 §6).</p>
+<ul>
+<li><strong>ExtSUCS</strong> &mdash; the unbounded 64-bit space that plugins extend.</li>
+<li><strong>ExtSUCD</strong> &mdash; the ExtSUCS registry consulted at the boot gate.</li>
+<li><strong>TES</strong> &mdash; Transfer Encoding Syntax; e-SUST (SUTR-4) is the transport-layer</li>
+</ul>
+<p>analogue of a TES, and plugin blobs are framed data, not text.</p>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>

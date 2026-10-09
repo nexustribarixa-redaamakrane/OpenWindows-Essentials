@@ -1,0 +1,12 @@
+# OpenWindows Storage Initialization
+
+load_driver ahci
+load_driver nvmedrv
+load_driver atapio
+load_driver partmgr
+load_driver owfsdrv
+scan_partitions
+mount owfs0 "VIP0:" "C:"
+mount owfs1 "VIP1:" "C:\Users"
+log "Storage initialized"
+

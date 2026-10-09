@@ -1,0 +1,28 @@
+# OpenWindows Audio Mixer & Codec Service
+
+case "$1" in
+    start)
+        echo ":: Initializing Audio Hardware Codec..."
+        load_dll owaudio64
+        load_driver ac97
+        load_driver hdaudio
+        set_volume 75
+        echo ":: Audio subsystem initialized."
+        ;;
+    stop)
+        echo ":: Stopping Audio playback..."
+        set_volume 0
+        echo ":: Audio stopped."
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        owps | grep owaudio
+        ;;
+    *)
+        echo "Usage: rc.audio {start|stop|restart|status}"
+        exit 1
+        ;;
+esac

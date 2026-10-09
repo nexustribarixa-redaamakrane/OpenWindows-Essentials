@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>The SDK — SuperUnicode Extended</title>
+<meta name='description' content='The plugin authoring kit: template, hellocp example, plugin_pack and plugin_verify.'>
+<link rel='icon' href='../favicon.ico' sizes='16x16 32x32 48x48'>
+<link rel='icon' href='../favicon.svg' type='image/svg+xml'>
+<link rel='apple-touch-icon' href='../assets/img/logo.png'>
+<link rel='manifest' href='../manifest.webmanifest'>
+<link rel='preconnect' href='https://fonts.googleapis.com'>
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+<link href='https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Mono:wght@100..900&display=swap' rel='stylesheet'>
+<link rel='stylesheet' href='../assets/css/main.css'>
+</head><body>
+<div class='banner'>SuperUnicode 0.1.0 is out &mdash; multi-page site, machine-instruction database, plugin subsystem and SDK. <a href='../versions/index.html'>Release notes &raquo;</a></div>
+<header class='site-header'><div class='masthead'>
+<a class='brand' href='../index.html'><img src='../assets/img/logo.png' alt='SuperUnicode logo'>
+<span><span class='brand-name'>Super<em>Unicode</em></span><br><span class='brand-tag'>Native character encoding of the OpenWindows kernel</span></span></a>
+</div><nav class="site-nav">
+<a href='../index.html'>Home</a>
+<a href='../standard/index.html'>The Standard</a>
+<a href='../ucd/index.html'>Machine-Instruction Database</a>
+<a href='../extended/index.html' class='active'>Extended</a>
+<a href='../reports/index.html'>Technical Reports</a>
+<a href='../versions/index.html'>Versions</a>
+<a href='../charts/index.html'>Charts</a>
+<a href='../faq/index.html'>FAQ</a>
+<a href='../modules/index.html'>Repositories</a>
+</nav></header>
+<main class='page'>
+<nav class='breadcrumbs'><a href='../index.html'>Home</a>
+ &raquo; <a href='../index.html'>Extended</a>
+ &raquo; The SDK</nav>
+<h1>The plugin <span class="grad">SDK</span></h1>
+<p class='subtitle'>Everything a plugin author needs, in one download.</p>
+<p>Plugin authors build against the loader ABI (<span class="mono">plugin.h</span>). The SDK ships a copy-this template, a full worked example, and offline tooling. It is distributed as <span class="mono">Plugin-SDK.zip</span> in the Extended /Public tree.</p>
+<h2>Authoring a plugin</h2>
+<ol>
+<li>Copy <span class="mono">template/</span> to your plugin id.</li>
+<li>Fill in <span class="mono">manifest.txt</span> and <span class="mono">ranges.txt</span> (all ranges above <span class="mono">0x7FFFFFFF</span>).</li>
+<li>Edit <span class="mono">src/plugin_entry.c</span> &mdash; the ONE required export is <span class="mono">sucs_plugin_entry()</span>.</li>
+<li>Add codepoint tables in <span class="mono">plugin_data.c</span>, plus optional mappings and collation.</li>
+<li>Pack and verify offline.</li>
+</ol>
+<div class='spec'>plugin_pack org.openwindows.hellocp 1 0 0 ranges.txt payload.bin hellocp.sucsplugin<br>plugin_verify hellocp.sucsplugin   <span class="hl"># checksum gate: PASS/FAIL</span></div>
+<h2>hellocp &mdash; the worked example</h2>
+<p><span class="mono">hellocp</span> declares 4096 codepoints at <span class="mono">0x80000000&ndash;0x80000FFF</span>, ships a two-entry data table, packs and verifies clean. Its blob passes the exact gate the boot loader runs.</p>
+<div class='callout '><p>Download: <span class="mono">Plugin-SDK.zip</span> from the <a href="../ucd/public.html">/Public tree</a>. Sources: <a href="../modules/unicode-extended/index.html">modules/unicode-extended</a> &rarr; <span class="mono">plugin/sdk/</span>.</p></div>
+</main>
+<footer class='site-footer'><div class='footer-inner'>
+<span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>
+<span><a href='../index.html'>Home</a> &middot; <a href='../standard/index.html'>Standard</a> &middot; <a href='../ucd/index.html'>SUCD</a> &middot; <a href='../extended/index.html'>Extended</a> &middot; <a href='../reports/index.html'>Reports</a> &middot; <a href='../faq/index.html'>FAQ</a> &middot; <a href='../sitemap.html'>Sitemap</a></span>
+</div></footer>
+</body></html>
