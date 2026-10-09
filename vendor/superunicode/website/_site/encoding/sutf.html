@@ -31,33 +31,45 @@
  &raquo; <a href='../index.html'>Encoding</a>
  &raquo; SUTF framing</nav>
 <h1>SUTF <span class="grad">framing</span></h1>
-<p class='subtitle'>SUCS UTF-8, UTF-16 and UTF-32.</p>
+<p class='subtitle'>The SuperUnicode Character Encoding Forms: SUTF-8, SUTF-16, SUTF-4, SUTF-2 and vSUTF.</p>
 <div class="table-wrap"><table class="plain"><thead><tr>
-<th>Encoding</th>
-<th>Unit</th>
+<th>Form</th>
+<th>Code unit</th>
 <th>Covers</th>
-<th>Notes</th>
+<th>Shape</th>
 </tr></thead><tbody>
 <tr>
 <td><span class="mono">SUTF-8</span></td>
-<td>1&ndash;4 bytes</td>
+<td>byte</td>
 <td>Full 31-bit space</td>
-<td>Default stream encoding; standard UTF-8 leading-byte framing</td>
+<td>Default stream encoding; variable, <strong>1&ndash;6 bytes</strong>. UTF-8 parity to <span class="mono">0x10FFFF</span>, extending to 6 bytes for the native extended planes.</td>
 </tr>
 <tr>
 <td><span class="mono">SUTF-16</span></td>
-<td>2 or 4 bytes</td>
+<td>16-bit word</td>
 <td>Full 31-bit space</td>
-<td>Word framing with a marker bit (1 word to <span class="mono">0x7FFF</span>, 2 words above); no surrogates &mdash; <span class="mono">0xD800</span>&ndash;<span class="mono">0xDFFF</span> are valid PUA. Byte order explicit: BE canonical (<span class="mono">sust16</span>) or LE</td>
+<td>1&ndash;2 words: one to <span class="mono">0x7FFF</span>, two above. No surrogates &mdash; <span class="mono">0xD800</span>&ndash;<span class="mono">0xDFFF</span> are valid PUA. Endian-neutral; byte order is decided by the SUST transport.</td>
 </tr>
 <tr>
-<td><span class="mono">SUTF-32</span></td>
-<td>4 bytes (LE)</td>
+<td><span class="mono">SUTF-4</span></td>
+<td>4-bit nibble</td>
 <td>Full 31-bit space</td>
-<td>Lossless fixed-width form for native allocations</td>
+<td>Fixed <strong>8 nibbles (4 bytes)</strong> per codepoint; console dumps, terminal logging and bus debugging.</td>
+</tr>
+<tr>
+<td><span class="mono">SUTF-2</span></td>
+<td>2-bit frame</td>
+<td>Full 31-bit space</td>
+<td>Fixed <strong>16 frames (4 bytes)</strong> per codepoint; compressed framing for narrow inter-thread IPC.</td>
+</tr>
+<tr>
+<td><span class="mono">vSUTF</span></td>
+<td>byte</td>
+<td>Full 64-bit ExtSUCS space</td>
+<td>Variable streaming form with a Base-SUCS fast path.</td>
 </tr>
 </tbody></table></div>
-<p>Reference implementations live in <a href="../modules/sutf/index.html">modules/sutf</a> (framing) and <a href="../modules/sust/index.html">modules/sust</a> (byte serialization, BE canonical/LE); the framing tables are published at <span class="mono">Public/0.1.0/sutf/</span>. Extended codepoints use <a href="../extended/transport.html">vector, vsutf and e-SUST</a>.</p>
+<p>Reference implementations live in <a href="../modules/sutf/index.html">modules/sutf</a> (Level 3 forms) and <a href="../modules/sust/index.html">modules/sust</a> (Level 4 serialization, <span class="mono">SUST-16</span> big-endian canonical plus the fixed <span class="mono">SUST-32/64/128/256/512/N</span> widths); the framing tables are published at <span class="mono">Public/0.1.0/sutf/</span>. Extended codepoints use <a href="../extended/transport.html">vector, vsutf and e-SUST</a>. For why forms and transports are separate levels, see <a href="../reports/SUTR-7.html">SUTR-7</a>.</p>
 </main>
 <footer class='site-footer'><div class='footer-inner'>
 <span>SuperUnicode&reg; &mdash; native character encoding of the OpenWindows kernel.</span>

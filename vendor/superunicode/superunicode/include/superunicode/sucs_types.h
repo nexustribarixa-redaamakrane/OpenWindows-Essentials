@@ -39,6 +39,24 @@ typedef uint32_t sucs_char_t;
 #define SUCS_FMT_RESET      0x001100FFUL
 
 /* Kernel Security Trap Range & Sentinel (31-bit Base SUCS).
+ *
+ * These 16 terminal values -- 0x7FFFFFF0..0x7FFFFFFF -- are the top of the
+ * Base space and none of them is allocatable:
+ *
+ *   0x7FFFFFF0 - 0x7FFFFFFE   15 Kernel Security Trap dispatch slots
+ *   0x7FFFFFFF                Sentinel, the in-band invalid codepoint
+ *
+ * Because the trap range is excluded as well as the Sentinel, the last
+ * ALLOCATABLE codepoint is 0x7FFFFFEF, not 0x7FFFFFFE. Any code that needs
+ * "the highest usable codepoint" must ask sucs_is_valid(), not compare
+ * against SUCS_KERNEL_TRAP_MAX or SUCS_MAX_CODEPOINT.
+ *
+ * The Sentinel is in-band: it terminates a Base stream, so no SUTF form may
+ * emit it as data and every SUST transport must be able to carry it as a
+ * terminator. ExtSUCS has no in-band sentinel (the space is unbounded, so
+ * 0x7FFFFFFF becomes an ordinary codepoint) and uses length-prefixed framing
+ * instead. See docs/sutr/SUTR-0-sucs-core.md.
+ *
  * Guarded so identical constants can coexist with sutf/sucs_types.h and
  * extsucs_types.h in a single translation unit. */
 #ifndef SUCS_KERNEL_TRAP_MIN
@@ -53,8 +71,17 @@ typedef uint32_t sucs_char_t;
 
 /* Base SUCS codepoint validator — guarded so the identical inline in
  * sutf/sucs_types.h can coexist in a single translation unit.
- * Rejects: values beyond the 31-bit space, the Kernel Security Trap range,
- * and the in-band sentinel. */
+ *
+ * Rejects three disjoint cases:
+ *   1. values beyond the 31-bit space (> SUCS_MAX_CODEPOINT);
+ *   2. the Kernel Security Trap range, 0x7FFFFFF0..0x7FFFFFFE (15 values);
+ *   3. the in-band Sentinel, 0x7FFFFFFF.
+ *
+ * So the predicate is true for 0x00000000..0x7FFFFFEF and false for the 16
+ * terminal values 0x7FFFFFF0..0x7FFFFFFF. Note that the trap slots are
+ * REJECTED, not merely unallocated: a caller must not round-trip one as
+ * data. This is the normative predicate at every API boundary -- a decoded
+ * stream yielding any of those 16 values is corrupt, not text. */
 #ifndef SUCS_SUCS_IS_VALID_DEFINED
 #define SUCS_SUCS_IS_VALID_DEFINED
 static inline bool sucs_is_valid(sucs_char_t cp) {
@@ -122,7 +149,13 @@ static inline bool sucs_is_valid(sucs_char_t cp) {
 #define SUCS_SOFTCODE_RANGE_MAX 0x0011AEFFUL
 #endif
 
-/* Kernel Security Trap Damage Control Dispatch geometry */
+/* Kernel Security Trap Damage Control Dispatch geometry.
+ *
+ * SUCS_TRAP_SLOT_COUNT * SUCS_BANCODES_PER_TRAP = 15 * 128 = 1,920, but B+
+ * (SUCS_BANCODE_RANGE_MIN..MAX) holds 2,048 codepoints. The registry is
+ * therefore 15 slots wide, not 16, and the topmost 128 B+ codepoints --
+ * 0x0011A780..0x0011A7FF -- have no trap and resolve to the Sentinel.
+ * See sucs_bancode_to_trap() in sucs_plane.h. */
 #define SUCS_TRAP_SLOT_COUNT     15
 #define SUCS_BANCODES_PER_TRAP   128
 

@@ -14,7 +14,15 @@ extern "C" {
  * Inherits the UCD name database from superunicode.  Functions accept
  * sucs_ex_char_t and validate the codepoint is in the Unicode range
  * (0x00000000 - 0x0010FFFF) before delegating to the base library.
+ *
+ * There is exactly ONE name database in the system, owned by the base
+ * library, so ExtSUCS always reports the same Unicode release as SUCS.
  * ======================================================================== */
+
+#include "superunicode/sucs_ucd_names.h"
+
+/** Number of named codepoints in the shared UCD name database. */
+#define EXTSUCS_UCD_NAME_COUNT SUCS_UCD_NAME_COUNT
 
 /**
  * Returns the Unicode character name for a given ExtSUCS codepoint.

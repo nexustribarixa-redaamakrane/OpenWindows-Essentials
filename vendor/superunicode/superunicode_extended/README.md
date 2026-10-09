@@ -54,8 +54,12 @@ superunicode_extended/
 │   ├── extsucs_ucd_names.c     # Extended UCD name lookup
 │   └── extsucs_conv.c          # UTF-8 <-> vSUTF / SUCS <-> ExtSUCS conversion
 └── tests/
-    └── test_extsutf_all.c      # ExtSUCS validators, SCP/BANcode, upcast/downcast, vSUTF tests
+    ├── test_extsutf_all.c      # ExtSUCS validators, SCP/BANcode, upcast/downcast, vSUTF tests
+    └── test_extsucs_ucd.c      # Pins the shared UCS/UCB data to the same Unicode release as Base SUCS
 ```
+
+> [!NOTE]
+> **UCS/UCB data is shared, not duplicated:** ExtSUCS has no UCD tables of its own. `extsucs_compat.h` re-exports the base block table and `extsucs_ucd_names.c` delegates name lookups to the base library, so both modules always track the *same* Unicode release (currently **18.0**). Query it with `EXTSUCS_UNICODE_VERSION_MAJOR`/`_MINOR`, `EXTSUCS_UCD_UNICODE_VERSION`, `EXTSUCS_UCD_BLOCK_COUNT` (353) and `EXTSUCS_UCD_NAME_COUNT` (41232). `tests/test_extsucs_ucd.c` asserts these match `superunicode/tests/test_sucs_ucd.c`, so a one-sided Unicode bump fails the build. The 64-bit wrappers (`extsucs_ucd_block_lookup`, `extsucs_ucd_get_name`, ...) reject codepoints above `0x0010FFFF` rather than truncating them into the bridge.
 
 > **Fixed-width (SUST-32/64/128/256/512/N) and e-SUST IPC transports:** see the `sust/` sub-project (headers `sustfixed.h`, `esust.h`, aggregate `sust.h`).
 
