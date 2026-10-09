@@ -189,36 +189,39 @@ dummy_combine (pixman_implementation_t *imp,
 {
 }
 
-pixman_combine_32_func_t
+pixman_combine_func_t
 _pixman_implementation_lookup_combiner (pixman_implementation_t *imp,
 					pixman_op_t		 op,
 					pixman_bool_t		 component_alpha,
 					pixman_bool_t		 narrow)
 {
+    pixman_combine_func_t f;
+
     while (imp)
     {
-	pixman_combine_32_func_t f = NULL;
+	f.f32 = NULL;
 
 	switch ((narrow << 1) | component_alpha)
 	{
 	case 0: /* not narrow, not component alpha */
-	    f = (pixman_combine_32_func_t)imp->combine_float[op];
+	    f.ff = imp->combine_float[op];
 	    break;
 	    
 	case 1: /* not narrow, component_alpha */
-	    f = (pixman_combine_32_func_t)imp->combine_float_ca[op];
+	    f.ff = imp->combine_float_ca[op];
 	    break;
 
 	case 2: /* narrow, not component alpha */
-	    f = imp->combine_32[op];
+	    f.f32 = imp->combine_32[op];
 	    break;
 
 	case 3: /* narrow, component_alpha */
-	    f = imp->combine_32_ca[op];
+	    f.f32 = imp->combine_32_ca[op];
 	    break;
 	}
 
-	if (f)
+	/* Both members are function pointers, so this tests either one */
+	if (f.f32)
 	    return f;
 
 	imp = imp->fallback;
@@ -226,7 +229,8 @@ _pixman_implementation_lookup_combiner (pixman_implementation_t *imp,
 
     /* We should never reach this point */
     _pixman_log_error (FUNC, "No known combine function\n");
-    return dummy_combine;
+    f.f32 = dummy_combine;
+    return f;
 }
 
 pixman_bool_t

@@ -197,10 +197,10 @@ static force_inline void accum_32(unsigned int *satot, unsigned int *srtot,
 {
     uint32_t pixel = *(uint32_t *)p;
 
-    *srtot += (int)RED_8 (pixel) * f;
-    *sgtot += (int)GREEN_8 (pixel) * f;
-    *sbtot += (int)BLUE_8 (pixel) * f;
-    *satot += (int)ALPHA_8 (pixel) * f;
+    *srtot += (uint32_t)RED_8 (pixel) * (uint32_t)f;
+    *sgtot += (uint32_t)GREEN_8 (pixel) * (uint32_t)f;
+    *sbtot += (uint32_t)BLUE_8 (pixel) * (uint32_t)f;
+    *satot += (uint32_t)ALPHA_8 (pixel) * (uint32_t)f;
 }
 
 static force_inline void reduce_32(unsigned int satot, unsigned int srtot,
@@ -222,16 +222,26 @@ static force_inline void reduce_32(unsigned int satot, unsigned int srtot,
     *ret = ((satot << 24) | (srtot << 16) | (sgtot <<  8) | (sbtot));
 }
 
+/* Convert without undefined behavior for NaN or out of range values */
+static force_inline unsigned int
+float_to_wrap (float v)
+{
+    if (!(v > -9e18f && v < 9e18f))
+	return 0;
+
+    return (unsigned int)(int64_t)v;
+}
+
 static force_inline void accum_float(unsigned int *satot, unsigned int *srtot,
 				     unsigned int *sgtot, unsigned int *sbtot,
 				     const void *p, pixman_fixed_t f)
 {
     const argb_t *pixel = p;
 
-    *satot += pixel->a * f;
-    *srtot += pixel->r * f;
-    *sgtot += pixel->g * f;
-    *sbtot += pixel->b * f;
+    *satot += float_to_wrap (pixel->a * f);
+    *srtot += float_to_wrap (pixel->r * f);
+    *sgtot += float_to_wrap (pixel->g * f);
+    *sbtot += float_to_wrap (pixel->b * f);
 }
 
 static force_inline void reduce_float(unsigned int satot, unsigned int srtot,
@@ -691,9 +701,9 @@ __bits_image_fetch_general (pixman_iter_t  *iter,
 		&image->bits, wide, x0, y0, get_pixel, buffer);
 	}
 
-	x += ux;
-	y += uy;
-	w += uw;
+	x = ADD_WRAP (x, ux);
+	y = ADD_WRAP (y, uy);
+	w = ADD_WRAP (w, uw);
 	buffer += wide ? 4 : 1;
     }
 

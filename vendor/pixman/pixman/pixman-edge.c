@@ -34,12 +34,12 @@
  */
 #define RENDER_EDGE_STEP_SMALL(edge)					\
     {									\
-	edge->x += edge->stepx_small;					\
-	edge->e += edge->dx_small;					\
+	edge->x = ADD_WRAP (edge->x, edge->stepx_small);					\
+	edge->e = ADD_WRAP (edge->e, edge->dx_small);					\
 	if (edge->e > 0)						\
 	{								\
-	    edge->e -= edge->dy;					\
-	    edge->x += edge->signdx;					\
+	    edge->e = SUB_WRAP (edge->e, edge->dy);					\
+	    edge->x = ADD_WRAP (edge->x, edge->signdx);					\
 	}								\
     }
 
@@ -48,12 +48,12 @@
  */
 #define RENDER_EDGE_STEP_BIG(edge)					\
     {									\
-	edge->x += edge->stepx_big;					\
-	edge->e += edge->dx_big;					\
+	edge->x = ADD_WRAP (edge->x, edge->stepx_big);					\
+	edge->e = ADD_WRAP (edge->e, edge->dx_big);					\
 	if (edge->e > 0)						\
 	{								\
-	    edge->e -= edge->dy;					\
-	    edge->x += edge->signdx;					\
+	    edge->e = SUB_WRAP (edge->e, edge->dy);					\
+	    edge->x = ADD_WRAP (edge->x, edge->signdx);					\
 	}								\
     }
 
@@ -306,13 +306,13 @@ rasterize_edges_8 (pixman_image_t *image,
         {
             RENDER_EDGE_STEP_SMALL (l);
             RENDER_EDGE_STEP_SMALL (r);
-            y += STEP_Y_SMALL (8);
+            y = ADD_WRAP (y, STEP_Y_SMALL (8));
 	}
         else
         {
             RENDER_EDGE_STEP_BIG (l);
             RENDER_EDGE_STEP_BIG (r);
-            y += STEP_Y_BIG (8);
+            y = ADD_WRAP (y, STEP_Y_BIG (8));
             if (fill_start != fill_end)
             {
                 if (fill_size == N_Y_FRAC (8))

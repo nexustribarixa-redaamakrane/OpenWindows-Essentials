@@ -1,5 +1,21 @@
 spec:
   inputs:
+    active_target_pattern:
+      description:
+        Regular expression to match the target for which the job should be
+        activated.
+      type: string
+    common_changed_paths:
+      description:
+        File path patterns that, when changed, should trigger this job
+        regardless of target architecture.
+      type: array
+    arch_changed_paths:
+      description:
+        File path patterns specific to this target's architecture. Changes
+        confined to other architectures' files will not trigger this job.
+      type: array
+      default: []
     target:
       description:
         Build target in form of "OS-ARCH" pair (e.g., linux-amd64). Mostly the
@@ -54,6 +70,11 @@ spec:
         Additional suffix for the job name. Can be used to prevent job
         duplication for jobs for the same target.
       default: ""
+    build_job_name_suffix:
+      description:
+        Suffix of the build job this job depends on (see `job_name_suffix` in
+        the build template).
+      default: ""
     allow_failure:
       description:
         Set the `allow_failure` flag for jobs that are expected to fail.
@@ -76,11 +97,23 @@ spec:
   extends: .target:all
   tags: ["$[[ inputs.runner_tag ]]"]
   stage: test
+  # Overrides the `rules` inherited from `.target:all` (extends does not merge
+  # `rules` arrays), so the target pattern check is repeated here alongside
+  # the path-based rules. Kept identical to the build job's rules for the
+  # same target, so `needs: build:$TARGET` always resolves.
+  rules:
+    - if: "$TARGET =~ $[[ inputs.active_target_pattern ]]"
+      changes:
+        paths: $[[ inputs.common_changed_paths ]]
+    - if: "$TARGET =~ $[[ inputs.active_target_pattern ]]"
+      changes:
+        paths: $[[ inputs.arch_changed_paths ]]
+    - when: never
   allow_failure: $[[ inputs.allow_failure ]]
   retry: $[[ inputs.retry ]]
   timeout: $[[ inputs.timeout ]]
   needs:
-    - job: build:$[[ inputs.target ]]
+    - job: build:$[[ inputs.target ]]$[[ inputs.build_job_name_suffix ]]
       parallel:
         matrix:
           - TOOLCHAIN: $[[ inputs.toolchain ]]

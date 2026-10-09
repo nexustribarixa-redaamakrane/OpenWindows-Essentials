@@ -2261,23 +2261,13 @@ fast_write_back_r5g6b5 (pixman_iter_t *iter)
     }
 }
 
-typedef struct
-{
-    int		y;
-    uint64_t *	buffer;
-} line_t;
-
-typedef struct
-{
-    line_t		lines[2];
-    pixman_fixed_t	y;
-    pixman_fixed_t	x;
-    uint64_t		data[1];
-} bilinear_info_t;
-
-static void
-fetch_horizontal (bits_image_t *image, line_t *line,
-		  int y, pixman_fixed_t x, pixman_fixed_t ux, int n)
+void
+_pixman_fetch_bilinear_horizontal (bits_image_t           *image,
+				   pixman_bilinear_line_t *line,
+				   int                     y,
+				   pixman_fixed_t          x,
+				   pixman_fixed_t          ux,
+				   int                     n)
 {
     uint32_t *bits = image->bits + y * image->rowstride;
     int i;
@@ -2337,8 +2327,8 @@ static uint32_t *
 fast_fetch_bilinear_cover (pixman_iter_t *iter, const uint32_t *mask)
 {
     pixman_fixed_t fx, ux;
-    bilinear_info_t *info = iter->data;
-    line_t *line0, *line1;
+    pixman_bilinear_info_t *info = iter->data;
+    pixman_bilinear_line_t *line0, *line1;
     int y0, y1;
     int32_t dist_y;
     int i;
@@ -2358,14 +2348,14 @@ fast_fetch_bilinear_cover (pixman_iter_t *iter, const uint32_t *mask)
 
     if (line0->y != y0)
     {
-	fetch_horizontal (
-	    &iter->image->bits, line0, y0, fx, ux, iter->width);
+	_pixman_fetch_bilinear_horizontal (&iter->image->bits, line0, y0, fx,
+					   ux, iter->width);
     }
 
     if (line1->y != y1)
     {
-	fetch_horizontal (
-	    &iter->image->bits, line1, y1, fx, ux, iter->width);
+	_pixman_fetch_bilinear_horizontal (&iter->image->bits, line1, y1, fx,
+					   ux, iter->width);
     }
 
     for (i = 0; i < iter->width; ++i)
@@ -2435,11 +2425,12 @@ bilinear_cover_iter_fini (pixman_iter_t *iter)
     free (iter->data);
 }
 
-static void
-fast_bilinear_cover_iter_init (pixman_iter_t *iter, const pixman_iter_info_t *iter_info)
+void
+_pixman_bilinear_cover_iter_init (pixman_iter_t *iter,
+				  const pixman_iter_info_t *iter_info)
 {
     int width = iter->width;
-    bilinear_info_t *info;
+    pixman_bilinear_info_t *info;
     pixman_vector_t v;
 
     /* Reference point is the center of the pixel */
@@ -2483,9 +2474,9 @@ fail:
     iter->fini = NULL;
 }
 
-static uint32_t *
-bits_image_fetch_bilinear_no_repeat_8888 (pixman_iter_t *iter,
-					  const uint32_t *mask)
+uint32_t *
+_pixman_bits_image_fetch_bilinear_no_repeat_8888 (pixman_iter_t  *iter,
+						  const uint32_t *mask)
 {
 
     pixman_image_t * ima = iter->image;
@@ -3189,7 +3180,7 @@ static const pixman_iter_info_t fast_iters[] =
        FAST_PATH_BILINEAR_FILTER		|
        FAST_PATH_SAMPLES_COVER_CLIP_BILINEAR),
       ITER_NARROW | ITER_SRC,
-      fast_bilinear_cover_iter_init,
+      _pixman_bilinear_cover_iter_init,
       NULL, NULL
     },
 
@@ -3206,13 +3197,13 @@ static const pixman_iter_info_t fast_iters[] =
     { PIXMAN_a8r8g8b8,
       FAST_BILINEAR_FLAGS,
       ITER_NARROW | ITER_SRC,
-      NULL, bits_image_fetch_bilinear_no_repeat_8888, NULL
+      NULL, _pixman_bits_image_fetch_bilinear_no_repeat_8888, NULL
     },
 
     { PIXMAN_x8r8g8b8,
       FAST_BILINEAR_FLAGS,
       ITER_NARROW | ITER_SRC,
-      NULL, bits_image_fetch_bilinear_no_repeat_8888, NULL
+      NULL, _pixman_bits_image_fetch_bilinear_no_repeat_8888, NULL
     },
 
 #define GENERAL_BILINEAR_FLAGS						\

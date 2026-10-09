@@ -8,6 +8,7 @@
 # `-Dopenmp=disabled` Meson argument.
 spec:
   inputs:
+    active_target_pattern:
     runner_tag_amd64:
     runner_tag_qemu:
     runner_tag_arm64:
@@ -17,30 +18,146 @@ variables:
   # Used in test stage as well.
   BUILD_DIR: build-${TOOLCHAIN}
 
+# File patterns that, when changed, should trigger every target's build/test
+# jobs, regardless of architecture. Kept in sync with the equivalent anchors
+# in 03-test.yml.
+.common-changed-paths: &common-changed-paths
+  - .gitlab-ci.d/**/*
+  - meson.build
+  - meson.options
+  - subprojects/**/*
+  - test/**/*
+  - demos/**/*
+  - pixman/pixman.c
+  - pixman/pixman-access.c
+  - pixman/pixman-access-accessors.c
+  - pixman/pixman-accessor.h
+  - pixman/pixman-bits-image.c
+  - pixman/pixman-combine32.c
+  - pixman/pixman-combine32.h
+  - pixman/pixman-combine-float.c
+  - pixman/pixman-combine-float.h
+  - pixman/pixman-compiler.h
+  - pixman/pixman-conical-gradient.c
+  - pixman/pixman-edge.c
+  - pixman/pixman-edge-accessors.c
+  - pixman/pixman-edge-imp.h
+  - pixman/pixman-fast-path.c
+  - pixman/pixman-filter.c
+  - pixman/pixman-general.c
+  - pixman/pixman-glyph.c
+  - pixman/pixman-gradient-walker.c
+  - pixman/pixman.h
+  - pixman/pixman-image.c
+  - pixman/pixman-implementation.c
+  - pixman/pixman-inlines.h
+  - pixman/pixman-linear-gradient.c
+  - pixman/pixman-matrix.c
+  - pixman/pixman-noop.c
+  - pixman/pixman-private.h
+  - pixman/pixman-radial-gradient.c
+  - pixman/pixman-region.c
+  - pixman/pixman-region16.c
+  - pixman/pixman-region32.c
+  - pixman/pixman-region64f.c
+  - pixman/pixman-solid-fill.c
+  - pixman/pixman-timer.c
+  - pixman/pixman-trap.c
+  - pixman/pixman-utils.c
+
+# Per-architecture file patterns. Kept in sync with 03-test.yml.
+.x86-changed-paths: &x86-changed-paths
+  - pixman/pixman-x86.c
+  - pixman/pixman-mmx.c
+  - pixman/pixman-sse2.c
+  - pixman/pixman-ssse3.c
+
+.arm-changed-paths: &arm-changed-paths
+  - pixman/pixman-arm.c
+  - pixman/pixman-arm-common.h
+  - pixman/pixman-arm-asm.h
+  - pixman/pixman-arm-simd.c
+  - pixman/pixman-arm-simd-asm.h
+  - pixman/pixman-arm-simd-asm.S
+  - pixman/pixman-arm-simd-asm-scaled.S
+  - pixman/pixman-arm-neon.c
+  - pixman/pixman-arm-neon-asm.h
+  - pixman/pixman-arm-neon-asm.S
+  - pixman/pixman-arm-neon-asm-bilinear.S
+  - pixman/pixman-arma64-neon-asm.h
+  - pixman/pixman-arma64-neon-asm.S
+  - pixman/pixman-arma64-neon-asm-bilinear.S
+
+.mips-changed-paths: &mips-changed-paths
+  - pixman/pixman-mips.c
+  - pixman/pixman-mips-dspr2.c
+  - pixman/pixman-mips-dspr2.h
+  - pixman/pixman-mips-dspr2-asm.h
+  - pixman/pixman-mips-dspr2-asm.S
+  - pixman/pixman-mips-memcpy-asm.S
+  # pixman-mmx.c is shared: it builds MMX on x86 and Loongson MMI on mips.
+  - pixman/pixman-mmx.c
+  - pixman/loongson-mmintrin.h
+
+.ppc-changed-paths: &ppc-changed-paths
+  - pixman/pixman-ppc.c
+  - pixman/pixman-vmx.c
+  - pixman/pixman-power8.c
+  - pixman/pixman-power9.c
+
+.riscv-changed-paths: &riscv-changed-paths
+  - pixman/pixman-riscv.c
+  - pixman/pixman-rvv.c
+
 # Applicable to all build targets.
 
 include:
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-386
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *x86-changed-paths
       runner_tag: $[[ inputs.runner_tag_amd64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-amd64
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *x86-changed-paths
+      runner_tag: $[[ inputs.runner_tag_amd64 ]]
+  - local: .gitlab-ci.d/templates/build.yml
+    inputs:
+      target: linux-amd64
+      job_name_suffix: ":sanitize"
+      meson_args: -Db_sanitize=address,undefined -Db_lundef=false
+      enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *x86-changed-paths
       runner_tag: $[[ inputs.runner_tag_amd64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-arm-v5
       # Disable coverage, as the tests take too long to run with a single thread.
       enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *arm-changed-paths
       runner_tag: $[[ inputs.runner_tag_arm64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-arm-v7
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *arm-changed-paths
       runner_tag: $[[ inputs.runner_tag_arm64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-arm64-v8
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *arm-changed-paths
       runner_tag: $[[ inputs.runner_tag_arm64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
@@ -48,11 +165,17 @@ include:
       toolchain: [gnu]  # TODO: https://gitlab.freedesktop.org/pixman/pixman/-/issues/105
       qemu_cpu: 74Kf
       enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *mips-changed-paths
       runner_tag: $[[ inputs.runner_tag_amd64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-mips64le
       qemu_cpu: Loongson-3A4000
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *mips-changed-paths
       runner_tag: $[[ inputs.runner_tag_qemu ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
@@ -61,42 +184,66 @@ include:
       qemu_cpu: 74Kf
       # Disable coverage, as the tests take too long to run with a single thread.
       enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *mips-changed-paths
       runner_tag: $[[ inputs.runner_tag_qemu ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-ppc
       qemu_cpu: g4
       enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *ppc-changed-paths
       runner_tag: $[[ inputs.runner_tag_amd64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-ppc64
       qemu_cpu: power9
       enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *ppc-changed-paths
       runner_tag: $[[ inputs.runner_tag_amd64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-ppc64le
       qemu_cpu: power10
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *ppc-changed-paths
       runner_tag: $[[ inputs.runner_tag_qemu ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: linux-riscv64
       qemu_cpu: rv64
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *riscv-changed-paths
       runner_tag: $[[ inputs.runner_tag_qemu ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: windows-686
       enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *x86-changed-paths
       runner_tag: $[[ inputs.runner_tag_amd64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: windows-amd64
       enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *x86-changed-paths
       runner_tag: $[[ inputs.runner_tag_amd64 ]]
   - local: .gitlab-ci.d/templates/build.yml
     inputs:
       target: windows-arm64-v8
       toolchain: [llvm]  # GNU toolchain doesn't seem to support Windows on ARM.
       enable_gnu_coverage: false
+      active_target_pattern: $[[ inputs.active_target_pattern ]]
+      common_changed_paths: *common-changed-paths
+      arch_changed_paths: *arm-changed-paths
       runner_tag: $[[ inputs.runner_tag_arm64 ]]

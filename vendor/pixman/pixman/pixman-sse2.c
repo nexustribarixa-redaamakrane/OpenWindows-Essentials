@@ -501,7 +501,7 @@ static force_inline uint32_t
 combine1 (const uint32_t *ps, const uint32_t *pm)
 {
     uint32_t s;
-    memcpy(&s, ps, sizeof(uint32_t));
+    memcpy(&s, (const void *)ps, sizeof(uint32_t));
 
     if (pm)
     {

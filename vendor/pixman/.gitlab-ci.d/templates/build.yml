@@ -1,5 +1,21 @@
 spec:
   inputs:
+    active_target_pattern:
+      description:
+        Regular expression to match the target for which the job should be
+        activated.
+      type: string
+    common_changed_paths:
+      description:
+        File path patterns that, when changed, should trigger this job
+        regardless of target architecture.
+      type: array
+    arch_changed_paths:
+      description:
+        File path patterns specific to this target's architecture. Changes
+        confined to other architectures' files will not trigger this job.
+      type: array
+      default: []
     target:
       description:
         Build target in form of "OS-ARCH" pair (e.g., linux-amd64). Mostly the
@@ -24,6 +40,10 @@ spec:
         most reliable and uniform (so disable for cross environments).
       type: boolean
       default: true
+    meson_args:
+      description:
+        Additional arguments passed to `meson setup`.
+      default: ""
     job_name_prefix:
       description:
         Additional prefix for the job name. Can be used to disable a job with a
@@ -60,6 +80,17 @@ spec:
   extends: .target:all
   tags: ["$[[ inputs.runner_tag ]]"]
   stage: build
+  # Overrides the `rules` inherited from `.target:all` (extends does not merge
+  # `rules` arrays), so the target pattern check is repeated here alongside
+  # the path-based rules.
+  rules:
+    - if: "$TARGET =~ $[[ inputs.active_target_pattern ]]"
+      changes:
+        paths: $[[ inputs.common_changed_paths ]]
+    - if: "$TARGET =~ $[[ inputs.active_target_pattern ]]"
+      changes:
+        paths: $[[ inputs.arch_changed_paths ]]
+    - when: never
   allow_failure: $[[ inputs.allow_failure ]]
   retry: $[[ inputs.retry ]]
   needs:
@@ -85,6 +116,7 @@ spec:
     - meson setup ${BUILD_DIR}
         --cross-file .gitlab-ci.d/meson-cross/${TARGET}-${TOOLCHAIN}.meson
         -Dc_args="${COV_C_ARGS}" ${COV_MESON_BUILD_ARGS}
+        $[[ inputs.meson_args ]]
     - meson compile -C ${BUILD_DIR}
   artifacts:
     when: always

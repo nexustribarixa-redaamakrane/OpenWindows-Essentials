@@ -1,8 +1,8 @@
 /*
  * Test program, which can detect some problems with affine transformations
  * in pixman. Testing is done by running lots of random SRC and OVER
- * compositing operations a8r8g8b8, x8a8r8g8b8, r5g6b5 and a8 color formats
- * with random scaled, rotated and translated transforms.
+ * compositing operations with random scaled, rotated and translated
+ * transforms.
  *
  * Script 'fuzzer-find-diff.pl' can be used to narrow down the problem in
  * the case of test failure.
@@ -17,6 +17,14 @@
 #define MAX_DST_WIDTH  16
 #define MAX_DST_HEIGHT 16
 #define MAX_STRIDE     4
+
+static const pixman_format_code_t src_32bpp_formats[] =
+{
+    PIXMAN_a8r8g8b8,
+    PIXMAN_x8r8g8b8,
+    PIXMAN_a8b8g8r8,
+    PIXMAN_x8b8g8r8,
+};
 
 /*
  * Composite operation with pseudorandom images
@@ -91,9 +99,10 @@ test_composite (int      testnum,
 	dstbuf += (dst_stride / 4) * (dst_height - 1);
 	dst_stride = - dst_stride;
     }
-    
-    src_fmt = src_bpp == 4 ? (prng_rand_n (2) == 0 ?
-                              PIXMAN_a8r8g8b8 : PIXMAN_x8r8g8b8) : PIXMAN_r5g6b5;
+
+    src_fmt = src_bpp == 4 ?
+              src_32bpp_formats[prng_rand_n (ARRAY_LENGTH (src_32bpp_formats))] :
+              PIXMAN_r5g6b5;
 
     dst_fmt = dst_bpp == 4 ? (prng_rand_n (2) == 0 ?
                               PIXMAN_a8r8g8b8 : PIXMAN_x8r8g8b8) : PIXMAN_r5g6b5;
@@ -307,9 +316,9 @@ test_composite (int      testnum,
 }
 
 #if BILINEAR_INTERPOLATION_BITS == 7
-#define CHECKSUM 0xBE724CFE
+#define CHECKSUM 0x7BF3ED47
 #elif BILINEAR_INTERPOLATION_BITS == 4
-#define CHECKSUM 0x79BBE501
+#define CHECKSUM 0x78893071
 #else
 #define CHECKSUM 0x00000000
 #endif
