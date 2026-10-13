@@ -20,8 +20,23 @@ typedef enum {
     BH_TEXT_RECOVERY      = 2
 } bh_text_category_t;
 
-/* Static table of sarcastic panic messages */
-static const char *const BH_SARCASTIC_QUOTES[] = {
+/* Row width for both quote tables: the longest quote (71 bytes) plus its
+ * terminating NUL.  Every quote is shorter than or equal to this, so the row
+ * is padded with zero bytes. */
+#define BH_TEXT_QUOTE_LEN 72
+
+/* Static table of sarcastic panic messages.
+ *
+ * Stored as a rectangular array of characters rather than an array of
+ * `const char *`.  A pointer table stores absolute addresses in .rdata, which
+ * the OWX1 container cannot represent: it carries no relocation table, so the
+ * loader applies a single uniform load bias and relies on RIP-relative
+ * references (see ps/owx_loader.c).  Indexing a rectangular array computes the
+ * row address from a RIP-relative base at run time, so the table is
+ * position-independent and packs into OWX1 with no DIR64 relocation at all.
+ * Each row still decays to `const char *` at the call site, so
+ * bh_select_quote's signature and selection semantics are unchanged. */
+static const char BH_SARCASTIC_QUOTES[][BH_TEXT_QUOTE_LEN] = {
     "Well, that was graceful.",
     "Congratulations, you hit the B+ trap jackpot!",
     "Have you tried turning the kernel off and never turning it on again?",
@@ -35,8 +50,9 @@ static const char *const BH_SARCASTIC_QUOTES[] = {
 };
 #define BH_SARCASTIC_COUNT (sizeof(BH_SARCASTIC_QUOTES) / sizeof(BH_SARCASTIC_QUOTES[0]))
 
-/* Static table of informational panic messages */
-static const char *const BH_INFORMATIONAL_QUOTES[] = {
+/* Static table of informational panic messages.  Same rectangular layout and
+ * the same reason as the sarcastic table above. */
+static const char BH_INFORMATIONAL_QUOTES[][BH_TEXT_QUOTE_LEN] = {
     "Hardware Translation Layer reported unrecoverable bus stall.",
     "Sentinel recovery was invoked, but damage exceeded threshold.",
     "Page fault in ring-0 without matching PML4 descriptor.",

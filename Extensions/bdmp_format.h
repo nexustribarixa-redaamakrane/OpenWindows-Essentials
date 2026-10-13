@@ -55,6 +55,52 @@ typedef struct {
     /* 0x44 */ uint32_t padding[47];          /* Pad to 256 bytes          */
 } bdmp_header_t;
 
+/* ---------------------------------------------------------------------------
+ * Body layout (the contract the header alone does not state).
+ *
+ * A .bdmp file is the 256-byte header followed by a body.  Nothing is stored
+ * before the header, and every body structure is little-endian and 8-byte
+ * aligned at the offsets below.  The body is, in order:
+ *
+ *   +0x100  bdmp_cpu_frame_t                    (BDMP_CPU_FRAME_SIZE bytes)
+ *   +...    bdmp_trap_record_t[trap_count]      (trap_count * 24 bytes)
+ *   <pad to 8>                                    (zero fill)
+ *           memory image (memory_dump_size bytes)
+ *
+ * The trap table starts immediately after the register frame; trap_count is
+ * bounded by BDMP_MAX_TRAPS.  memory_dump_offset is the byte offset of the
+ * memory region from the START OF THE FILE (not the body), rounded up to an
+ * 8-byte boundary, and is at least BDMP_MIN_BODY_SIZE(trap_count).  A dump with
+ * no memory region sets memory_dump_size to 0 and memory_dump_offset to the
+ * aligned end of the trap table.  No other section may appear: a reader that
+ * finds trailing bytes past memory_dump_offset + memory_dump_size must treat
+ * the file as malformed rather than guess.
+ *
+ * dump_size is the total file length: it must equal
+ * memory_dump_offset + memory_dump_size for a body that ends in the memory
+ * region, and no field may claim a length that runs past dump_size.
+ *
+ * Checksums (CRC32c, Castagnoli, reflected 0x82F63B78 -- the same polynomial
+ * the .owx packer and OwFsChecksumCalc() use):
+ *
+ *   header_checksum  covers bytes [0x10, 0x100) exactly as stored.
+ *   dump_checksum    covers the whole file [0, dump_size) with the four bytes of
+ *                    the dump_checksum field itself (0x40..0x43) AND the four
+ *                    bytes of the header_checksum field (0x0C..0x0F) treated as
+ *                    zero.  The header_checksum field lies inside its own
+ *                    dependency: header_checksum covers [0x10,0x100), which
+ *                    includes the dump_checksum field, while dump_checksum covers
+ *                    [0,dump_size), which includes the header_checksum field.
+ *                    Zeroing the header_checksum field in the dump window breaks
+ *                    that cycle, so the dump checksum can be computed first and
+ *                    the header checksum written over it afterwards.  Both are
+ *                    produced by Extensions/bdmp_core.h, which is the normative
+ *                    producer and validator.
+ * ------------------------------------------------------------------------- */
+#define BDMP_CPU_FRAME_OFFSET  BDMP_HEADER_SIZE
+#define BDMP_TRAP_TABLE_OFFSET (BDMP_CPU_FRAME_OFFSET + (uint32_t)sizeof(bdmp_cpu_frame_t))
+#define BDMP_TRAP_RECORD_SIZE  ((uint32_t)sizeof(bdmp_trap_record_t))
+
 static inline bool bdmp_header_valid(const bdmp_header_t *h)
 {
     if (!h) return false;

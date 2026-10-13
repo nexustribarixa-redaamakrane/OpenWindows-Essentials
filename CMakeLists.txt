@@ -122,11 +122,12 @@ endfunction()
 
 # ow_owx_props(target outdir [entry_symbol])
 #
-# entry_symbol defaults to owx_entry_stub, which is what every .owx has always
-# used: a stub that returns immediately, so the kernel can prove the CPL3 launch
+# entry_symbol defaults to owx_entry_stub, which is what most .owx targets still
+# use: a stub that returns immediately, so the kernel can prove the CPL3 launch
 # path works before any real program logic is trusted at ring 3.  It is a
-# parameter rather than a hardcoded -e because owinit.owx now enters at
-# owinit_main, and the other twelve targets must keep the stub.
+# parameter rather than a hardcoded -e because owinit.owx enters at owinit_main
+# and owsh.owx enters at owsh_main; the remaining targets keep the stub until
+# their real entry points are implemented and verified under emulation.
 function(ow_owx_props target outdir)
     set(_entry "owx_entry_stub")
     if(ARGC GREATER 2)
@@ -630,7 +631,7 @@ target_include_directories(owinit.owx PRIVATE
 ow_owx_props(owinit.owx "${CMAKE_BINARY_DIR}/Software" owinit_main)
 
 add_executable(owsh.owx ${CMAKE_SOURCE_DIR}/Software/owsh/owsh.c)
-ow_owx_props(owsh.owx "${CMAKE_BINARY_DIR}/Software")
+ow_owx_props(owsh.owx "${CMAKE_BINARY_DIR}/Software" owsh_main)
 
 add_executable(owedit.owx ${CMAKE_SOURCE_DIR}/Software/owedit/owedit.c)
 ow_owx_props(owedit.owx "${CMAKE_BINARY_DIR}/Software")
@@ -651,11 +652,19 @@ add_executable(win.owx ${CMAKE_SOURCE_DIR}/Software/win/win.c ${CMAKE_SOURCE_DIR
 target_link_libraries(win.owx PRIVATE owwm64.owd)
 ow_owx_props(win.owx "${CMAKE_BINARY_DIR}/Software")
 
+# banhammer_cli is import-free by construction: it reads the quote table from
+# Extensions/banhammer_texts.h (header-only) and reaches the kernel only through
+# the Ring 3 trap in Software/owx_gate.h, so it links no .owd and enters at its
+# own banhammer_cli_main rather than the inert owx_entry_stub.
 add_executable(banhammer_cli.owx ${CMAKE_SOURCE_DIR}/Software/banhammer/banhammer_cli.c)
-ow_owx_props(banhammer_cli.owx "${CMAKE_BINARY_DIR}/Software")
+ow_owx_props(banhammer_cli.owx "${CMAKE_BINARY_DIR}/Software" banhammer_cli_main)
 
+# bancat is import-free: it reads the .bdmp body layout from
+# Extensions/bdmp_core.h (header-only) and reaches the filesystem only through
+# the Ring 3 trap in Software/owx_gate.h, so it enters at bancat_main rather
+# than the inert owx_entry_stub.
 add_executable(bancat.owx ${CMAKE_SOURCE_DIR}/Software/bancat/bancat.c)
-ow_owx_props(bancat.owx "${CMAKE_BINARY_DIR}/Software")
+ow_owx_props(bancat.owx "${CMAKE_BINARY_DIR}/Software" bancat_main)
 
 add_executable(vipmount.owx ${CMAKE_SOURCE_DIR}/Software/vipmount/vipmount.c)
 ow_owx_props(vipmount.owx "${CMAKE_BINARY_DIR}/Software")
@@ -664,9 +673,17 @@ add_executable(sfontview.owx ${CMAKE_SOURCE_DIR}/Software/sfontview/sfontview.c)
 target_link_libraries(sfontview.owx PRIVATE sufrender.owd)
 ow_owx_props(sfontview.owx "${CMAKE_BINARY_DIR}/Software")
 
-add_executable(kconfctl.owx ${CMAKE_SOURCE_DIR}/Software/kconfctl/kconfctl.c)
-target_link_libraries(kconfctl.owx PRIVATE kconf64.owd)
-ow_owx_props(kconfctl.owx "${CMAKE_BINARY_DIR}/Software")
+# kconfctl links kconf64 statically, exactly as owinit does.  kconf64.owd is a
+# real .owd with an import table, and the OWX1 loader binds nothing and rejects
+# any image an import is declared in, so a program whose entry actually runs
+# cannot depend on it.  kconf64 is freestanding and syscall-free (a static
+# registry in BSS), so pulling its single source file into the image is the whole
+# dependency and leaves the image import-free.
+add_executable(kconfctl.owx
+    ${CMAKE_SOURCE_DIR}/Software/kconfctl/kconfctl.c
+    ${CMAKE_SOURCE_DIR}/DLL/kconf64/kconf64.c
+)
+ow_owx_props(kconfctl.owx "${CMAKE_BINARY_DIR}/Software" kconfctl_main)
 
 add_executable(kextctl.owx ${CMAKE_SOURCE_DIR}/Software/kextctl/kextctl.c)
 ow_owx_props(kextctl.owx "${CMAKE_BINARY_DIR}/Software")

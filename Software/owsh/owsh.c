@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "kscript.h"
+#include "../owx_gate.h"
 
 
 int owsh_execute_command(const char *cmd_line, size_t len)
@@ -45,4 +46,32 @@ int owsh_execute_command(const char *cmd_line, size_t len)
     }
 
     return -1;
+}
+
+/*
+ * owsh - native command shell entry point.
+ *
+ * The kernel launches this image at CPL3 with the System V argument registers
+ * (RDI = argc, RSI = argv, RDX = envp), which the C ABI presents as main()'s
+ * parameters.  This first, deliberately minimal, body echoes the argument vector
+ * to the console so the round trip "kernel builds argv -> user process observes
+ * it" can be exercised end to end under emulation.  Command dispatch lives in
+ * owsh_execute_command() and is wired in once the launch path is proven.
+ */
+int owsh_main(int argc, const char *const *argv)
+{
+    owx_puts("owsh: argc=");
+    owx_put_i64((int64_t)argc);
+    owx_puts("\r\n");
+
+    for (int i = 0; i < argc; i++) {
+        owx_puts("owsh: argv[");
+        owx_put_i64((int64_t)i);
+        owx_puts("]=");
+        owx_puts((argv && argv[i]) ? argv[i] : "(null)");
+        owx_puts("\r\n");
+    }
+
+    owx_puts("owsh: done\r\n");
+    return 0;
 }
