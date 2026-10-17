@@ -1,5 +1,5 @@
 /*
- * nullzero.h - OpenWindows Pseudo-Devices Driver (/dev/null, /dev/zero) (.owc)
+ * nullzero.h - OpenWindows Pseudo-Devices Driver (\Device\Null, \Device\Zero) (.owc)
  *
  * C99 freestanding. Zero dynamic heap allocation.
  */

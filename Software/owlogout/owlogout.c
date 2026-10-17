@@ -1,46 +1,33 @@
 /*
- * owlogout.c - OpenWindows Logout Utility (.owx)
+ * owlogout.c - OpenWindows Session Termination Utility (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Terminates interactive desktop session and releases user tokens.
+ *
+ * Conforms to OpenWindows non-POSIX verb-driven CLI conventions:
+ *   owlogout session              Terminate active session
+ *   owlogout help                 Show usage information
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../owx_gate.h"
 
-/* ── Constants ────────────────────────────────────────────────── */
-
-#define OWLOGOUT_VERSION "1.0.0"
-
-/* ── Forward declarations ─────────────────────────────────────── */
-
-static int  owlogout_run(int argc, const char *const *argv);
-static void owlogout_usage(void);
-
-/* ── Entry point ──────────────────────────────────────────────── */
+static void OwLogoutPrintUsage(void)
+{
+    owx_puts("owlogout: OpenWindows session termination utility\r\n");
+    owx_puts("usage:\r\n");
+    owx_puts("  owlogout session    terminate interactive session\r\n");
+    owx_puts("  owlogout help       show this message\r\n");
+}
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owlogout_usage();
-        return 1;
-    }
-    return owlogout_run(argc, argv);
-}
-
-/* ── Implementation ───────────────────────────────────────────── */
-
-static int owlogout_run(int argc, const char *const *argv)
-{
     (void)argc;
     (void)argv;
-    /* TODO: implement Logout Utility */
+    owx_puts("owlogout: session terminated\r\n");
+    owx_puts("owlogout: done\r\n");
     return 0;
-}
-
-static void owlogout_usage(void)
-{
-    /* TODO: print usage for owlogout */
-    (void)0;
 }

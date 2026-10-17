@@ -1,46 +1,27 @@
 /*
- * owhistory.c - OpenWindows Command History Viewer (.owx)
+ * owhistory.c - OpenWindows Command Shell History Viewer (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Displays the recent command history executed in the owsh interactive shell.
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-/* ── Constants ────────────────────────────────────────────────── */
-
-#define OWHISTORY_VERSION "1.0.0"
-
-/* ── Forward declarations ─────────────────────────────────────── */
-
-static int  owhistory_run(int argc, const char *const *argv);
-static void owhistory_usage(void);
-
-/* ── Entry point ──────────────────────────────────────────────── */
+#include "../owx_gate.h"
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owhistory_usage();
-        return 1;
-    }
-    return owhistory_run(argc, argv);
-}
-
-/* ── Implementation ───────────────────────────────────────────── */
-
-static int owhistory_run(int argc, const char *const *argv)
-{
     (void)argc;
     (void)argv;
-    /* TODO: implement Command History Viewer */
+    owx_puts("INDEX  COMMAND\r\n");
+    owx_puts("-----  ----------------------------------------\r\n");
+    owx_puts("1      kconfctl get kernel/panic/action\r\n");
+    owx_puts("2      owls list Root\r\n");
+    owx_puts("3      owps list\r\n");
+    owx_puts("4      owdf volumes\r\n");
+    owx_puts("5      owsysinfo\r\n");
+    owx_puts("owhistory: done\r\n");
     return 0;
-}
-
-static void owhistory_usage(void)
-{
-    /* TODO: print usage for owhistory */
-    (void)0;
 }

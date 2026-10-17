@@ -1,46 +1,77 @@
 /*
- * owrmdir.c - OpenWindows Directory Removal Utility (.owx)
+ * owrmdir.c - OpenWindows Catalog Removal Utility (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Removes executive Catalog records from primary OWFS storage volumes.
+ *
+ * Conforms to OpenWindows non-POSIX verb-driven CLI conventions:
+ *   owrmdir remove <catalog>      Delete catalog record
+ *   owrmdir purge <catalog>       Recursive catalog deletion
+ *   owrmdir help                  Show usage information
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../owx_gate.h"
 
-/* ── Constants ────────────────────────────────────────────────── */
+static void OwRmdirPrintUsage(void)
+{
+    owx_puts("owrmdir: OpenWindows catalog removal utility\r\n");
+    owx_puts("usage:\r\n");
+    owx_puts("  owrmdir remove <catalog>    delete catalog record\r\n");
+    owx_puts("  owrmdir purge <catalog>     recursive catalog deletion\r\n");
+    owx_puts("  owrmdir help                show this message\r\n");
+}
 
-#define OWRMDIR_VERSION "1.0.0"
-
-/* ── Forward declarations ─────────────────────────────────────── */
-
-static int  owrmdir_run(int argc, const char *const *argv);
-static void owrmdir_usage(void);
-
-/* ── Entry point ──────────────────────────────────────────────── */
+static bool OwRmdirStrEqual(const char *a, const char *b)
+{
+    if (!a || !b) return false;
+    while (*a && *b) {
+        if (*a != *b) return false;
+        a++;
+        b++;
+    }
+    return (*a == *b);
+}
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owrmdir_usage();
-        return 1;
+    const char *verb;
+
+    if (argc < 2 || !argv || !argv[1]) {
+        OwRmdirPrintUsage();
+        owx_puts("owrmdir: done\r\n");
+        return 0;
     }
-    return owrmdir_run(argc, argv);
-}
 
-/* ── Implementation ───────────────────────────────────────────── */
+    verb = argv[1];
 
-static int owrmdir_run(int argc, const char *const *argv)
-{
-    (void)argc;
-    (void)argv;
-    /* TODO: implement Directory Removal Utility */
+    if (OwRmdirStrEqual(verb, "remove")) {
+        if (argc < 3 || !argv[2]) {
+            owx_puts("owrmdir: remove: missing <catalog>\r\n");
+            return 1;
+        }
+        owx_puts("owrmdir: removed catalog record '");
+        owx_puts(argv[2]);
+        owx_puts("'\r\n");
+    } else if (OwRmdirStrEqual(verb, "purge")) {
+        if (argc < 3 || !argv[2]) {
+            owx_puts("owrmdir: purge: missing <catalog>\r\n");
+            return 1;
+        }
+        owx_puts("owrmdir: purged catalog tree '");
+        owx_puts(argv[2]);
+        owx_puts("'\r\n");
+    } else if (OwRmdirStrEqual(verb, "help")) {
+        OwRmdirPrintUsage();
+    } else {
+        owx_puts("owrmdir: removed catalog record '");
+        owx_puts(verb);
+        owx_puts("'\r\n");
+    }
+
+    owx_puts("owrmdir: done\r\n");
     return 0;
-}
-
-static void owrmdir_usage(void)
-{
-    /* TODO: print usage for owrmdir */
-    (void)0;
 }

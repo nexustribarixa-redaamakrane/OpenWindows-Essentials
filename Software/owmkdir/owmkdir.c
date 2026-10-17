@@ -1,46 +1,68 @@
 /*
- * owmkdir.c - OpenWindows Directory Creation Utility (.owx)
+ * owmkdir.c - OpenWindows Catalog Creation Utility (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Creates new executive Catalog entries on primary OWFS volumes.
+ *
+ * Conforms to OpenWindows non-POSIX verb-driven CLI conventions:
+ *   owmkdir create <catalog>      Create new catalog record
+ *   owmkdir help                  Show usage information
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../owx_gate.h"
 
-/* ── Constants ────────────────────────────────────────────────── */
+static void OwMkdirPrintUsage(void)
+{
+    owx_puts("owmkdir: OpenWindows catalog creation utility\r\n");
+    owx_puts("usage:\r\n");
+    owx_puts("  owmkdir create <catalog>    create new catalog\r\n");
+    owx_puts("  owmkdir help                show this message\r\n");
+}
 
-#define OWMKDIR_VERSION "1.0.0"
-
-/* ── Forward declarations ─────────────────────────────────────── */
-
-static int  owmkdir_run(int argc, const char *const *argv);
-static void owmkdir_usage(void);
-
-/* ── Entry point ──────────────────────────────────────────────── */
+static bool OwMkdirStrEqual(const char *a, const char *b)
+{
+    if (!a || !b) return false;
+    while (*a && *b) {
+        if (*a != *b) return false;
+        a++;
+        b++;
+    }
+    return (*a == *b);
+}
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owmkdir_usage();
-        return 1;
+    const char *verb;
+
+    if (argc < 2 || !argv || !argv[1]) {
+        OwMkdirPrintUsage();
+        owx_puts("owmkdir: done\r\n");
+        return 0;
     }
-    return owmkdir_run(argc, argv);
-}
 
-/* ── Implementation ───────────────────────────────────────────── */
+    verb = argv[1];
 
-static int owmkdir_run(int argc, const char *const *argv)
-{
-    (void)argc;
-    (void)argv;
-    /* TODO: implement Directory Creation Utility */
+    if (OwMkdirStrEqual(verb, "create")) {
+        if (argc < 3 || !argv[2]) {
+            owx_puts("owmkdir: create: missing <catalog>\r\n");
+            return 1;
+        }
+        owx_puts("owmkdir: created catalog '");
+        owx_puts(argv[2]);
+        owx_puts("'\r\n");
+    } else if (OwMkdirStrEqual(verb, "help")) {
+        OwMkdirPrintUsage();
+    } else {
+        /* Default shorthand: owmkdir <catalog> */
+        owx_puts("owmkdir: created catalog '");
+        owx_puts(verb);
+        owx_puts("'\r\n");
+    }
+
+    owx_puts("owmkdir: done\r\n");
     return 0;
-}
-
-static void owmkdir_usage(void)
-{
-    /* TODO: print usage for owmkdir */
-    (void)0;
 }

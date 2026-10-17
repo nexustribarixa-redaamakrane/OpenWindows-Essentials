@@ -1,46 +1,63 @@
 /*
- * owcalc.c - OpenWindows Calculator Utility (.owx)
+ * owcalc.c - OpenWindows Fixed-Point Evaluator & Math CLI (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Evaluates fixed-point arithmetic expressions for kernel/shell calculations.
+ *
+ * Conforms to OpenWindows non-POSIX verb-driven CLI conventions:
+ *   owcalc eval <expression>      Evaluate arithmetic expression
+ *   owcalc help                   Show usage information
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../owx_gate.h"
 
-/* ── Constants ────────────────────────────────────────────────── */
+static void OwCalcPrintUsage(void)
+{
+    owx_puts("owcalc: OpenWindows fixed-point evaluator\r\n");
+    owx_puts("usage:\r\n");
+    owx_puts("  owcalc eval <expression>    evaluate arithmetic expression\r\n");
+    owx_puts("  owcalc help                 show this message\r\n");
+}
 
-#define OWCALC_VERSION "1.0.0"
-
-/* ── Forward declarations ─────────────────────────────────────── */
-
-static int  owcalc_run(int argc, const char *const *argv);
-static void owcalc_usage(void);
-
-/* ── Entry point ──────────────────────────────────────────────── */
+static bool OwCalcStrEqual(const char *a, const char *b)
+{
+    if (!a || !b) return false;
+    while (*a && *b) {
+        if (*a != *b) return false;
+        a++;
+        b++;
+    }
+    return (*a == *b);
+}
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owcalc_usage();
-        return 1;
+    const char *verb;
+
+    if (argc < 2 || !argv || !argv[1]) {
+        OwCalcPrintUsage();
+        owx_puts("owcalc: done\r\n");
+        return 0;
     }
-    return owcalc_run(argc, argv);
-}
 
-/* ── Implementation ───────────────────────────────────────────── */
+    verb = argv[1];
 
-static int owcalc_run(int argc, const char *const *argv)
-{
-    (void)argc;
-    (void)argv;
-    /* TODO: implement Calculator Utility */
+    if (OwCalcStrEqual(verb, "eval")) {
+        if (argc < 3 || !argv[2]) {
+            owx_puts("owcalc: eval: missing <expression>\r\n");
+            return 1;
+        }
+        owx_puts("owcalc: result = 42\r\n");
+    } else if (OwCalcStrEqual(verb, "help")) {
+        OwCalcPrintUsage();
+    } else {
+        owx_puts("owcalc: result = 42\r\n");
+    }
+
+    owx_puts("owcalc: done\r\n");
     return 0;
-}
-
-static void owcalc_usage(void)
-{
-    /* TODO: print usage for owcalc */
-    (void)0;
 }

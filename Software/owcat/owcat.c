@@ -1,46 +1,138 @@
 /*
- * owcat.c - OpenWindows File Concatenation/View Utility (.owx)
+ * owcat.c - OpenWindows File Streaming & Inspection Utility (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Reads and streams file contents from the primary OWFS storage volume
+ * through the Ring 3 system call gateway (owx_file_read).
+ *
+ * Conforms to OpenWindows non-POSIX verb-driven CLI conventions:
+ *   owcat read <file>             Stream file contents to console
+ *   owcat dump <file>             Hexadecimal stream inspector
+ *   owcat help                    Show usage information
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../owx_gate.h"
 
-/* ── Constants ────────────────────────────────────────────────── */
+#define OWCAT_BUFFER_SIZE 4096U
 
-#define OWCAT_VERSION "1.0.0"
+static char g_FileBuffer[OWCAT_BUFFER_SIZE];
 
-/* ── Forward declarations ─────────────────────────────────────── */
+static void OwCatPrintUsage(void)
+{
+    owx_puts("owcat: OpenWindows file streaming utility\r\n");
+    owx_puts("usage:\r\n");
+    owx_puts("  owcat read <file>    stream file content to console\r\n");
+    owx_puts("  owcat dump <file>    hexadecimal byte stream inspector\r\n");
+    owx_puts("  owcat help           show this message\r\n");
+}
 
-static int  owcat_run(int argc, const char *const *argv);
-static void owcat_usage(void);
+static bool OwCatStrEqual(const char *a, const char *b)
+{
+    if (!a || !b) return false;
+    while (*a && *b) {
+        if (*a != *b) return false;
+        a++;
+        b++;
+    }
+    return (*a == *b);
+}
 
-/* ── Entry point ──────────────────────────────────────────────── */
+static void OwCatReadFile(const char *path)
+{
+    int64_t bytes_read;
+
+    if (!path || !*path) {
+        owx_puts("owcat: read: missing <file>\r\n");
+        return;
+    }
+
+    bytes_read = owx_file_read(path, g_FileBuffer, (uint32_t)sizeof(g_FileBuffer) - 1U);
+    if (bytes_read < 0) {
+        owx_puts("owcat: failed to read '");
+        owx_puts(path);
+        owx_puts("' (error code: ");
+        owx_put_i64(bytes_read);
+        owx_puts(")\r\n");
+        return;
+    }
+
+    g_FileBuffer[bytes_read] = '\0';
+    owx_puts(g_FileBuffer);
+    owx_puts("\r\n");
+}
+
+static void OwCatDumpHex(const char *path)
+{
+    int64_t bytes_read;
+    int64_t i;
+
+    if (!path || !*path) {
+        owx_puts("owcat: dump: missing <file>\r\n");
+        return;
+    }
+
+    bytes_read = owx_file_read(path, g_FileBuffer, (uint32_t)sizeof(g_FileBuffer));
+    if (bytes_read < 0) {
+        owx_puts("owcat: failed to read '");
+        owx_puts(path);
+        owx_puts("'\r\n");
+        return;
+    }
+
+    owx_puts("owcat: hex dump for '");
+    owx_puts(path);
+    owx_puts("' (");
+    owx_put_u64((uint64_t)bytes_read);
+    owx_puts(" bytes):\r\n");
+
+    for (i = 0; i < bytes_read; i++) {
+        uint8_t byte = (uint8_t)g_FileBuffer[i];
+        static const char hex_digits[] = "0123456789ABCDEF";
+        owx_putc(hex_digits[(byte >> 4) & 0x0F]);
+        owx_putc(hex_digits[byte & 0x0F]);
+        owx_putc(' ');
+        if ((i + 1) % 16 == 0) {
+            owx_puts("\r\n");
+        }
+    }
+    owx_puts("\r\n");
+}
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owcat_usage();
-        return 1;
+    const char *verb;
+
+    if (argc < 2 || !argv || !argv[1]) {
+        OwCatPrintUsage();
+        owx_puts("owcat: done\r\n");
+        return 0;
     }
-    return owcat_run(argc, argv);
-}
 
-/* ── Implementation ───────────────────────────────────────────── */
+    verb = argv[1];
 
-static int owcat_run(int argc, const char *const *argv)
-{
-    (void)argc;
-    (void)argv;
-    /* TODO: implement File Concatenation/View Utility */
+    if (OwCatStrEqual(verb, "read")) {
+        if (argc < 3 || !argv[2]) {
+            owx_puts("owcat: read: missing <file>\r\n");
+            return 1;
+        }
+        OwCatReadFile(argv[2]);
+    } else if (OwCatStrEqual(verb, "dump")) {
+        if (argc < 3 || !argv[2]) {
+            owx_puts("owcat: dump: missing <file>\r\n");
+            return 1;
+        }
+        OwCatDumpHex(argv[2]);
+    } else if (OwCatStrEqual(verb, "help")) {
+        OwCatPrintUsage();
+    } else {
+        /* Default shorthand: owcat <file> */
+        OwCatReadFile(verb);
+    }
+
+    owx_puts("owcat: done\r\n");
     return 0;
-}
-
-static void owcat_usage(void)
-{
-    /* TODO: print usage for owcat */
-    (void)0;
 }

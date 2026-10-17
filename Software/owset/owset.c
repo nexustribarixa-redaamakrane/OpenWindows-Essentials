@@ -1,46 +1,90 @@
 /*
- * owset.c - OpenWindows Environment Variable Setter (.owx)
+ * owset.c - OpenWindows Session Environment Setter (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Sets and updates session environment variables and configuration properties.
+ *
+ * Conforms to OpenWindows non-POSIX verb-driven CLI conventions:
+ *   owset set <var> <value>      Set environment variable
+ *   owset clear <var>            Clear environment variable
+ *   owset help                   Show usage information
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../owx_gate.h"
+#include "../../DLL/kconf64/kconf64.h"
 
-/* ── Constants ────────────────────────────────────────────────── */
+static void OwSetPrintUsage(void)
+{
+    owx_puts("owset: OpenWindows session environment setter\r\n");
+    owx_puts("usage:\r\n");
+    owx_puts("  owset set <var> <val>     set environment variable\r\n");
+    owx_puts("  owset clear <var>         clear environment variable\r\n");
+    owx_puts("  owset help                show this message\r\n");
+}
 
-#define OWSET_VERSION "1.0.0"
-
-/* ── Forward declarations ─────────────────────────────────────── */
-
-static int  owset_run(int argc, const char *const *argv);
-static void owset_usage(void);
-
-/* ── Entry point ──────────────────────────────────────────────── */
+static bool OwSetStrEqual(const char *a, const char *b)
+{
+    if (!a || !b) return false;
+    while (*a && *b) {
+        if (*a != *b) return false;
+        a++;
+        b++;
+    }
+    return (*a == *b);
+}
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owset_usage();
-        return 1;
+    const char *verb;
+
+    if (argc < 2 || !argv || !argv[1]) {
+        OwSetPrintUsage();
+        owx_puts("owset: done\r\n");
+        return 0;
     }
-    return owset_run(argc, argv);
-}
 
-/* ── Implementation ───────────────────────────────────────────── */
+    verb = argv[1];
 
-static int owset_run(int argc, const char *const *argv)
-{
-    (void)argc;
-    (void)argv;
-    /* TODO: implement Environment Variable Setter */
+    if (OwSetStrEqual(verb, "set")) {
+        if (argc < 4 || !argv[2] || !argv[3]) {
+            owx_puts("owset: set: requires <var> and <val>\r\n");
+            return 1;
+        }
+        kconf64_set_string(argv[2], argv[3]);
+        owx_puts("owset: set ");
+        owx_puts(argv[2]);
+        owx_puts("=");
+        owx_puts(argv[3]);
+        owx_puts("\r\n");
+    } else if (OwSetStrEqual(verb, "clear")) {
+        if (argc < 3 || !argv[2]) {
+            owx_puts("owset: clear: missing <var>\r\n");
+            return 1;
+        }
+        kconf64_set_string(argv[2], "");
+        owx_puts("owset: cleared ");
+        owx_puts(argv[2]);
+        owx_puts("\r\n");
+    } else if (OwSetStrEqual(verb, "help")) {
+        OwSetPrintUsage();
+    } else {
+        if (argc >= 3 && argv[2]) {
+            kconf64_set_string(verb, argv[2]);
+            owx_puts("owset: set ");
+            owx_puts(verb);
+            owx_puts("=");
+            owx_puts(argv[2]);
+            owx_puts("\r\n");
+        } else {
+            OwSetPrintUsage();
+            return 1;
+        }
+    }
+
+    owx_puts("owset: done\r\n");
     return 0;
-}
-
-static void owset_usage(void)
-{
-    /* TODO: print usage for owset */
-    (void)0;
 }

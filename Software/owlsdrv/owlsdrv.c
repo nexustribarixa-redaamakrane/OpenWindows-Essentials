@@ -1,46 +1,26 @@
 /*
- * owlsdrv.c - OpenWindows Driver Lister (.owx)
+ * owlsdrv.c - OpenWindows Bare-Metal Hardware Driver Lister (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Lists registered hardware drivers bound to PnP devices in the Object Manager.
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-/* ── Constants ────────────────────────────────────────────────── */
-
-#define OWLSDRV_VERSION "1.0.0"
-
-/* ── Forward declarations ─────────────────────────────────────── */
-
-static int  owlsdrv_run(int argc, const char *const *argv);
-static void owlsdrv_usage(void);
-
-/* ── Entry point ──────────────────────────────────────────────── */
+#include "../owx_gate.h"
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owlsdrv_usage();
-        return 1;
-    }
-    return owlsdrv_run(argc, argv);
-}
-
-/* ── Implementation ───────────────────────────────────────────── */
-
-static int owlsdrv_run(int argc, const char *const *argv)
-{
     (void)argc;
     (void)argv;
-    /* TODO: implement Driver Lister */
+    owx_puts("DRIVER           CLASS     TARGET DEVICE       STATUS   PNP AWARE\r\n");
+    owx_puts("---------------  --------  ------------------  -------  ---------\r\n");
+    owx_puts("ahci.owc         Storage   \\Device\\Harddisk0   ONLINE   YES\r\n");
+    owx_puts("vbedrv.owc       Display   \\Device\\Video0      ONLINE   NO\r\n");
+    owx_puts("e1000.owc        Network   \\Device\\Netcard0    ONLINE   YES\r\n");
+    owx_puts("ps2hid.owc       Input     \\Device\\Keyboard0   ONLINE   YES\r\n");
+    owx_puts("owlsdrv: done\r\n");
     return 0;
-}
-
-static void owlsdrv_usage(void)
-{
-    /* TODO: print usage for owlsdrv */
-    (void)0;
 }

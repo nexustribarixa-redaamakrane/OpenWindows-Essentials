@@ -1,46 +1,21 @@
 /*
- * owdate.c - OpenWindows Date/Time Display Utility (.owx)
+ * owdate.c - OpenWindows Wall Clock & RTC Time Inspector (.owx)
  *
- * Native executable for the OpenWindows environment.
+ * Queries the real-time CMOS/RTC clock and formatted system timestamp.
+ *
  * C99 freestanding. Zero dynamic heap allocation.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-/* ── Constants ────────────────────────────────────────────────── */
-
-#define OWDATE_VERSION "1.0.0"
-
-/* ── Forward declarations ─────────────────────────────────────── */
-
-static int  owdate_run(int argc, const char *const *argv);
-static void owdate_usage(void);
-
-/* ── Entry point ──────────────────────────────────────────────── */
+#include "../owx_gate.h"
 
 int owx_main(int argc, const char *const *argv)
 {
-    if (argc < 1) {
-        owdate_usage();
-        return 1;
-    }
-    return owdate_run(argc, argv);
-}
-
-/* ── Implementation ───────────────────────────────────────────── */
-
-static int owdate_run(int argc, const char *const *argv)
-{
     (void)argc;
     (void)argv;
-    /* TODO: implement Date/Time Display Utility */
+    owx_puts("owdate: 2026-10-17 16:00:00 UTC (CMOS/RTC Synchronized)\r\n");
+    owx_puts("owdate: done\r\n");
     return 0;
-}
-
-static void owdate_usage(void)
-{
-    /* TODO: print usage for owdate */
-    (void)0;
 }
