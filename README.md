@@ -58,10 +58,22 @@ still contain explicit TODO stubs; examples include `Drivers/ahci/ahci.c`,
 driver directories also include shared scaffold-style implementations. Check
 the relevant `.c` file before treating a target as usable on hardware.
 
-In CMake, `owinit.owx` is given the real `owinit_main` entry point. Most other
-`.owx` targets retain the default `owx_entry_stub`, which returns immediately;
-those artifacts prove the packaging/launch path, not a complete userspace
-program. No physical-hardware support matrix is maintained here.
+In CMake, every `.owx` target names its own real entry point, and
+`ow_owx_props()` fails configuration if one is omitted, so no program can
+silently fall back to the inert `owx_entry_stub` (`xor eax,eax; ret`). The
+eight targets that used to keep the stub — `kextctl`, `owedit`, `owkill`,
+`owwm`, `sfontview`, `startwm`, `vipmount`, and `win` — now enter their own
+`*_main`, reach the kernel only through the Ring 3 gateway in
+`Software/owx_gate.h`, and link their window-management, task-manager,
+sentinel, and font-rendering libraries as source rather than as `.owd`, since
+the OWX1 loader binds no imports. The kernel repository audits all thirteen
+staged artifacts (`tools/check_owx_entries.py`, run by `make owx-entries`)
+against the properties that matter: import-free, not the stub, and for
+`owinit` the pinned `owinit_main` prologue at RVA 0x1000. Note that entering
+at a real function is not the same as a finished userspace: the gateway today
+exposes console I/O, `VFS_READ`, and process services, so e.g. `owedit` can
+load and edit a document but cannot write it back. No physical-hardware
+support matrix is maintained here.
 
 For the file contracts, use `Specs/`; for executable entry and object details,
 use the corresponding CMake target and source under `Drivers/`, `DLL/`, or

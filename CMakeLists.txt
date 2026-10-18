@@ -120,18 +120,20 @@ function(ow_owc_props target outdir)
     endif()
 endfunction()
 
-# ow_owx_props(target outdir [entry_symbol])
+# ow_owx_props(target outdir entry_symbol)
 #
-# entry_symbol defaults to owx_entry_stub, which is what most .owx targets still
-# use: a stub that returns immediately, so the kernel can prove the CPL3 launch
-# path works before any real program logic is trusted at ring 3.  It is a
-# parameter rather than a hardcoded -e because owinit.owx enters at owinit_main
-# and owsh.owx enters at owsh_main; the remaining targets keep the stub until
-# their real entry points are implemented and verified under emulation.
-function(ow_owx_props target outdir)
-    set(_entry "owx_entry_stub")
-    if(ARGC GREATER 2)
-        set(_entry "${ARGV2}")
+# entry_symbol is mandatory and there is no default: every .owx target names the
+# real program entry it links at.  The owx_entry_stub default that used to live
+# here was a waystation -- it let an image enter at an inert `xor eax,eax; ret`
+# while its library fragments were still being wired up, which is now done for
+# all thirteen Essentials targets.  A missing entry symbol is a FATAL_ERROR
+# rather than a silent stub so no future target can regress into entering at
+# code that does nothing and says nothing.
+function(ow_owx_props target outdir entry_symbol)
+    if(NOT entry_symbol)
+        message(FATAL_ERROR
+            "ow_owx_props(${target}): entry_symbol is required; every .owx "
+            "must enter at its real *_main, not at owx_entry_stub.")
     endif()
     string(REGEX REPLACE "\\.owx$" "" _base "${target}")
     target_sources(${target} PRIVATE ${OWX_ENTRY_C})
@@ -143,7 +145,7 @@ function(ow_owx_props target outdir)
     )
     target_compile_options(${target} PRIVATE -Wno-error=unused-function)
     target_link_options(${target} PRIVATE
-        -nostdlib "-Wl,-e,${_entry}")
+        -nostdlib "-Wl,-e,${entry_symbol}")
     if(OW_LIBGCC)
         target_link_libraries(${target} PRIVATE "${OW_LIBGCC}")
     endif()
@@ -601,14 +603,17 @@ set_target_properties(damage_control PROPERTIES
 # and no relocation pass, and tools/owx_pack.py refuses to emit an image that
 # imports anything. Linking kconf64.owd (a SHARED library) therefore produced an
 # image with two unbound IAT slots -- kconf64_init and kconf64_get_string --
-# whose contents are RVAs into the image's own hint/name table. The entry stub
+# whose contents were RVAs into the image's own hint/name table. The entry stub
 # never called them, so the breakage stayed invisible until the entry was
 # repointed at owinit_main, at which point the first call jumped to garbage.
 #
-# kconf64 is pure in-memory configuration (a static registry plus header-only
-# kconf.h inlines; no I/O, no owrp, no syscalls), so binding it statically costs
-# nothing and needs no kernel service. That makes the image genuinely
-# import-free, which is the only state the loader can honour today.
+# That is why every .owx target below links its libraries as source files
+# rather than as .owd: kconf64 is pure in-memory configuration (a static
+# registry plus header-only kconf.h inlines; no I/O, no owrp, no syscalls), and
+# the same holds for owwm64, taskmgr64, sentinel64 and sufrender -- each is a
+# self-contained computation over its own state with no kernel gate in it, so
+# pulling its single source file into the image costs nothing and keeps the
+# image genuinely import-free, which is the only state the loader can honour.
 add_executable(owinit.owx
     ${CMAKE_SOURCE_DIR}/Software/owinit/owinit.c
     ${KCONF64_SOURCES})
@@ -618,39 +623,54 @@ target_include_directories(owinit.owx PRIVATE
 
 # Enter at the real owinit_main rather than owx_entry_stub.
 #
-# The stub exists so the kernel's CPL3 launch path could be proven on its own
+# The stub existed so the kernel's CPL3 launch path could be proven on its own
 # before any program logic was trusted at ring 3.  That is done, and the import
-# prerequisite it was hiding is now genuinely met (kconf64 is statically linked,
+# prerequisite it was hiding is genuinely met (kconf64 is statically linked,
 # so the image has no unbound IAT slot to jump through).  owinit_main is a valid
 # entry target for this ABI: it is a non-static global at the head of .text, it
 # ignores argc/argv, it makes no syscall and touches no kernel gate, it needs no
 # constructor (kconf64_init is called explicitly and the registry it fills lives
 # in BSS, which the loader maps zeroed), and it returns through the C-ABI slot
-# the kernel seeds under the initial RSP.  All twelve other .owx targets keep
-# the stub.
+# the kernel seeds under the initial RSP.  Every other .owx target below enters
+# at its own *_main on the same terms.
 ow_owx_props(owinit.owx "${CMAKE_BINARY_DIR}/Software" owinit_main)
 
 add_executable(owsh.owx ${CMAKE_SOURCE_DIR}/Software/owsh/owsh.c)
 ow_owx_props(owsh.owx "${CMAKE_BINARY_DIR}/Software" owsh_main)
 
+# owedit edits documents in a static buffer and reports over the ring 3
+# console; the gateway it speaks to (Software/owx_gate.h) has VFS_READ but no
+# VFS_WRITE, so the program is honest about persistence rather than pretending
+# to save.
 add_executable(owedit.owx ${CMAKE_SOURCE_DIR}/Software/owedit/owedit.c)
-ow_owx_props(owedit.owx "${CMAKE_BINARY_DIR}/Software")
+ow_owx_props(owedit.owx "${CMAKE_BINARY_DIR}/Software" owedit_main)
 
-add_executable(owkill.owx ${CMAKE_SOURCE_DIR}/Software/owkill/owkill.c)
-target_link_libraries(owkill.owx PRIVATE taskmgr64.owd sentinel64.owd)
-ow_owx_props(owkill.owx "${CMAKE_BINARY_DIR}/Software")
+# owkill drives the task manager and sentinel as source, not as .owd: the
+# verdicts it prints come from the same taskmgr64/sentinel64 code the kernel
+# libraries are built from, in-image, with no import table.
+add_executable(owkill.owx
+    ${CMAKE_SOURCE_DIR}/Software/owkill/owkill.c
+    ${TASKMGR64_SOURCES}
+    ${SENTINEL64_SOURCES})
+ow_owx_props(owkill.owx "${CMAKE_BINARY_DIR}/Software" owkill_main)
 
-add_executable(owwm.owx ${CMAKE_SOURCE_DIR}/Software/owwm/owwm.c)
-target_link_libraries(owwm.owx PRIVATE owwm64.owd)
-ow_owx_props(owwm.owx "${CMAKE_BINARY_DIR}/Software")
+add_executable(owwm.owx
+    ${CMAKE_SOURCE_DIR}/Software/owwm/owwm.c
+    ${OWWM64_SOURCES})
+ow_owx_props(owwm.owx "${CMAKE_BINARY_DIR}/Software" owwm_main)
 
-add_executable(startwm.owx ${CMAKE_SOURCE_DIR}/Software/startwm/startwm.c)
-target_link_libraries(startwm.owx PRIVATE owwm64.owd)
-ow_owx_props(startwm.owx "${CMAKE_BINARY_DIR}/Software")
+add_executable(startwm.owx
+    ${CMAKE_SOURCE_DIR}/Software/startwm/startwm.c
+    ${OWWM64_SOURCES})
+ow_owx_props(startwm.owx "${CMAKE_BINARY_DIR}/Software" startwm_main)
 
-add_executable(win.owx ${CMAKE_SOURCE_DIR}/Software/win/win.c ${CMAKE_SOURCE_DIR}/Software/startwm/startwm.c)
-target_link_libraries(win.owx PRIVATE owwm64.owd)
-ow_owx_props(win.owx "${CMAKE_BINARY_DIR}/Software")
+# win is the classic front door: a banner and a call into startwm, which is
+# linked into the same image so the delegation needs no import.
+add_executable(win.owx
+    ${CMAKE_SOURCE_DIR}/Software/win/win.c
+    ${CMAKE_SOURCE_DIR}/Software/startwm/startwm.c
+    ${OWWM64_SOURCES})
+ow_owx_props(win.owx "${CMAKE_BINARY_DIR}/Software" win_main)
 
 # banhammer_cli is import-free by construction: it reads the quote table from
 # Extensions/banhammer_texts.h (header-only) and reaches the kernel only through
@@ -667,11 +687,14 @@ add_executable(bancat.owx ${CMAKE_SOURCE_DIR}/Software/bancat/bancat.c)
 ow_owx_props(bancat.owx "${CMAKE_BINARY_DIR}/Software" bancat_main)
 
 add_executable(vipmount.owx ${CMAKE_SOURCE_DIR}/Software/vipmount/vipmount.c)
-ow_owx_props(vipmount.owx "${CMAKE_BINARY_DIR}/Software")
+ow_owx_props(vipmount.owx "${CMAKE_BINARY_DIR}/Software" vipmount_main)
 
-add_executable(sfontview.owx ${CMAKE_SOURCE_DIR}/Software/sfontview/sfontview.c)
-target_link_libraries(sfontview.owx PRIVATE sufrender.owd)
-ow_owx_props(sfontview.owx "${CMAKE_BINARY_DIR}/Software")
+# sfontview rasterises with sufrender compiled in, not linked as .owd, for the
+# same import-table reason as owinit's kconf64.
+add_executable(sfontview.owx
+    ${CMAKE_SOURCE_DIR}/Software/sfontview/sfontview.c
+    ${SUFRENDER_SOURCES})
+ow_owx_props(sfontview.owx "${CMAKE_BINARY_DIR}/Software" sfontview_main)
 
 # kconfctl links kconf64 statically, exactly as owinit does.  kconf64.owd is a
 # real .owd with an import table, and the OWX1 loader binds nothing and rejects
@@ -686,7 +709,7 @@ add_executable(kconfctl.owx
 ow_owx_props(kconfctl.owx "${CMAKE_BINARY_DIR}/Software" kconfctl_main)
 
 add_executable(kextctl.owx ${CMAKE_SOURCE_DIR}/Software/kextctl/kextctl.c)
-ow_owx_props(kextctl.owx "${CMAKE_BINARY_DIR}/Software")
+ow_owx_props(kextctl.owx "${CMAKE_BINARY_DIR}/Software" kextctl_main)
 
 # ====================================================================
 #  Install Rules (placeholder)
