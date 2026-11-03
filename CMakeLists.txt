@@ -38,6 +38,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/DLL/kconf64
     ${CMAKE_SOURCE_DIR}/DLL/owwm64
     ${CMAKE_SOURCE_DIR}/DLL/sufrender
+    ${CMAKE_SOURCE_DIR}/vendor/superunicode/suf/include
     ${CMAKE_SOURCE_DIR}/DLL/packmgr
     ${CMAKE_SOURCE_DIR}/DLL/sentinel64
     ${CMAKE_SOURCE_DIR}/DLL/taskmgr64
@@ -547,7 +548,10 @@ ow_freestanding(owwm64.owd)
 ow_owd_props(owwm64.owd "${CMAKE_BINARY_DIR}/DLL")
 
 # --- SuperUnicode Font Rasterizer (sufrender.owd) ---
-set(SUFRENDER_SOURCES ${CMAKE_SOURCE_DIR}/DLL/sufrender/sufrender.c CACHE STRING "Source files for sufrender.owd")
+set(SUFRENDER_SOURCES
+    ${CMAKE_SOURCE_DIR}/DLL/sufrender/sufrender.c
+    ${CMAKE_SOURCE_DIR}/vendor/superunicode/suf/src/suf_parser.c
+)
 add_library(sufrender.owd SHARED ${SUFRENDER_SOURCES})
 ow_freestanding(sufrender.owd)
 ow_owd_props(sufrender.owd "${CMAKE_BINARY_DIR}/DLL")

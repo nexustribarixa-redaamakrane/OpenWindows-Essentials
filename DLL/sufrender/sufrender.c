@@ -13,6 +13,43 @@ void sufrender_init(suf_font_face_t *font)
     for (size_t i = 0u; i < SUF_CACHED_GLYPHS; ++i) {
         font->glyphs[i].codepoint = 0u;
     }
+
+}
+
+bool sufrender_load_suf(suf_font_face_t *font, const void *buffer, size_t size)
+{
+    suf_header_t header;
+    uint32_t entry_index;
+    const uint8_t *bitmap;
+    size_t bitmap_size;
+
+    if (!font || !buffer ||
+        suf_validate_header(buffer, size, &header) != SUF_OK ||
+        header.boot_bitmap_width != SUF_GLYPH_WIDTH ||
+        header.boot_bitmap_height != SUF_GLYPH_HEIGHT ||
+        header.boot_bitmap_bpp != 1u) {
+        return false;
+    }
+
+    sufrender_init(font);
+    if ((header.flags & SUF_FLAG_EXTSUCS) != 0u ||
+        header.cmap_size < sizeof(suf_cmap_entry_t)) {
+        return false;
+    }
+    for (entry_index = 0u;
+         entry_index < header.cmap_size / sizeof(suf_cmap_entry_t) &&
+         font->glyph_count < SUF_CACHED_GLYPHS; ++entry_index) {
+        const suf_cmap_entry_t *entry =
+            &((const suf_cmap_entry_t *)((const uint8_t *)buffer +
+                                         header.cmap_offset))[entry_index];
+        if (suf_get_boot_bitmap(buffer, size, entry->glyph_id, &bitmap,
+                                &bitmap_size) != SUF_OK ||
+            bitmap_size != SUF_GLYPH_HEIGHT ||
+            !sufrender_add_glyph(font, entry->codepoint, bitmap)) {
+            continue;
+        }
+    }
+    return font->glyph_count != 0u;
 }
 
 bool sufrender_add_glyph(suf_font_face_t *font, uint32_t cp, const uint8_t bitmap[16])

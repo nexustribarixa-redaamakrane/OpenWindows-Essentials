@@ -77,6 +77,19 @@ int __mingw_vprintf(const char *fmt, va_list ap)
     return -1;
 }
 
+int __mingw_snprintf(char *buf, size_t n, const char *fmt, ...)
+{
+    va_list ap;
+    int r;
+    va_start(ap, fmt);
+    r = vsnprintf(buf, n, fmt, ap);
+    va_end(ap);
+    return r;
+}
+
+int (*__imp___mingw_snprintf)(char *, size_t, const char *, ...) =
+    __mingw_snprintf;
+
 int printf(const char *fmt, ...)
 {
     (void)fmt;
@@ -102,6 +115,16 @@ void abort(void)
 {
     while (1) { }
 }
+
+void _assert(const char *message, const char *file, unsigned line)
+{
+    (void)message;
+    (void)file;
+    (void)line;
+    abort();
+}
+
+void (*__imp__assert)(const char *, const char *, unsigned) = _assert;
 
 void exit(int status)
 {

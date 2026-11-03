@@ -6,6 +6,18 @@
 #include "suf/suf_parser.h"
 #include <string.h>
 
+static void *suf_memcpy(void *destination, const void *source, size_t count)
+{
+    uint8_t *dst = (uint8_t *)destination;
+    const uint8_t *src = (const uint8_t *)source;
+    while (count-- != 0u) {
+        *dst++ = *src++;
+    }
+    return destination;
+}
+
+#define memcpy suf_memcpy
+
 static inline bool suf_bounds_check(size_t total_size, uint32_t offset, uint32_t length) {
     if ((uint64_t)offset + (uint64_t)length > (uint64_t)total_size) {
         return false;
@@ -172,7 +184,9 @@ suf_status_t suf_get_boot_bitmap(const void *buffer, size_t size, uint32_t glyph
     }
     if (glyph_id >= hdr.glyph_count) return SUF_ERR_GLYPH_NOT_FOUND;
 
-    uint32_t row_bytes = (hdr.boot_bitmap_bpp == 1) ? ((hdr.boot_bitmap_width + 7) / 8) : (uint32_t)hdr.boot_bitmap_width;
+    uint32_t row_bytes = (hdr.boot_bitmap_bpp == 1)
+        ? ((uint32_t)hdr.boot_bitmap_width + 7u) / 8u
+        : (uint32_t)hdr.boot_bitmap_width;
     uint32_t bytes_per_glyph = row_bytes * hdr.boot_bitmap_height;
 
     uint32_t glyph_offset = glyph_id * bytes_per_glyph;

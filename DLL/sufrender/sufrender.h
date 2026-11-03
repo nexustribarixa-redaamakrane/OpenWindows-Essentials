@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "suf/suf_parser.h"
 
 #define SUF_GLYPH_WIDTH     8u
 #define SUF_GLYPH_HEIGHT    16u
@@ -27,6 +28,7 @@ typedef struct {
 } suf_font_face_t;
 
 void sufrender_init(suf_font_face_t *font);
+bool sufrender_load_suf(suf_font_face_t *font, const void *buffer, size_t size);
 bool sufrender_add_glyph(suf_font_face_t *font, uint32_t cp, const uint8_t bitmap[16]);
 const uint8_t *sufrender_get_glyph(const suf_font_face_t *font, uint32_t cp);
 void sufrender_blit_char(

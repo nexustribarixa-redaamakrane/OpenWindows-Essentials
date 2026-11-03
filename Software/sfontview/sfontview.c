@@ -111,8 +111,10 @@ static void SufviewPrintUsage(void)
  * the cached state exactly the sample glyph and nothing else. */
 static void SufviewLoadFace(void)
 {
-    sufrender_init(&g_Face);
-    (void)sufrender_add_glyph(&g_Face, 0x0041u, g_SampleGlyphA);
+    if (!sufrender_load_suf(&g_Face, NULL, 0u)) {
+        sufrender_init(&g_Face);
+        (void)sufrender_add_glyph(&g_Face, 0x0041u, g_SampleGlyphA);
+    }
 }
 
 static void SufviewPrintGlyph(const uint8_t bitmap[SUF_GLYPH_HEIGHT])
